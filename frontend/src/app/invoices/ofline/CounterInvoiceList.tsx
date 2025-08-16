@@ -100,7 +100,9 @@ const CounterInvoiceList = () => {
         title: string;
         message: string;
         onConfirm: () => void;
+        note?: string;
     } | null>(null);
+    const [confirmNote, setConfirmNote] = useState('');
 
     // Thêm các state quản lý địa chỉ động
     const [addressData, setAddressData] = useState<any[]>([]);
@@ -119,6 +121,7 @@ const CounterInvoiceList = () => {
     // Helper function để hiển thị confirm modal
     const showConfirm = (title: string, message: string, onConfirm: () => void) => {
         setConfirmData({ title, message, onConfirm });
+        setConfirmNote('');
         setShowConfirmModal(true);
     };
 
@@ -2098,7 +2101,7 @@ const CounterInvoiceList = () => {
                         
                         {/* Message */}
                         <div style={{
-                            marginBottom: '24px',
+                            marginBottom: '16px',
                             fontSize: '16px',
                             lineHeight: '1.5',
                             color: '#666',
@@ -2106,6 +2109,38 @@ const CounterInvoiceList = () => {
                             whiteSpace: 'pre-line'
                         }}>
                             {confirmData.message}
+                        </div>
+                        
+                        {/* Ghi chú */}
+                        <div style={{
+                            marginBottom: '24px'
+                        }}>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: '#333',
+                                textAlign: 'left'
+                            }}>
+                                Ghi chú:
+                            </label>
+                            <textarea
+                                value={confirmNote}
+                                onChange={(e) => setConfirmNote(e.target.value)}
+                                placeholder="Nhập ghi chú..."
+                                style={{
+                                    width: '100%',
+                                    minHeight: '80px',
+                                    padding: '12px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    fontFamily: 'inherit',
+                                    resize: 'vertical',
+                                    outline: 'none'
+                                }}
+                            />
                         </div>
                         
                         {/* Buttons */}

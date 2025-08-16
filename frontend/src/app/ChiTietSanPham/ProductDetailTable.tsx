@@ -32,9 +32,7 @@ interface ProductDetail {
   idDanhMuc?: number;
   // Thêm mảng hình ảnh cho nhiều ảnh
   hinhAnhList?: ChiTietSanPhamHinhAnh[];
-  // Thêm field sale
-  phanTramGiamGia?: number;
-  trangThaiSale?: string;
+
 }
 
 interface ChiTietSanPhamHinhAnh {
@@ -1118,8 +1116,7 @@ export default function ProductDetailTable() {
       gia: Number(variant.gia) || 0, // Đảm bảo giá không bị null và là number
       soLuong: Number(variant.soLuong) || 0, // Đảm bảo số lượng không bị null và là number
       trangThai: variant.trangThai, // Giữ nguyên trạng thái hiện tại
-      phanTramGiamGia: variant.phanTramGiamGia || 0, // Thêm phần trăm giảm giá
-      trangThaiSale: variant.trangThaiSale || 'INACTIVE' // Thêm trạng thái sale
+
     });
     setEditVariantPreviewImg(variant.duongDanHinhAnh ? `http://localhost:8080/images/${variant.duongDanHinhAnh.replace(/^.*[\\/]/, '')}` : '');
     
@@ -1214,25 +1211,7 @@ export default function ProductDetailTable() {
         return;
       }
 
-      // Lưu thông tin sale
-      try {
-        const saleResponse = await fetch(`http://localhost:8080/chi-tiet-san-pham/set-sale/${editVariantForm.idChiTietSanPham}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            phanTramGiamGia: (editVariantForm.phanTramGiamGia || 0).toString(),
-            trangThaiSale: editVariantForm.trangThaiSale || 'INACTIVE'
-          })
-        });
 
-        if (!saleResponse.ok) {
-          console.error('Lỗi khi lưu thông tin sale');
-        }
-      } catch (error) {
-        console.error('Lỗi khi lưu thông tin sale:', error);
-      }
 
       // Lưu thay đổi ảnh nếu có
       if (editVariantHasImageChanges) {
@@ -3095,129 +3074,7 @@ export default function ProductDetailTable() {
                   borderRadius: 12,
                   border: '1px solid rgba(255, 105, 180, 0.2)'
                 }}>
-                  <Typography variant="h6" sx={{ 
-                    color: '#c71585', 
-                    fontWeight: 700, 
-                    mb: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 1
-                  }}>
-                    🎯 Quản lý Sale
-                  </Typography>
 
-                  {/* Row Sale: Phần trăm giảm giá và Trạng thái Sale */}
-                  <Box sx={{ 
-                    display: 'flex', 
-                    gap: 3, 
-                    flexDirection: { xs: 'column', md: 'row' },
-                    mb: 2
-                  }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                      <Typography variant="subtitle1" sx={{ 
-                        color: '#c71585', 
-                        fontWeight: 700, 
-                        mb: 1,
-                        fontSize: '1rem'
-                      }}>
-                        💰 Phần trăm giảm giá (%)
-                      </Typography>
-                      <TextField
-                        type="number"
-                        value={editVariantForm.phanTramGiamGia || 0}
-                        onChange={e => {
-                          const value = parseInt(e.target.value) || 0;
-                          if (value >= 0 && value <= 100) {
-                            setEditVariantForm((f: any) => ({ ...f, phanTramGiamGia: value }));
-                          }
-                        }}
-                        fullWidth
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 12,
-                            background: 'rgba(255, 255, 255, 0.8)',
-                            height: '56px',
-                            '& fieldset': {
-                              borderColor: 'rgba(255, 105, 180, 0.3)',
-                              borderWidth: 2
-                            },
-                            '&:hover fieldset': {
-                              borderColor: '#ff1493'
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#ff1493'
-                            }
-                          }
-                        }}
-                        inputProps={{ min: 0, max: 100 }}
-                      />
-                    </Box>
-
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                      <Typography variant="subtitle1" sx={{ 
-                        color: '#c71585', 
-                        fontWeight: 700, 
-                        mb: 1,
-                        fontSize: '1rem'
-                      }}>
-                        🎯 Trạng thái Sale
-                      </Typography>
-                      <FormControl fullWidth>
-                        <Select
-                          value={editVariantForm.trangThaiSale || 'INACTIVE'}
-                          onChange={e => {
-                            setEditVariantForm((f: any) => ({ ...f, trangThaiSale: e.target.value }));
-                          }}
-                          sx={{
-                            borderRadius: 12,
-                            background: 'rgba(255, 255, 255, 0.8)',
-                            height: '56px',
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 105, 180, 0.3)',
-                              borderWidth: 2
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: '#ff1493'
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                              borderColor: '#ff1493'
-                            }
-                          }}
-                        >
-                          <MenuItem value="INACTIVE" sx={{ color: '#666' }}>
-                            ❌ Không Sale
-                          </MenuItem>
-                          <MenuItem value="ACTIVE" sx={{ color: '#2ecc40', fontWeight: 600 }}>
-                            ✅ Đang Sale
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Box>
-                  </Box>
-
-                  {/* Hiển thị giá sau giảm */}
-                  {editVariantForm.phanTramGiamGia > 0 && (
-                    <Box sx={{ 
-                      mt: 2,
-                      p: 2,
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      borderRadius: 8,
-                      border: '1px solid rgba(255, 105, 180, 0.3)'
-                    }}>
-                      <Typography variant="body2" sx={{ 
-                        color: '#c71585', 
-                        fontWeight: 600,
-                        textAlign: 'center'
-                      }}>
-                        💡 Giá sau giảm: {((editVariantForm.gia || 0) * (1 - (editVariantForm.phanTramGiamGia || 0) / 100)).toLocaleString('vi-VN')}₫
-                        <br />
-                        <span style={{ color: '#2ecc40', fontSize: '0.9rem' }}>
-                          Tiết kiệm: {((editVariantForm.gia || 0) * (editVariantForm.phanTramGiamGia || 0) / 100).toLocaleString('vi-VN')}₫
-                        </span>
-                      </Typography>
-                    </Box>
-                  )}
                 </Box>
 
                 {/* Quản lý nhiều ảnh */}

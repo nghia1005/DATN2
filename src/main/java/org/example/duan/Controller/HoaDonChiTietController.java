@@ -98,20 +98,16 @@ public class HoaDonChiTietController {
             existing.setSoLuong(newQty);
             existing.setThanhTien(chiTietSanPham.getGia().multiply(new java.math.BigDecimal(newQty)));
             repository.save(existing);
-            // Kiểm tra trạng thái hóa đơn để quyết định có trừ tồn kho hay không
-            HoaDon hoaDon = hoaDonRepository.findById(chiTiet.getIdHoaDon()).orElse(null);
-            if (hoaDon != null && "Đã xác nhận".equals(hoaDon.getTrangThai())) {
-                // Chỉ trừ tồn kho nếu hóa đơn đã được xác nhận
-                var chiTietSanPhamTonKho = chiTietSanPhamRepo.findById(chiTiet.getIdChiTietSanPham().intValue()).orElse(null);
-                if (chiTietSanPhamTonKho != null) {
-                    int soLuongConLai = (chiTietSanPhamTonKho.getSoLuong() != null ? chiTietSanPhamTonKho.getSoLuong() : 0) - (chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0);
-                    if (soLuongConLai < 0) soLuongConLai = 0;
-                    chiTietSanPhamTonKho.setSoLuong(soLuongConLai);
-                    if (soLuongConLai == 0) {
-                        chiTietSanPhamTonKho.setTrangThai("Ngừng bán");
-                    }
-                    chiTietSanPhamRepo.save(chiTietSanPhamTonKho);
+            // Trừ tồn kho ngay khi thêm vào hóa đơn
+            var chiTietSanPhamTonKho = chiTietSanPhamRepo.findById(chiTiet.getIdChiTietSanPham().intValue()).orElse(null);
+            if (chiTietSanPhamTonKho != null) {
+                int soLuongConLai = (chiTietSanPhamTonKho.getSoLuong() != null ? chiTietSanPhamTonKho.getSoLuong() : 0) - (chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0);
+                if (soLuongConLai < 0) soLuongConLai = 0;
+                chiTietSanPhamTonKho.setSoLuong(soLuongConLai);
+                if (soLuongConLai == 0) {
+                    chiTietSanPhamTonKho.setTrangThai("Ngừng bán");
                 }
+                chiTietSanPhamRepo.save(chiTietSanPhamTonKho);
             }
             if (existing.getHoaDon() != null) {
                 hoaDonService.capNhatTongTienVaThanhTien(existing.getHoaDon().getIdHoaDon());
@@ -131,20 +127,17 @@ public class HoaDonChiTietController {
             }
         }
         HoaDonChiTiet saved = repository.save(chiTiet);
-        // Kiểm tra trạng thái hóa đơn để quyết định có trừ tồn kho hay không
+        // Trừ tồn kho ngay khi thêm vào hóa đơn
         HoaDon hoaDon = hoaDonRepository.findById(chiTiet.getIdHoaDon()).orElse(null);
-        if (hoaDon != null && "Đã xác nhận".equals(hoaDon.getTrangThai())) {
-            // Chỉ trừ tồn kho nếu hóa đơn đã được xác nhận
-            var chiTietSanPhamTonKho = chiTietSanPhamRepo.findById(chiTiet.getIdChiTietSanPham().intValue()).orElse(null);
-            if (chiTietSanPhamTonKho != null) {
-                int soLuongConLai = (chiTietSanPhamTonKho.getSoLuong() != null ? chiTietSanPhamTonKho.getSoLuong() : 0) - (chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0);
-                if (soLuongConLai < 0) soLuongConLai = 0;
-                chiTietSanPhamTonKho.setSoLuong(soLuongConLai);
-                if (soLuongConLai == 0) {
-                    chiTietSanPhamTonKho.setTrangThai("Ngừng bán");
-                }
-                chiTietSanPhamRepo.save(chiTietSanPhamTonKho);
+        var chiTietSanPhamTonKho2 = chiTietSanPhamRepo.findById(chiTiet.getIdChiTietSanPham().intValue()).orElse(null);
+        if (chiTietSanPhamTonKho2 != null) {
+            int soLuongConLai = (chiTietSanPhamTonKho2.getSoLuong() != null ? chiTietSanPhamTonKho2.getSoLuong() : 0) - (chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0);
+            if (soLuongConLai < 0) soLuongConLai = 0;
+            chiTietSanPhamTonKho2.setSoLuong(soLuongConLai);
+            if (soLuongConLai == 0) {
+                chiTietSanPhamTonKho2.setTrangThai("Ngừng bán");
             }
+            chiTietSanPhamRepo.save(chiTietSanPhamTonKho2);
         }
         if (chiTiet.getHoaDon() != null) {
             hoaDonService.capNhatTongTienVaThanhTien(chiTiet.getHoaDon().getIdHoaDon());

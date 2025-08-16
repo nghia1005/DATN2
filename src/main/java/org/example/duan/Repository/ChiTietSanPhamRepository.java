@@ -41,10 +41,5 @@ public interface ChiTietSanPhamRepository extends JpaRepository<ChiTietSanPham, 
     @Query("SELECT SUM(c.soLuong) FROM ChiTietSanPham c WHERE c.sanPham.idSanPham = :sanPhamId")
     Integer getTongSoLuongBienTheBySanPhamId(@Param("sanPhamId") Integer sanPhamId);
 
-    @Query(value = "SELECT * FROM ChiTietSanPham WHERE trangThaiSale = 'ACTIVE' AND trangThai = N'Đang bán' AND phanTramGiamGia > 0", nativeQuery = true)
-    List<ChiTietSanPham> findSaleProducts();
 
-    @Modifying
-    @Query("UPDATE ChiTietSanPham c SET c.phanTramGiamGia = :phanTramGiamGia, c.trangThaiSale = :trangThaiSale WHERE c.idChiTietSanPham = :id")
-    void updateSaleStatus(@Param("id") Integer id, @Param("phanTramGiamGia") Integer phanTramGiamGia, @Param("trangThaiSale") String trangThaiSale);
 } 

@@ -124,21 +124,5 @@ public class ChiTietSanPhamController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/sale")
-    public ResponseEntity<List<ChiTietSanPhamDTO>> getSaleProducts() {
-        return ResponseEntity.ok(chiTietSanPhamService.getSaleProducts());
-    }
 
-    @PutMapping("/set-sale/{id}")
-    public ResponseEntity<?> setSaleStatus(
-            @PathVariable Integer id,
-            @RequestParam Integer phanTramGiamGia,
-            @RequestParam String trangThaiSale) {
-        try {
-            chiTietSanPhamService.updateSaleStatus(id, phanTramGiamGia, trangThaiSale);
-            return ResponseEntity.ok("Cập nhật trạng thái sale thành công");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
-        }
-    }
 }

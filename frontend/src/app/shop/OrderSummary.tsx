@@ -36,8 +36,7 @@ interface ProductVariant {
   soLuong?: number;
   idDanhMuc?: number;
   // Thêm field sale
-  phanTramGiamGia?: number;
-  trangThaiSale?: string;
+
 }
 
 interface OrderSummaryProps {
@@ -172,47 +171,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   </Typography>
                 </TableCell>
                 <TableCell align="center">
-                  {(() => {
-                    const isOnSale = item.product.trangThaiSale === 'ACTIVE' && item.product.phanTramGiamGia && item.product.phanTramGiamGia > 0;
-                    const salePrice = isOnSale ? item.product.gia - (item.product.gia * (item.product.phanTramGiamGia || 0) / 100) : item.product.gia;
-                    
-                    return (
-                      <Box>
-                        {isOnSale ? (
-                          <>
-                            <Typography variant="body2" sx={{ 
-                              textDecoration: 'line-through', 
-                              color: '#999', 
-                              fontSize: '12px',
-                              mb: 0.5
-                            }}>
-                              {item.product.gia?.toLocaleString('vi-VN')} ₫
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#e53935' }}>
-                              {salePrice.toLocaleString('vi-VN')} ₫
-                            </Typography>
-                          </>
-                        ) : (
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {item.product.gia?.toLocaleString('vi-VN')} ₫
-                          </Typography>
-                        )}
-                      </Box>
-                    );
-                  })()}
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {item.product.gia?.toLocaleString('vi-VN')} ₫
+                  </Typography>
                 </TableCell>
                 <TableCell align="right">
-                  {(() => {
-                    const isOnSale = item.product.trangThaiSale === 'ACTIVE' && item.product.phanTramGiamGia && item.product.phanTramGiamGia > 0;
-                    const salePrice = isOnSale ? item.product.gia - (item.product.gia * (item.product.phanTramGiamGia || 0) / 100) : item.product.gia;
-                    const totalPrice = salePrice * item.quantity;
-                    
-                    return (
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#d32f2f' }}>
-                        {totalPrice.toLocaleString('vi-VN')} ₫
-                      </Typography>
-                    );
-                  })()}
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#d32f2f' }}>
+                    {(item.product.gia * item.quantity).toLocaleString('vi-VN')} ₫
+                  </Typography>
                 </TableCell>
               </TableRow>
             ))}

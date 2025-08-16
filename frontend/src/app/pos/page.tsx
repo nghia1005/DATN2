@@ -68,6 +68,10 @@ function POSPageInner() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{id: string}|null>(null);
   const [showPendingConfirm, setShowPendingConfirm] = useState<boolean>(false);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState<{id: string}|null>(null);
+  // Notes for confirm dialogs
+  const [deleteNote, setDeleteNote] = useState('');
+  const [pendingNote, setPendingNote] = useState('');
+  const [restoreNote, setRestoreNote] = useState('');
   const [showProductSelector, setShowProductSelector] = useState(false);
   const [showVoucherSelector, setShowVoucherSelector] = useState(false);
   const [productDetails, setProductDetails] = useState<ProductDetail[]>([]);
@@ -98,9 +102,7 @@ function POSPageInner() {
   // 1. Thêm state orderCounter
   const [orderCounter, setOrderCounter] = useState(1);
   const [addressSuccessMessage, setAddressSuccessMessage] = useState<string | null>(null);
-  const [shippingStatus, setShippingStatus] = useState('');
-  // Thêm state cho trạng thái giao hàng của activeOrder
-  const [shippingStatusPOS, setShippingStatusPOS] = useState('');
+  // Bỏ trạng thái giao hàng trên POS
   const [addressData, setAddressData] = useState<any>(null);
   useEffect(() => {
     fetch('/vn-address.json')
@@ -781,6 +783,7 @@ function POSPageInner() {
       toast.error("Giỏ hàng trống!");
       return;
     }
+    setPendingNote('');
     setShowPendingConfirm(true);
   };
 
@@ -870,6 +873,7 @@ function POSPageInner() {
 
   // Hàm hiển thị confirm dialog cho lấy lại hóa đơn chờ
   const showRestoreConfirmDialog = (orderId: string) => {
+    setRestoreNote('');
     setShowRestoreConfirm({ id: orderId });
   };
 
@@ -889,6 +893,7 @@ function POSPageInner() {
 
   // Hàm xóa hóa đơn
   const handleDeleteOrder = (id: string) => {
+    setDeleteNote('');
     setShowDeleteConfirm({ id });
   };
 
@@ -973,6 +978,7 @@ function POSPageInner() {
   // 2. Thêm hàm hiển thị confirm dialog cho đưa hóa đơn vào chờ
   const showMoveToPendingConfirm = () => {
     if (!activeOrder) return;
+    setPendingNote('');
     setShowPendingConfirm(true);
   };
 
@@ -1005,6 +1011,8 @@ function POSPageInner() {
   const [showDoneConfirm, setShowDoneConfirm] = useState(false);
   // 2. Thêm state cho modal xác nhận xuất PDF
   const [showExportConfirm, setShowExportConfirm] = useState(false);
+  const [doneNote, setDoneNote] = useState('');
+  const [exportNote, setExportNote] = useState('');
 
   return (
     <div>
@@ -1390,26 +1398,7 @@ function POSPageInner() {
                       <input style={{ width: '100%', padding: 10, borderRadius: 8, border: '1.5px solid #bdbdbd', fontSize: 15 }} value={activeOrder?.shippingInfo?.address ?? ''} placeholder="Địa chỉ cụ thể"
                         onChange={e => updateActiveOrder({ shippingInfo: { ...activeOrder.shippingInfo, address: e.target.value } })} />
                     </div>
-                    <div style={{ marginBottom: 12 }}>
-                      <label style={{ fontWeight: 600, marginBottom: 4, display: 'block' }}>Trạng thái giao hàng</label>
-                      <select
-                        style={{ width: '100%', padding: 10, borderRadius: 8, border: '1.5px solid #bdbdbd', fontSize: 15, marginBottom: 8 }}
-                        value={shippingStatusPOS}
-                        onChange={e => {
-                          setShippingStatusPOS(e.target.value);
-                          if (e.target.value === 'Giao giờ hành chính') updateActiveOrder({ shippingInfo: { ...activeOrder.shippingInfo, note: 'Giao giờ hành chính (8h-17h)' } });
-                          else if (e.target.value === 'Giao ngoài giờ') updateActiveOrder({ shippingInfo: { ...activeOrder.shippingInfo, note: 'Giao ngoài giờ hành chính' } });
-                          else if (e.target.value === 'Giao nhanh') updateActiveOrder({ shippingInfo: { ...activeOrder.shippingInfo, note: 'Giao nhanh trong ngày' } });
-                          else updateActiveOrder({ shippingInfo: { ...activeOrder.shippingInfo, note: '' } });
-                        }}
-                      >
-                        <option value="">Chọn trạng thái giao hàng</option>
-                        <option value="Giao giờ hành chính">Giao giờ hành chính</option>
-                        <option value="Giao ngoài giờ">Giao ngoài giờ</option>
-                        <option value="Giao nhanh">Giao nhanh</option>
-                        <option value="Khác">Khác...</option>
-                      </select>
-                    </div>
+                    {/* Bỏ Trạng thái giao hàng trên POS */}
                     <div style={{ marginBottom: 12 }}>
                       <label style={{ fontWeight: 600, marginBottom: 4, display: 'block' }}>Ghi chú cho người vận chuyển</label>
                       <input style={{ width: '100%', padding: 10, borderRadius: 8, border: '1.5px solid #bdbdbd', fontSize: 15 }} value={activeOrder?.shippingInfo?.note ?? ''} placeholder="Ghi chú cho người vận chuyển"
@@ -1690,7 +1679,11 @@ function POSPageInner() {
             textAlign: 'center'
                 }}>
             <h3>Xác nhận xóa</h3>
-            <p>Bạn có chắc chắn muốn xóa hóa đơn này?</p>
+            <p style={{ marginBottom: 12 }}>Bạn có chắc chắn muốn xóa hóa đơn này?</p>
+            <div style={{ marginBottom: 12, textAlign: 'left' }}>
+              <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>Ghi chú:</label>
+              <textarea value={deleteNote} onChange={(e) => setDeleteNote(e.target.value)} placeholder="Nhập ghi chú..." style={{ width: '100%', minHeight: 70, padding: 8, borderRadius: 6, border: '1px solid #ddd' }} />
+            </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 16 }}>
               <button onClick={confirmDeleteOrder} style={{ padding: '8px 16px', background: '#dc3545', color: 'white', border: 'none', borderRadius: 4 }}>Xóa</button>
               <button onClick={cancelDeleteOrder} style={{ padding: '8px 16px', background: '#6c757d', color: 'white', border: 'none', borderRadius: 4 }}>Hủy</button>
@@ -1729,13 +1722,17 @@ function POSPageInner() {
               color: '#6b4f1d'
             }}>Xác nhận đưa hóa đơn vào chờ</h3>
             <p style={{ 
-              margin: '0 0 20px 0', 
+              margin: '0 0 12px 0', 
               fontSize: 16,
               color: '#6b4f1d',
               lineHeight: 1.5
             }}>
               Bạn có chắc chắn muốn đưa hóa đơn này vào danh sách chờ?
             </p>
+            <div style={{ marginBottom: 16, textAlign: 'left' }}>
+              <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>Ghi chú:</label>
+              <textarea value={pendingNote} onChange={(e) => setPendingNote(e.target.value)} placeholder="Nhập ghi chú..." style={{ width: '100%', minHeight: 70, padding: 8, borderRadius: 6, border: '1px solid #ddd' }} />
+            </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button 
                 onClick={moveToPendingOrders}
@@ -1752,18 +1749,6 @@ function POSPageInner() {
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: '0 2px 8px rgba(181, 157, 58, 0.2)',
                   opacity: loading ? 0.6 : 1
-                }}
-                onMouseOver={e => {
-                  if (!loading) {
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.3)';
-                  }
-                }}
-                onMouseOut={e => {
-                  if (!loading) {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(181, 157, 58, 0.2)';
-                  }
                 }}
               >
                 {loading ? 'Đang xử lý...' : 'Xác nhận'}
@@ -1782,18 +1767,6 @@ function POSPageInner() {
                   cursor: loading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   opacity: loading ? 0.6 : 1
-                }}
-                onMouseOver={e => {
-                  if (!loading) {
-                    e.currentTarget.style.background = 'rgba(181, 157, 58, 0.1)';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }
-                }}
-                onMouseOut={e => {
-                  if (!loading) {
-                    e.currentTarget.style.background = '#fff';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }
                 }}
               >
                 Hủy
@@ -1833,13 +1806,17 @@ function POSPageInner() {
               color: '#6b4f1d'
             }}>Xác nhận lấy lại hóa đơn</h3>
             <p style={{ 
-              margin: '0 0 20px 0', 
+              margin: '0 0 12px 0', 
               fontSize: 16,
               color: '#6b4f1d',
               lineHeight: 1.5
             }}>
               Bạn có chắc chắn muốn lấy lại hóa đơn này từ danh sách chờ?
             </p>
+            <div style={{ marginBottom: 16, textAlign: 'left' }}>
+              <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>Ghi chú:</label>
+              <textarea value={restoreNote} onChange={(e) => setRestoreNote(e.target.value)} placeholder="Nhập ghi chú..." style={{ width: '100%', minHeight: 70, padding: 8, borderRadius: 6, border: '1px solid #ddd' }} />
+            </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button 
                 onClick={confirmRestoreOrder}
@@ -1854,14 +1831,6 @@ function POSPageInner() {
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: '0 2px 8px rgba(181, 157, 58, 0.2)'
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.3)';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(181, 157, 58, 0.2)';
                 }}
               >
                 Xác nhận
@@ -1878,14 +1847,6 @@ function POSPageInner() {
                   fontSize: 16,
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.background = 'rgba(181, 157, 58, 0.1)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.background = '#fff';
-                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 Hủy
@@ -2113,36 +2074,7 @@ function POSPageInner() {
                 onBlur={e => e.target.style.borderColor = 'rgba(181, 157, 58, 0.2)'}
                 />
               </div>
-              <div>
-                <label style={{ fontWeight: 600, marginBottom: 6, display: 'block', fontSize: 14, color: '#6b4f1d' }}>Trạng thái giao hàng</label>
-                <select
-                  style={{ 
-                    width: '100%', 
-                    padding: 10, 
-                    borderRadius: 8, 
-                    border: '1px solid rgba(181, 157, 58, 0.2)', 
-                    fontSize: 14, 
-                    background: '#fff',
-                    transition: 'all 0.2s'
-                  }}
-                  value={shippingStatus}
-                  onChange={e => {
-                    setShippingStatus(e.target.value);
-                    if (e.target.value === 'Giao giờ hành chính') setNewAddress({ ...newAddress, note: 'Giao giờ hành chính (8h-17h)' });
-                    else if (e.target.value === 'Giao ngoài giờ') setNewAddress({ ...newAddress, note: 'Giao ngoài giờ hành chính' });
-                    else if (e.target.value === 'Giao nhanh') setNewAddress({ ...newAddress, note: 'Giao nhanh trong ngày' });
-                    else setNewAddress({ ...newAddress, note: '' });
-                  }}
-                  onFocus={e => e.target.style.borderColor = '#b59d3a'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(181, 157, 58, 0.2)'}
-                >
-                  <option value="">Chọn trạng thái giao hàng</option>
-                  <option value="Giao giờ hành chính">Giao giờ hành chính</option>
-                  <option value="Giao ngoài giờ">Giao ngoài giờ</option>
-                  <option value="Giao nhanh">Giao nhanh</option>
-                  <option value="Khác">Khác...</option>
-                </select>
-              </div>
+              {/* Bỏ Trạng thái giao hàng trong modal thêm địa chỉ */}
               <div>
                 <label style={{ fontWeight: 600, marginBottom: 6, display: 'block', fontSize: 14, color: '#6b4f1d' }}>Ghi chú</label>
                 <input style={{ 
@@ -2319,13 +2251,17 @@ function POSPageInner() {
               color: '#6b4f1d'
             }}>Xác nhận hoàn thành</h3>
             <p style={{ 
-              margin: '0 0 20px 0', 
+              margin: '0 0 12px 0', 
               fontSize: 16,
               color: '#6b4f1d',
               lineHeight: 1.5
             }}>
               Bạn có muốn xác nhận hoàn thành không?
             </p>
+            <div style={{ marginBottom: 16, textAlign: 'left' }}>
+              <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>Ghi chú:</label>
+              <textarea value={doneNote} onChange={(e) => setDoneNote(e.target.value)} placeholder="Nhập ghi chú..." style={{ width: '100%', minHeight: 70, padding: 8, borderRadius: 6, border: '1px solid #ddd' }} />
+            </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button 
                 onClick={() => { setShowDoneConfirm(false); setShowExportConfirm(true); }}
@@ -2340,14 +2276,6 @@ function POSPageInner() {
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: '0 2px 8px rgba(181, 157, 58, 0.2)'
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.3)';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(181, 157, 58, 0.2)';
                 }}
               >
                 Xác nhận
@@ -2364,14 +2292,6 @@ function POSPageInner() {
                   fontSize: 16,
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.background = 'rgba(181, 157, 58, 0.1)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.background = '#fff';
-                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 Hủy
@@ -2411,13 +2331,17 @@ function POSPageInner() {
               color: '#6b4f1d'
             }}>Xuất hóa đơn PDF</h3>
             <p style={{ 
-              margin: '0 0 20px 0', 
+              margin: '0 0 12px 0', 
               fontSize: 16,
               color: '#6b4f1d',
               lineHeight: 1.5
             }}>
               Bạn có muốn xuất hóa đơn PDF không?
             </p>
+            <div style={{ marginBottom: 16, textAlign: 'left' }}>
+              <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>Ghi chú:</label>
+              <textarea value={exportNote} onChange={(e) => setExportNote(e.target.value)} placeholder="Nhập ghi chú..." style={{ width: '100%', minHeight: 70, padding: 8, borderRadius: 6, border: '1px solid #ddd' }} />
+            </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
                               <button 
                 onClick={() => { 
@@ -2435,14 +2359,6 @@ function POSPageInner() {
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: '0 2px 8px rgba(181, 157, 58, 0.2)'
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.3)';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(181, 157, 58, 0.2)';
                 }}
               >
                 Có, xuất PDF
@@ -2463,16 +2379,8 @@ function POSPageInner() {
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
-                onMouseOver={e => {
-                  e.currentTarget.style.background = 'rgba(181, 157, 58, 0.1)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.background = '#fff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
               >
-                Không xuất PDF
+                Không, chỉ xác nhận
               </button>
             </div>
           </div>

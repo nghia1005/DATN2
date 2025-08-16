@@ -182,29 +182,5 @@ public class ChiTietSanPhamService {
                 .map(chiTietSanPhamMapper::toDTO);
     }
 
-    public List<ChiTietSanPhamDTO> getSaleProducts() {
-        List<ChiTietSanPham> saleProducts = chiTietSanPhamRepository.findSaleProducts();
-        System.out.println("=== DEBUG SALE PRODUCTS ===");
-        System.out.println("Raw sale products from repository: " + saleProducts.size());
-        saleProducts.forEach(product -> {
-            System.out.println("Product: " + product.getSanPham().getTenSanPham() + 
-                             ", trangThaiSale: " + product.getTrangThaiSale() + 
-                             ", phanTramGiamGia: " + product.getPhanTramGiamGia() +
-                             ", trangThai: " + product.getTrangThai());
-        });
-        
-        List<ChiTietSanPhamDTO> result = saleProducts.stream()
-                .map(chiTietSanPhamMapper::toDTO)
-                .collect(Collectors.toList());
-        
-        System.out.println("Mapped DTOs: " + result.size());
-        System.out.println("=== END DEBUG ===");
-        
-        return result;
-    }
 
-    @Transactional
-    public void updateSaleStatus(Integer id, Integer phanTramGiamGia, String trangThaiSale) {
-        chiTietSanPhamRepository.updateSaleStatus(id, phanTramGiamGia, trangThaiSale);
-    }
 } 

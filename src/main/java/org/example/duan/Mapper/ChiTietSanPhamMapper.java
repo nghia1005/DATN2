@@ -24,23 +24,7 @@ public class ChiTietSanPhamMapper {
         dto.setGia(chiTietSanPham.getGia());
         dto.setTrangThai(chiTietSanPham.getTrangThai());
         dto.setNgayTao(chiTietSanPham.getNgayTao());
-        dto.setPhanTramGiamGia(chiTietSanPham.getPhanTramGiamGia());
-        dto.setTrangThaiSale(chiTietSanPham.getTrangThaiSale());
 
-        // Tính giá sale nếu sản phẩm đang được bật sale
-        if (chiTietSanPham.getTrangThaiSale() != null && 
-            ("Bật".equals(chiTietSanPham.getTrangThaiSale()) || "ACTIVE".equals(chiTietSanPham.getTrangThaiSale())) && 
-            chiTietSanPham.getPhanTramGiamGia() != null && 
-            chiTietSanPham.getPhanTramGiamGia() > 0) {
-            
-            BigDecimal giaGoc = chiTietSanPham.getGia();
-            BigDecimal phanTram = BigDecimal.valueOf(chiTietSanPham.getPhanTramGiamGia());
-            BigDecimal giaSale = giaGoc.subtract(giaGoc.multiply(phanTram).divide(BigDecimal.valueOf(100)));
-            dto.setGiaSale(giaSale);
-        } else {
-            // Nếu không sale thì giá sale = giá gốc
-            dto.setGiaSale(chiTietSanPham.getGia());
-        }
 
         if (chiTietSanPham.getSanPham() != null) {
             dto.setIdSanPham(chiTietSanPham.getSanPham().getIdSanPham());
@@ -85,8 +69,7 @@ public class ChiTietSanPhamMapper {
         chiTietSanPham.setGia(dto.getGia());
         chiTietSanPham.setTrangThai(dto.getTrangThai());
         chiTietSanPham.setNgayTao(dto.getNgayTao());
-        chiTietSanPham.setPhanTramGiamGia(dto.getPhanTramGiamGia());
-        chiTietSanPham.setTrangThaiSale(dto.getTrangThaiSale());
+
 
         if (dto.getIdSanPham() != null) {
             SanPham sanPham = new SanPham();

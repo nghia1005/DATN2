@@ -619,7 +619,8 @@ export default function KhachHangPage() {
     };
 
     const handleDeleteAddress = async (addressId: number, customerId: number) => {
-        if (!confirm('Bạn có chắc chắn muốn xóa địa chỉ này?')) {
+        const note = prompt('Bạn có chắc chắn muốn xóa địa chỉ này?\n\nGhi chú (không bắt buộc):');
+        if (note === null) {
             return;
         }
         try {

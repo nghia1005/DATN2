@@ -96,7 +96,9 @@ const OnlineCounterInvoiceList = () => {
         title: string;
         message: string;
         onConfirm: () => void;
+        note?: string;
     } | null>(null);
+    const [confirmNote, setConfirmNote] = useState('');
 
     // Thêm các state quản lý địa chỉ động
     const [addressData, setAddressData] = useState<any[]>([]);
@@ -150,6 +152,7 @@ const OnlineCounterInvoiceList = () => {
 
     const showConfirm = (title: string, message: string, onConfirm: () => void) => {
         setConfirmData({ title, message, onConfirm });
+        setConfirmNote('');
         setShowConfirmModal(true);
     };
 
@@ -954,17 +957,28 @@ const OnlineCounterInvoiceList = () => {
 
                             {/* Products */}
                             <div style={{ marginBottom: 20 }}>
-                                <h4 style={{ 
-                                    margin: '0 0 16px 0',
-                                    fontSize: '18px',
-                                    fontWeight: 600,
-                                    color: '#333',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}>
-                                    🛍️ Sản phẩm
-                                </h4>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                                    <h4 style={{ 
+                                        margin: 0,
+                                        fontSize: '18px',
+                                        fontWeight: 600,
+                                        color: '#333',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}>
+                                        🛍️ Sản phẩm
+                                    </h4>
+                                    {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận') && (
+                                        <button
+                                            style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 8, padding: '8px', fontWeight: 700, fontSize: 16, cursor: 'pointer', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                            onClick={() => setShowAddProductModal(true)}
+                                            title="Mua thêm sản phẩm"
+                                        >
+                                            ➕
+                                        </button>
+                                    )}
+                                </div>
                                 <div style={{ marginBottom: 18 }}>
                                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                         <thead>
@@ -974,6 +988,9 @@ const OnlineCounterInvoiceList = () => {
                                                 <th style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0', background: '#f5f5f5', textAlign: 'center' }}>Số lượng</th>
                                                 <th style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0', background: '#f5f5f5', textAlign: 'left' }}>Đơn giá</th>
                                                 <th style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0', background: '#f5f5f5', textAlign: 'left' }}>Thành tiền</th>
+                                                {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận') && (
+                                                    <th style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0', background: '#f5f5f5', textAlign: 'center' }}>Thao tác</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -989,6 +1006,19 @@ const OnlineCounterInvoiceList = () => {
                                                     <td style={{ textAlign: 'center', padding: '8px 12px', borderBottom: '1px solid #e0e0e0' }}>{item.soLuong}</td>
                                                     <td style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0' }}>{Number(item.donGia).toLocaleString()} đ</td>
                                                     <td style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0' }}>{Number(item.thanhTien).toLocaleString()} đ</td>
+                                                    {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận') && (
+                                                        <td style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0', textAlign: 'center' }}>
+                                                            <button
+                                                                style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
+                                                                title="Xóa sản phẩm khỏi hóa đơn"
+                                                                onClick={() => {
+                                                                    setDeletingProductId(item.idHoaDonChiTiet);
+                                                                    setDeletingProduct(item);
+                                                                    setDeleteQuantity('');
+                                                                }}
+                                                            >🗑️</button>
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -1005,17 +1035,80 @@ const OnlineCounterInvoiceList = () => {
                                     marginBottom: 20,
                                     border: '1px solid rgba(0,0,0,0.1)'
                                 }}>
-                                    <h4 style={{ 
-                                        margin: '0 0 16px 0',
-                                        fontSize: '18px',
-                                        fontWeight: 600,
-                                        color: '#333',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px'
-                                    }}>
-                                        🚚 Thông tin giao hàng
-                                    </h4>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                                        <h4 style={{ 
+                                            margin: 0,
+                                            fontSize: '18px',
+                                            fontWeight: 600,
+                                            color: '#333',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px'
+                                        }}>
+                                            🚚 Thông tin giao hàng
+                                        </h4>
+                                        {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận') && (
+                                            <button
+                                                style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, padding: '6px', fontWeight: 600, fontSize: 16, cursor: 'pointer', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                onClick={() => {
+                                                    // Parse địa chỉ cũ nếu cần để điền vào các dropdown
+                                                    let parsedTinhThanh = '';
+                                                    let parsedQuanHuyen = '';
+                                                    let parsedPhuongXa = '';
+                                                    let parsedNgoNgach = '';
+                                                    if (!selectedOrder.tinhThanh && selectedOrder.diaChiNhanHang) {
+                                                        const addressParts = selectedOrder.diaChiNhanHang.split(',').map((s: string) => s.trim()).filter(Boolean);
+                                                        if (addressParts.length >= 4) {
+                                                            parsedNgoNgach = addressParts[0] || '';
+                                                            parsedPhuongXa = addressParts[addressParts.length - 3] || '';
+                                                            parsedQuanHuyen = addressParts[addressParts.length - 2] || '';
+                                                            parsedTinhThanh = addressParts[addressParts.length - 1] || '';
+                                                        } else if (addressParts.length === 3) {
+                                                            parsedPhuongXa = addressParts[0] || '';
+                                                            parsedQuanHuyen = addressParts[1] || '';
+                                                            parsedTinhThanh = addressParts[2] || '';
+                                                        }
+                                                    }
+                                                    setEditAddress({
+                                                        tenNguoiNhan: selectedOrder.tenNguoiNhan || '',
+                                                        soDienThoai: selectedOrder.soDienThoai || '',
+                                                        diaChiNhanHang: selectedOrder.diaChiNhanHang || '',
+                                                        tinhThanh: parsedTinhThanh,
+                                                        quanHuyen: parsedQuanHuyen,
+                                                        phuongXa: parsedPhuongXa,
+                                                        ngoNgach: parsedNgoNgach
+                                                    });
+                                                    if (addressData.length === 0) {
+                                                        fetch('/vn-address.json')
+                                                            .then(res => res.json())
+                                                            .then(data => {
+                                                                const addressDataLoaded = data.results || data || [];
+                                                                setAddressData(addressDataLoaded);
+                                                                if (parsedTinhThanh) {
+                                                                    const found = addressDataLoaded.find((d: any) => d.province_name === parsedTinhThanh);
+                                                                    setFilteredDistricts(found ? found.districts : []);
+                                                                    if (parsedQuanHuyen && found) {
+                                                                        const foundDistrict = found.districts.find((d: any) => d.district_name === parsedQuanHuyen);
+                                                                        setFilteredWards(foundDistrict ? foundDistrict.wards : []);
+                                                                    }
+                                                                }
+                                                            });
+                                                    } else {
+                                                        if (parsedTinhThanh) {
+                                                            const found = addressData.find((d: any) => d.province_name === parsedTinhThanh);
+                                                            setFilteredDistricts(found ? found.districts : []);
+                                                            if (parsedQuanHuyen && found) {
+                                                                const foundDistrict = found.districts.find((d: any) => d.district_name === parsedQuanHuyen);
+                                                                setFilteredWards(foundDistrict ? foundDistrict.wards : []);
+                                                            }
+                                                        }
+                                                    }
+                                                    setShowEditAddressModal(true);
+                                                }}
+                                                title="Sửa địa chỉ giao hàng"
+                                            >✏️</button>
+                                        )}
+                                    </div>
                                     <div>
                                         <div><strong>Người nhận:</strong> {selectedOrder.tenNguoiNhan}</div>
                                         <div><strong>Số điện thoại:</strong> {selectedOrder.soDienThoai}</div>
@@ -1097,6 +1190,300 @@ const OnlineCounterInvoiceList = () => {
                 </div>
             </div>
             
+            {/* Edit Address Modal */}
+            {showEditAddressModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.3)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: '#fff', borderRadius: 8, padding: 32, minWidth: 340, boxShadow: '0 4px 24px rgba(0,0,0,0.2)', position: 'relative' }}>
+                        <h3 style={{ margin: 0, marginBottom: 16 }}>Sửa địa chỉ giao hàng</h3>
+                        <div style={{ marginBottom: 12 }}>
+                            <div style={{ marginBottom: 8 }}>
+                                <label>Người nhận:</label>
+                                <input type="text" value={editAddress.tenNguoiNhan} onChange={e => setEditAddress(a => ({ ...a, tenNguoiNhan: e.target.value }))} style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }} />
+                            </div>
+                            <div style={{ marginBottom: 8 }}>
+                                <label>Số điện thoại:</label>
+                                <input type="text" value={editAddress.soDienThoai} onChange={e => setEditAddress(a => ({ ...a, soDienThoai: e.target.value }))} style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }} />
+                            </div>
+                            <div style={{ marginBottom: 8 }}>
+                                <label>Tỉnh/Thành phố:</label>
+                                <select
+                                    value={editAddress.tinhThanh || ''}
+                                    onChange={e => {
+                                        const value = e.target.value;
+                                        setEditAddress(a => ({ ...a, tinhThanh: value, quanHuyen: '', phuongXa: '' }));
+                                        const found = addressData.find((d: any) => d.province_name === value);
+                                        setFilteredDistricts(found ? found.districts : []);
+                                        setFilteredWards([]);
+                                    }}
+                                    style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                                >
+                                    <option value="">Chọn Tỉnh/Thành phố</option>
+                                    {addressData.map((t: any) => (
+                                        <option key={t.province_id} value={t.province_name}>{t.province_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div style={{ marginBottom: 8 }}>
+                                <label>Quận/Huyện:</label>
+                                <select
+                                    value={editAddress.quanHuyen || ''}
+                                    onChange={e => {
+                                        const value = e.target.value;
+                                        setEditAddress(a => ({ ...a, quanHuyen: value, phuongXa: '' }));
+                                        const foundProvince = addressData.find((d: any) => d.province_name === (editAddress.tinhThanh || ''));
+                                        const foundDistrict = foundProvince?.districts.find((d: any) => d.district_name === value);
+                                        setFilteredWards(foundDistrict ? foundDistrict.wards : []);
+                                    }}
+                                    style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                                    disabled={!editAddress.tinhThanh}
+                                >
+                                    <option value="">Chọn Quận/Huyện</option>
+                                    {filteredDistricts.map((q: any) => (
+                                        <option key={q.district_id} value={q.district_name}>{q.district_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div style={{ marginBottom: 8 }}>
+                                <label>Phường/Xã:</label>
+                                <select
+                                    value={editAddress.phuongXa || ''}
+                                    onChange={e => setEditAddress(a => ({ ...a, phuongXa: e.target.value }))}
+                                    style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                                    disabled={!editAddress.quanHuyen}
+                                >
+                                    <option value="">Chọn Phường/Xã</option>
+                                    {filteredWards.map((p: any) => (
+                                        <option key={p.ward_id} value={p.ward_name}>{p.ward_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div style={{ marginBottom: 8 }}>
+                                <label>Ngõ ngách:</label>
+                                <input type="text" value={editAddress.ngoNgach || ''} onChange={e => setEditAddress(a => ({ ...a, ngoNgach: e.target.value }))} style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }} />
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
+                            <button onClick={() => setShowEditAddressModal(false)} style={{ background: '#bbb', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Hủy</button>
+                            <button
+                                onClick={async () => {
+                                    if (!editAddress.tenNguoiNhan?.trim()) { toast.error('Vui lòng nhập tên người nhận!'); return; }
+                                    if (!editAddress.soDienThoai?.trim() || !/^[0-9]{10,11}$/.test(editAddress.soDienThoai)) { toast.error('Số điện thoại phải có 10-11 chữ số!'); return; }
+                                    if (!editAddress.tinhThanh || !editAddress.quanHuyen || !editAddress.phuongXa) { toast.error('Vui lòng chọn đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã!'); return; }
+                                    try {
+                                        const dataToSend = {
+                                            ...selectedOrder,
+                                            tenNguoiNhan: editAddress.tenNguoiNhan,
+                                            soDienThoai: editAddress.soDienThoai,
+                                            diaChiNhanHang: [
+                                                editAddress.ngoNgach,
+                                                editAddress.phuongXa,
+                                                editAddress.quanHuyen,
+                                                editAddress.tinhThanh
+                                            ].filter(Boolean).join(', ')
+                                        };
+                                        await fetch(`http://localhost:8080/api/hoadon/${selectedOrder?.idHoaDon}`, {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(dataToSend)
+                                        });
+                                        if (selectedOrder) {
+                                            const resOrder = await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon}`);
+                                            const orderData = await resOrder.json();
+                                            const resDetails = await fetch(`http://localhost:8080/api/hoadonchitiet?idHoaDon=${selectedOrder.idHoaDon}`);
+                                            const chiTietList = await resDetails.json();
+                                            setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+                                        }
+                                        toast.success('Đã cập nhật địa chỉ giao hàng!');
+                                    } catch (e) {
+                                        toast.error('Cập nhật địa chỉ thất bại!');
+                                    }
+                                    setShowEditAddressModal(false);
+                                }}
+                                style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
+                            >Lưu</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Product Modal */}
+            {showAddProductModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+                }}>
+                    <div style={{ background: '#fff', borderRadius: 16, width: '95vw', maxWidth: 1400, height: '90vh', maxHeight: '800px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid #e0e0e0', background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)', borderRadius: '16px 16px 0 0' }}>
+                            <h2 style={{ margin: 0, color: '#fff', fontSize: 26, fontWeight: 700 }}>Chọn sản phẩm</h2>
+                            <button onClick={() => setShowAddProductModal(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', fontSize: 28, cursor: 'pointer', color: '#fff', padding: 8, borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                        </div>
+                        <div style={{ padding: '20px 24px', borderBottom: '1px solid #e0e0e0', background: '#fafafa', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                            <select style={{ minWidth: 140, borderRadius: 8, padding: '10px 12px', border: '1px solid #ddd', fontSize: '14px', background: '#fff' }}>
+                                <option value="">Thương hiệu</option>
+                                {Array.from(new Set(productDetails.map(p => p.tenThuongHieu))).filter(Boolean).map(brand => (
+                                    <option key={brand} value={brand}>{brand}</option>
+                                ))}
+                            </select>
+                            <select style={{ minWidth: 140, borderRadius: 8, padding: '10px 12px', border: '1px solid #ddd', fontSize: '14px', background: '#fff' }}>
+                                <option value="">Danh mục</option>
+                                {Array.from(new Set(productDetails.map(p => p.tenDanhMuc))).filter(Boolean).map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                            <select style={{ minWidth: 120, borderRadius: 8, padding: '10px 12px', border: '1px solid #ddd', fontSize: '14px', background: '#fff' }}>
+                                <option value="">Màu sắc</option>
+                                {Array.from(new Set(productDetails.map(p => p.tenMauSac))).filter(Boolean).map(color => (
+                                    <option key={color} value={color}>{color}</option>
+                                ))}
+                            </select>
+                            <select style={{ minWidth: 120, borderRadius: 8, padding: '10px 12px', border: '1px solid #ddd', fontSize: '14px', background: '#fff' }}>
+                                <option value="">Kích thước</option>
+                                {Array.from(new Set(productDetails.map(p => p.tenKichCo))).filter(Boolean).map(size => (
+                                    <option key={size} value={size}>{size}</option>
+                                ))}
+                            </select>
+                            <input type="text" placeholder="Tìm kiếm tên, mã..." style={{ flex: 1, minWidth: 200, borderRadius: 8, padding: '10px 12px', border: '1px solid #ddd', fontSize: '14px', background: '#fff' }} />
+                        </div>
+                        <div style={{ padding: '20px 24px', overflow: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ padding: '12px 8px', textAlign: 'left', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Mã</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'left', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Tên</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'left', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Thương hiệu</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'left', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Danh mục</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'left', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Màu</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'left', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Kích cỡ</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'right', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Giá</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'center', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Tồn</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'center', background: '#f5f5f5', borderBottom: '1px solid #e0e0e0' }}>Thêm</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {productDetails.map((product) => (
+                                        <tr key={product.idChiTietSanPham}>
+                                            <td style={{ padding: '12px 8px', color: '#666' }}>{product.maSanPham}</td>
+                                            <td style={{ padding: '12px 8px', fontWeight: 600 }}>{product.tenSanPham}</td>
+                                            <td style={{ padding: '12px 8px', color: '#666' }}>{product.tenThuongHieu}</td>
+                                            <td style={{ padding: '12px 8px', color: '#666' }}>{product.tenDanhMuc}</td>
+                                            <td style={{ padding: '12px 8px', color: '#666' }}>{product.tenMauSac}</td>
+                                            <td style={{ padding: '12px 8px', color: '#666' }}>{product.tenKichCo}</td>
+                                            <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold', color: '#e67e22', fontSize: '15px' }}>{product.gia?.toLocaleString()} ₫</td>
+                                            <td style={{ padding: '12px 8px', textAlign: 'center', fontWeight: 500 }}>{product.soLuong}</td>
+                                            <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                                                    <input type="number" min="1" max={product.soLuong} defaultValue="1" style={{ width: '60px', padding: '6px 8px', border: '1px solid #ddd', borderRadius: '6px', textAlign: 'center', fontSize: '13px', background: '#fff' }} id={`qty-${product.idChiTietSanPham}`} />
+                                                    <button
+                                                        onClick={async () => {
+                                                            if (!selectedOrder) return;
+                                                            const qtyInput = document.getElementById(`qty-${product.idChiTietSanPham}`) as HTMLInputElement;
+                                                            const quantity = parseInt(qtyInput?.value || '1');
+                                                            if (quantity < 1 || quantity > product.soLuong) { toast.error('Số lượng không hợp lệ!'); return; }
+                                                            try {
+                                                                const res = await fetch('http://localhost:8080/api/hoadonchitiet', {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ idHoaDon: selectedOrder.idHoaDon, idChiTietSanPham: product.idChiTietSanPham, soLuong: quantity })
+                                                                });
+                                                                if (!res.ok) { toast.error('Không thể thêm sản phẩm vào hóa đơn!'); return; }
+                                                                const resOrder = await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon}`);
+                                                                const orderData = await resOrder.json();
+                                                                const resDetails = await fetch(`http://localhost:8080/api/hoadonchitiet?idHoaDon=${selectedOrder.idHoaDon}`);
+                                                                const chiTietList = await resDetails.json();
+                                                                setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+                                                                toast.success(`Đã thêm ${quantity} sản phẩm vào hóa đơn!`);
+                                                                setShowAddProductModal(false);
+                                                            } catch (e) {
+                                                                toast.error('Không thể thêm sản phẩm vào hóa đơn!');
+                                                            }
+                                                        }}
+                                                        disabled={product.soLuong === 0}
+                                                        style={{ background: product.soLuong > 0 ? '#1976d2' : '#6c757d', color: 'white', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: product.soLuong > 0 ? 'pointer' : 'not-allowed', fontSize: 13, fontWeight: 'bold' }}
+                                                        title={product.soLuong === 0 ? 'Hết hàng' : 'Thêm vào hóa đơn'}
+                                                    >
+                                                        {product.soLuong > 0 ? 'Thêm' : 'Hết hàng'}
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style={{ padding: '20px 24px', borderTop: '1px solid #e0e0e0', textAlign: 'center', background: '#fafafa', borderRadius: '0 0 16px 16px' }}>
+                            <button onClick={() => setShowAddProductModal(false)} style={{ background: '#6c757d', color: 'white', border: 'none', borderRadius: 8, padding: '12px 24px', cursor: 'pointer', fontSize: 16, fontWeight: 'bold' }}>Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Product Modal */}
+            {deletingProductId !== null && deletingProduct && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.3)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: '#fff', borderRadius: 8, padding: 32, minWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.2)', position: 'relative' }}>
+                        <h3 style={{ margin: 0, marginBottom: 16 }}>Xóa sản phẩm khỏi hóa đơn</h3>
+                        <div style={{ marginBottom: 16 }}><strong>Sản phẩm:</strong> {deletingProduct.tenSanPham}</div>
+                        <div style={{ marginBottom: 16 }}><strong>Số lượng hiện tại:</strong> {deletingProduct.soLuong}</div>
+                        <div style={{ marginBottom: 24 }}>
+                            <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>Số lượng muốn xóa:</label>
+                            <input type="number" min="1" max={deletingProduct.soLuong} value={deleteQuantity} onChange={(e) => setDeleteQuantity(e.target.value)} style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
+                            <button onClick={() => { setDeletingProductId(null); setDeletingProduct(null); setDeleteQuantity(''); }} style={{ background: '#bbb', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Hủy</button>
+                            <button
+                                onClick={async () => {
+                                    const quantity = parseInt(deleteQuantity) || 0;
+                                    if (quantity <= 0 || quantity > deletingProduct.soLuong) { toast.error('Số lượng không hợp lệ!'); return; }
+                                    try {
+                                        if (quantity === deletingProduct.soLuong) {
+                                            await fetch(`http://localhost:8080/api/hoadonchitiet/${deletingProductId}`, { method: 'DELETE' });
+                                            // Không cập nhật tồn kho ở frontend; backend delete sẽ tự cộng lại tồn
+                                        } else {
+                                            const remainingQuantity = deletingProduct.soLuong - quantity;
+                                            await fetch(`http://localhost:8080/api/hoadonchitiet/${deletingProductId}`, { method: 'DELETE' });
+                                            if (remainingQuantity > 0) {
+                                                await fetch('http://localhost:8080/api/hoadonchitiet', {
+                                                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idHoaDon: selectedOrder?.idHoaDon, idChiTietSanPham: deletingProduct.idChiTietSanPham, soLuong: remainingQuantity })
+                                                });
+                                            }
+                                            // Không cập nhật tồn kho ở frontend; backend delete sẽ tự cộng lại tồn
+                                        }
+                                        if (selectedOrder) {
+                                            const resOrder = await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon}`);
+                                            const orderData = await resOrder.json();
+                                            const resDetails = await fetch(`http://localhost:8080/api/hoadonchitiet?idHoaDon=${selectedOrder.idHoaDon}`);
+                                            const chiTietList = await resDetails.json();
+                                            if (chiTietList.length === 0) {
+                                                try {
+                                                    await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...orderData, trangThai: 'Đã hủy' }) });
+                                                    const updatedResOrder = await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon}`);
+                                                    const updatedOrderData = await updatedResOrder.json();
+                                                    setSelectedOrder({ ...updatedOrderData, chiTiet: chiTietList });
+                                                    const resAllOrders = await fetch('http://localhost:8080/api/hoadon');
+                                                    const allOrdersData = await resAllOrders.json();
+                                                    const ordersWithId = allOrdersData.map((order: any) => ({ ...order, id: order.idHoaDon }));
+                                                    setOrders(sortOrdersByDate(ordersWithId));
+                                                    toast.success('Đã xóa sản phẩm và tự động hủy hóa đơn!');
+                                                } catch {
+                                                    setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+                                                    toast.success('Đã xóa sản phẩm khỏi hóa đơn!');
+                                                }
+                                            } else {
+                                                setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+                                                toast.success(`Đã xóa ${quantity} sản phẩm khỏi hóa đơn!`);
+                                            }
+                                        }
+                                    } catch (e) {
+                                        toast.error('Xóa sản phẩm thất bại!');
+                                    }
+                                    setDeletingProductId(null); setDeletingProduct(null); setDeleteQuantity('');
+                                }}
+                                style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
+                            >Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Custom Confirm Modal */}
             {showConfirmModal && confirmData && (
                 <div style={{
@@ -1148,7 +1535,7 @@ const OnlineCounterInvoiceList = () => {
                         
                         {/* Message */}
                         <div style={{
-                            marginBottom: '24px',
+                            marginBottom: '16px',
                             fontSize: '16px',
                             lineHeight: '1.5',
                             color: '#666',
@@ -1156,6 +1543,38 @@ const OnlineCounterInvoiceList = () => {
                             whiteSpace: 'pre-line'
                         }}>
                             {confirmData.message}
+                        </div>
+                        
+                        {/* Ghi chú */}
+                        <div style={{
+                            marginBottom: '24px'
+                        }}>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: '#333',
+                                textAlign: 'left'
+                            }}>
+                                Ghi chú:
+                            </label>
+                            <textarea
+                                value={confirmNote}
+                                onChange={(e) => setConfirmNote(e.target.value)}
+                                placeholder="Nhập ghi chú..."
+                                style={{
+                                    width: '100%',
+                                    minHeight: '80px',
+                                    padding: '12px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    fontFamily: 'inherit',
+                                    resize: 'vertical',
+                                    outline: 'none'
+                                }}
+                            />
                         </div>
                         
                         {/* Buttons */}

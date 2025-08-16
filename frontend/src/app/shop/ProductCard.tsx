@@ -22,8 +22,7 @@ interface ProductVariant {
   soLuong?: number;
   idDanhMuc?: number;
   // Thêm field sale
-  phanTramGiamGia?: number;
-  trangThaiSale?: string;
+
 }
 
 interface ProductCardProps {
@@ -33,12 +32,9 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) => {
   // Tính giá sau giảm nếu có sale
-  const calculateSalePrice = (originalPrice: number, discountPercent: number) => {
-    return originalPrice - (originalPrice * discountPercent / 100);
-  };
 
-  // Kiểm tra sản phẩm có đang sale không
-  const isOnSale = product.trangThaiSale === 'ACTIVE' && product.phanTramGiamGia && product.phanTramGiamGia > 0;
+
+
 
   return (
     <Box
@@ -59,30 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) => {
       onClick={() => onSelect(product)}
     >
       <Box sx={{ position: 'relative' }}>
-        {/* Badge Sale */}
-        {isOnSale && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: -8,
-              right: -8,
-              zIndex: 3,
-              background: '#e53935',
-              color: '#fff',
-              borderRadius: '50%',
-              width: 40,
-              height: 40,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 700,
-              fontSize: '12px',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
-            }}
-          >
-            -{product.phanTramGiamGia}%
-          </Box>
-        )}
+
         
         <div onClick={e => e.stopPropagation()}>
           <ProductImageCarousel
@@ -105,35 +78,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) => {
       </Typography>
       {/* Hiển thị giá */}
       <Box sx={{ textAlign: 'center', mb: 1 }}>
-        {isOnSale ? (
-          <>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                textDecoration: 'line-through', 
-                color: '#999', 
-                fontSize: '14px',
-                mb: 0.5
-              }}
-            >
-              {product.gia ? product.gia.toLocaleString('vi-VN') + '₫' : ''}
-            </Typography>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                color: '#e53935', 
-                fontWeight: 700, 
-                fontSize: '16px'
-              }}
-            >
-              {calculateSalePrice(product.gia, product.phanTramGiamGia || 0).toLocaleString('vi-VN') + '₫'}
-            </Typography>
-          </>
-        ) : (
-          <Typography variant="body1" sx={{ color: '#e53935', fontWeight: 700 }}>
-            {product.gia ? product.gia.toLocaleString('vi-VN') + '₫' : ''}
-          </Typography>
-        )}
+        <Typography variant="body1" sx={{ color: '#e53935', fontWeight: 700 }}>
+          {product.gia ? product.gia.toLocaleString('vi-VN') + '₫' : ''}
+        </Typography>
       </Box>
       <Button
         variant="contained"

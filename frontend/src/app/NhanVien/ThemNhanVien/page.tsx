@@ -31,6 +31,7 @@ export default function ThemNhanVienPage() {
     });
     const [successToast, setSuccessToast] = useState("");
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [confirmNote, setConfirmNote] = useState('');
     const [validatedFormData, setValidatedFormData] = useState<any>(null);
     const [addressData, setAddressData] = useState<any[]>([]);
     const [selectedProvince, setSelectedProvince] = useState<any>(null);
@@ -229,6 +230,7 @@ export default function ThemNhanVienPage() {
             ngoNgach: ngoNgach
         };
         setValidatedFormData(formData);
+        setConfirmNote('');
         setShowConfirmDialog(true);
     };
 
@@ -552,7 +554,7 @@ export default function ThemNhanVienPage() {
                             Xác nhận thêm nhân viên
                         </h3>
                         <p style={{
-                            margin: '0 0 24px 0',
+                            margin: '0 0 16px 0',
                             fontSize: 16,
                             color: '#666',
                             lineHeight: 1.5,
@@ -560,6 +562,38 @@ export default function ThemNhanVienPage() {
                         }}>
                             Bạn có chắc chắn muốn thêm nhân viên này không?
                         </p>
+                        
+                        {/* Ghi chú */}
+                        <div style={{
+                            marginBottom: '24px'
+                        }}>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: '#333',
+                                textAlign: 'left'
+                            }}>
+                                Ghi chú:
+                            </label>
+                            <textarea
+                                value={confirmNote}
+                                onChange={(e) => setConfirmNote(e.target.value)}
+                                placeholder="Nhập ghi chú..."
+                                style={{
+                                    width: '100%',
+                                    minHeight: '80px',
+                                    padding: '12px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    fontFamily: 'inherit',
+                                    resize: 'vertical',
+                                    outline: 'none'
+                                }}
+                            />
+                        </div>
                         <div style={{
                             display: 'flex',
                             gap: 12,

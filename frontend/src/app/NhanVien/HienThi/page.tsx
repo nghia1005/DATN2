@@ -42,6 +42,7 @@ export default function NhanVienPage() {
     const [toggleLoadingId, setToggleLoadingId] = useState<number | null>(null);
     const [toast, setToast] = useState<{ type: 'success' | 'error', message: string } | null>(null);
     const [confirmToggleId, setConfirmToggleId] = useState<number | null>(null);
+    const [confirmNote, setConfirmNote] = useState('');
     const [totalElements, setTotalElements] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const searchParams = useSearchParams();
@@ -122,7 +123,10 @@ export default function NhanVienPage() {
         setTimeout(() => setToast(null), 3000);
     };
 
-    const handleRequestToggle = (id: number) => setConfirmToggleId(id);
+    const handleRequestToggle = (id: number) => {
+        setConfirmToggleId(id);
+        setConfirmNote('');
+    };
     const handleConfirmToggle = async () => {
         if (confirmToggleId == null) return;
         setToggleLoadingId(confirmToggleId);
@@ -1136,7 +1140,39 @@ export default function NhanVienPage() {
                 <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "#0008", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <div style={{ background: "#fff", padding: 32, borderRadius: 12, minWidth: 340, boxShadow: "0 4px 24px #0002", position: "relative" }}>
                         <h3 style={{ color: "#b59d3a", fontWeight: 700, fontSize: 20, marginBottom: 18 }}>Xác nhận</h3>
-                        <div style={{ color: '#333', fontSize: 16, marginBottom: 24 }}>Bạn có muốn thay đổi trạng thái tài khoản này không?</div>
+                        <div style={{ color: '#333', fontSize: 16, marginBottom: 16 }}>Bạn có muốn thay đổi trạng thái tài khoản này không?</div>
+                        
+                        {/* Ghi chú */}
+                        <div style={{
+                            marginBottom: '24px'
+                        }}>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: '#333',
+                                textAlign: 'left'
+                            }}>
+                                Ghi chú:
+                            </label>
+                            <textarea
+                                value={confirmNote}
+                                onChange={(e) => setConfirmNote(e.target.value)}
+                                placeholder="Nhập ghi chú..."
+                                style={{
+                                    width: '100%',
+                                    minHeight: '80px',
+                                    padding: '12px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    fontFamily: 'inherit',
+                                    resize: 'vertical',
+                                    outline: 'none'
+                                }}
+                            />
+                        </div>
                         <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
                             <button onClick={() => setConfirmToggleId(null)} style={{ padding: '8px 18px', borderRadius: 7, border: 'none', background: '#eee', color: '#333', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Hủy</button>
                             <button onClick={handleConfirmToggle} style={{ padding: '8px 18px', borderRadius: 7, border: 'none', background: '#b59d3a', color: '#fff', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Đồng ý</button>

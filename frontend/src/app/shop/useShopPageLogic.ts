@@ -46,8 +46,7 @@ export function useShopPageLogic() {
     const [search, setSearch] = useState("");
     const [showWelcome, setShowWelcome] = useState(true);
     const [showWelcomeModal, setShowWelcomeModal] = useState(true);
-    const [showSaleOnly, setShowSaleOnly] = useState(false);
-    const [showSaleBanner, setShowSaleBanner] = useState(false);
+
     const [selectedProduct, setSelectedProduct] = useState<ProductVariant | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalColor, setModalColor] = useState<string>("");
@@ -426,9 +425,7 @@ export function useShopPageLogic() {
     const filteredProducts = products.filter(product => {
         if (product.trangThai === 'Ngừng bán') return false;
         
-        // Lọc theo sale (giả sử sản phẩm có giá < 500,000 VND là sale)
-        const isSaleProduct = product.gia < 500000;
-        if (showSaleOnly && !isSaleProduct) return false;
+
         
         const matchColor = selectedColors.length === 0 || colors.find(c => c.idMauSac === product.idMauSac && selectedColors.includes(c.idMauSac));
         const matchSize = selectedSizes.length === 0 || sizes.find(s => s.idKichCo === product.idKichCo && selectedSizes.includes(s.idKichCo));
@@ -437,11 +434,7 @@ export function useShopPageLogic() {
         return matchBrand && matchColor && matchSize && matchSearch;
     });
 
-    // Kiểm tra xem có sản phẩm sale không để hiển thị banner
-    useEffect(() => {
-        const hasSaleProducts = products.some(product => product.gia < 500000 && product.trangThai !== 'Ngừng bán');
-        setShowSaleBanner(hasSaleProducts);
-    }, [products]);
+
 
     // Lấy các màu và size có thể chọn cho sản phẩm đang xem
     const modalColors = selectedProduct ? colors.filter(c => c.idMauSac === selectedProduct.idMauSac || products.some(p => p.idSanPham === selectedProduct.idSanPham && p.idMauSac === c.idMauSac)) : [];
@@ -754,7 +747,7 @@ export function useShopPageLogic() {
         showQRSelector, setShowQRSelector, selectedQR, setSelectedQR, showThankYou, setShowThankYou, lastInvoiceCode, setLastInvoiceCode, lastInvoice, setLastInvoice,
         customerInfo, setCustomerInfo, userAddresses, setUserAddresses, showAddressSelect, setShowAddressSelect, addressError, setAddressError,
         customerFormError, setCustomerFormError, showNewAddressForm, setShowNewAddressForm,
-        newAddress, setNewAddress, userName, isClient, showSaleOnly, setShowSaleOnly, showSaleBanner, setShowSaleBanner,
+        newAddress, setNewAddress, userName, isClient,
         selectedVoucher, handleVoucherChange,
         filteredProducts, modalColors, modalSizes,
         handleColorChange, handleAddToCart, updateProductQuantity, handleSaveAddress, handleAutoFillCustomerInfo,

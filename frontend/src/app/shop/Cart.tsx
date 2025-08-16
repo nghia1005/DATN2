@@ -23,8 +23,7 @@ interface ProductVariant {
   soLuong?: number;
   idDanhMuc?: number;
   // Thêm field sale
-  phanTramGiamGia?: number;
-  trangThaiSale?: string;
+
 }
 
 interface CartProps {

@@ -13,9 +13,7 @@ export type CartItem = {
   gia: number;
   qty: number;
   soLuong?: number; // tồn kho, optional
-  phanTramGiamGia?: number;
-  trangThaiSale?: string;
-  giaSale?: number;
+
   // ... các trường khác nếu cần
 };
 
@@ -102,27 +100,10 @@ export default function CartList({ cart, products, onRemoveAction, onQtyChange }
                 </td>
                 <td style={{ padding: 12, textAlign: 'center', fontSize: 16 }}>{item.qty}</td>
                 <td style={{ padding: 12, textAlign: 'right', color: '#b59d3a', fontWeight: 700, fontSize: 16 }}>
-                                     {(item.trangThaiSale === 'Bật' || item.trangThaiSale === 'ACTIVE') && item.giaSale ? (
-                    <div>
-                      <div style={{ textDecoration: 'line-through', color: '#999', fontSize: 14 }}>
-                        {(item.gia || 0).toLocaleString()}đ
-                      </div>
-                      <div style={{ color: '#e53e3e', fontWeight: 'bold' }}>
-                        {item.giaSale.toLocaleString()}đ
-                      </div>
-                      <div style={{ color: '#e53e3e', fontSize: 12 }}>
-                        -{item.phanTramGiamGia}%
-                      </div>
-                    </div>
-                  ) : (
-                    <div>{(item.gia || 0).toLocaleString()}đ</div>
-                  )}
+                  <div>{(item.gia || 0).toLocaleString()}đ</div>
                 </td>
                 <td style={{ padding: 12, textAlign: 'right', fontWeight: 700, color: '#8a7a2a', fontSize: 16 }}>
-                  {(item.trangThaiSale === 'Bật' || item.trangThaiSale === 'ACTIVE') && item.giaSale ? 
-                    ((item.giaSale || 0) * (item.qty || 0)).toLocaleString() :
-                    ((item.gia || 0) * (item.qty || 0)).toLocaleString()
-                  }đ
+                  {((item.gia || 0) * (item.qty || 0)).toLocaleString()}đ
                 </td>
                 <td style={{ padding: 12, textAlign: 'center' }}>
                   <button

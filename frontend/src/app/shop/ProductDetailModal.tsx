@@ -31,8 +31,8 @@ interface ProductVariant {
     soLuong?: number;
     idDanhMuc?: number;
     // Thêm field sale
-    phanTramGiamGia?: number;
-    trangThaiSale?: string;
+  
+  
 }
 
 interface Color { idMauSac: number; mauSac: string; }

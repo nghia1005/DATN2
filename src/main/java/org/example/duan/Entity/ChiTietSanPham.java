@@ -52,9 +52,5 @@ public class ChiTietSanPham {
     @Column(name = "ngayTao")
     private LocalDate ngayTao;
 
-    @Column(name = "phanTramGiamGia")
-    private Integer phanTramGiamGia;
 
-    @Column(name = "trangThaiSale")
-    private String trangThaiSale;
 } 

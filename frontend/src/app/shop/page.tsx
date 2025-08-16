@@ -43,8 +43,7 @@ import OrderLookupModal from './OrderLookupModal';
 import ProductDetailModal from './ProductDetailModal';
 import OrderSummary from './OrderSummary';
 import Notification from './Notification';
-import SaleBanner from './SaleBanner';
-import SaleProductList from './SaleProductList';
+
 import { useShopPageLogic } from './useShopPageLogic';
 
 interface ProductVariant {
@@ -65,8 +64,7 @@ interface ProductVariant {
     soLuong?: number;
     idDanhMuc?: number; // Thêm dòng này để fix lỗi linter
     // Thêm field sale
-    phanTramGiamGia?: number;
-    trangThaiSale?: string;
+    
 }
 
 interface Brand { idThuongHieu: number; tenThuongHieu: string; }
@@ -86,7 +84,7 @@ export default function ShopPage() {
         showQRSelector, setShowQRSelector, selectedQR, setSelectedQR, showThankYou, setShowThankYou, lastInvoiceCode, setLastInvoiceCode, lastInvoice, setLastInvoice,
         customerInfo, setCustomerInfo, userAddresses, setUserAddresses, showAddressSelect, setShowAddressSelect, addressError, setAddressError,
         customerFormError, setCustomerFormError, showNewAddressForm, setShowNewAddressForm,
-        newAddress, setNewAddress,         userName, isClient, showSaleOnly, setShowSaleOnly, showSaleBanner, setShowSaleBanner,         selectedVoucher, handleVoucherChange,
+        newAddress, setNewAddress,         userName, isClient,         selectedVoucher, handleVoucherChange,
         filteredProducts, modalColors, modalSizes,
         handleColorChange, handleAddToCart, updateProductQuantity, handleSaveAddress, handleAutoFillCustomerInfo,
         notification, showNotification
@@ -150,8 +148,7 @@ export default function ShopPage() {
                     search={search}
                     setSearch={setSearch}
                     isClient={isClient}
-                    showSaleOnly={showSaleOnly}
-                    setShowSaleOnly={setShowSaleOnly}
+                    
                     onOpenOrderLookup={() => setShowOrderLookupModal(true)}
                 />
                 {/* Main content */}
@@ -190,9 +187,8 @@ export default function ShopPage() {
                                         }}
                                         onClick={() => {
                                             setShowWelcomeModal(false);
-                                            setShowSaleOnly(true);
                                             setShowWelcome(false);
-                                            // Chuyển sang trang sale
+                                            // Chuyển sang trang sản phẩm
                                             window.scrollTo(0, 0);
                                         }}
                                         onMouseOver={(e) => {
@@ -239,7 +235,7 @@ export default function ShopPage() {
                         ) : (
                             <Box sx={{ maxWidth: 1300, mx: "auto", px: 2, display: 'flex', gap: 4, mt: 3 }}>
                                 {/* Sidebar filter - chỉ hiển thị khi xem sản phẩm */}
-                                {(showSaleOnly || !showWelcome) && (
+                                                                    {!showWelcome && (
                                     <SidebarFilter
                                         brands={brands}
                                         colors={colors}
@@ -308,60 +304,8 @@ export default function ShopPage() {
                             </Box>
                                     )}
 
-                                    {/* Sale Banner - hiển thị khi đang xem sale */}
-                                    {showSaleOnly && (
-                                        <Box sx={{ 
-                                            width: '100%',
-                                            mb: 4, 
-                                            textAlign: 'center',
-                                            mx: 'auto'
-                                        }}>
-                                                                                        <SaleBanner 
-                                                isVisible={true}
-                                                onBuyNowClick={() => {
-                                                    // Khi click "MUA NGAY" thì hiển thị sản phẩm sale
-                                                    setShowSaleOnly(false);
-                                                    setShowWelcome(false);
-                                                    // Scroll xuống danh sách sản phẩm sale
-                                                    setTimeout(() => {
-                                                        const saleProducts = document.querySelector('[data-sale-products]');
-                                                        if (saleProducts) {
-                                                            saleProducts.scrollIntoView({ behavior: 'smooth' });
-                                                        }
-                                                    }, 100);
-                                                }}
-                                            />
-                                        </Box>
-                                    )}
-                                    
-                                    {/* Danh sách sản phẩm sale - chỉ hiển thị khi đang xem sale */}
-                                    {showSaleOnly && (
-                                                                                <Box data-sale-products>
-                                            <SaleProductList 
-                                                onProductSelect={(product) => {
-                                                    // Chuyển đổi từ SaleProduct sang ProductVariant để tương thích
-                                                    const productVariant: ProductVariant = {
-                                                        idChiTietSanPham: product.idChiTietSanPham,
-                                                        idSanPham: 0, // Cần lấy từ API
-                                                        maSanPham: '',
-                                                        tenSanPham: product.tenSanPham,
-                                                        tenThuongHieu: product.tenThuongHieu,
-                                                        tenDanhMuc: '',
-                                                        duongDanHinhAnh: product.duongDanHinhAnh,
-                                                        gia: product.gia,
-                                                        soLuong: product.soLuong,
-                                                        phanTramGiamGia: product.phanTramGiamGia,
-                                                        trangThaiSale: product.trangThaiSale
-                                                    };
-                                                    setSelectedProduct(productVariant);
-                                                    setModalOpen(true);
-                                                }}
-                                            />
-                                        </Box>
-                                    )}
-                                    
-                                    {/* Danh sách sản phẩm thường - hiển thị khi không phải trang chủ và không phải trang sale */}
-                                    {!showWelcome && !showSaleOnly && (
+                                    {/* Danh sách sản phẩm - hiển thị khi không phải trang chủ */}
+                                    {!showWelcome && (
                                         <>
                                             {loading ? (
                                                 <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 300 }}>
@@ -459,11 +403,9 @@ export default function ShopPage() {
                           checkoutItems={checkoutItems}
                           customerInfo={customerInfo}
                           calcCheckout={(items, voucher) => {
-                            // Tính tổng tiền sản phẩm (có tính sale)
+                            // Tính tổng tiền sản phẩm
                             const total = items.reduce((sum, item) => {
-                              const isOnSale = item.product.trangThaiSale === 'ACTIVE' && item.product.phanTramGiamGia && item.product.phanTramGiamGia > 0;
-                              const salePrice = isOnSale ? item.product.gia - (item.product.gia * (item.product.phanTramGiamGia || 0) / 100) : item.product.gia;
-                              return sum + (salePrice || 0) * item.quantity;
+                              return sum + (item.product.gia || 0) * item.quantity;
                             }, 0);
                             
                             // Tính tiền giảm (voucher)
@@ -560,11 +502,7 @@ export default function ShopPage() {
                                 }
                               }
 
-                              // Hàm tính giá sale
-                              const calculateSalePrice = (product: ProductVariant) => {
-                                const isOnSale = product.trangThaiSale === 'ACTIVE' && product.phanTramGiamGia && product.phanTramGiamGia > 0;
-                                return isOnSale ? product.gia - (product.gia * (product.phanTramGiamGia || 0) / 100) : product.gia;
-                              };
+
 
                               const invoiceData = {
                                 idKhachHang: idKhachHang,
@@ -576,17 +514,17 @@ export default function ShopPage() {
                                 soDienThoai: customerInfo.phone,
                                 email: customerInfo.email,
                                 diaChiNhanHang: `${customerInfo.address}, ${customerInfo.ward}, ${customerInfo.district}, ${customerInfo.city}`,
-                                tongTien: checkoutItems.reduce((sum, item) => sum + calculateSalePrice(item.product) * item.quantity, 0),
+                                tongTien: checkoutItems.reduce((sum, item) => sum + item.product.gia * item.quantity, 0),
                                 giamGia: selectedVoucher ? (selectedVoucher.kieuGiamGia === 'PERCENT' ? 
-                                  Math.min(checkoutItems.reduce((sum, item) => sum + calculateSalePrice(item.product) * item.quantity, 0) * (selectedVoucher.phanTramGiamGia / 100), selectedVoucher.giaTriToiDa) :
+                                  Math.min(checkoutItems.reduce((sum, item) => sum + item.product.gia * item.quantity, 0) * (selectedVoucher.phanTramGiamGia / 100), selectedVoucher.giaTriToiDa) :
                                   selectedVoucher.giaTriToiDa) : 0,
                                 phiShip: customerInfo.city ? 
                                   (selectedVoucher && selectedVoucher.kieuGiamGia === 'FREE_SHIP' ? 0 :
                                   customerInfo.city === 'Thành phố Hà Nội' || customerInfo.city === 'Thành phố Hồ Chí Minh' ? 15000 :
                                   ['Tỉnh Cà Mau', 'Tỉnh Bạc Liêu', 'Tỉnh Sóc Trăng', 'Tỉnh Trà Vinh', 'Tỉnh Vĩnh Long', 'Tỉnh Bến Tre'].includes(customerInfo.city) ? 45000 : 30000) : 30000,
-                                thanhTien: checkoutItems.reduce((sum, item) => sum + calculateSalePrice(item.product) * item.quantity, 0) - 
+                                thanhTien: checkoutItems.reduce((sum, item) => sum + item.product.gia * item.quantity, 0) - 
                                   (selectedVoucher ? (selectedVoucher.kieuGiamGia === 'PERCENT' ? 
-                                    Math.min(checkoutItems.reduce((sum, item) => sum + calculateSalePrice(item.product) * item.quantity, 0) * (selectedVoucher.phanTramGiamGia / 100), selectedVoucher.giaTriToiDa) :
+                                    Math.min(checkoutItems.reduce((sum, item) => sum + item.product.gia * item.quantity, 0) * (selectedVoucher.phanTramGiamGia / 100), selectedVoucher.giaTriToiDa) :
                                     selectedVoucher.giaTriToiDa) : 0) + 
                                   (customerInfo.city ? 
                                     (selectedVoucher && selectedVoucher.kieuGiamGia === 'FREE_SHIP' ? 0 :
@@ -598,8 +536,8 @@ export default function ShopPage() {
                                 chiTiet: checkoutItems.map(item => ({
                                   idChiTietSanPham: item.product.idChiTietSanPham,
                                   soLuong: item.quantity,
-                                  donGia: calculateSalePrice(item.product),
-                                  thanhTien: calculateSalePrice(item.product) * item.quantity
+                                  donGia: item.product.gia,
+                                  thanhTien: item.product.gia * item.quantity
                                 }))
                               };
 

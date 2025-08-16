@@ -53,7 +53,5 @@ public class ChiTietSanPhamDTO {
 
     private String trangThai;
     private LocalDate ngayTao;
-    private Integer phanTramGiamGia;
-    private String trangThaiSale;
-    private BigDecimal giaSale;
+
 } 

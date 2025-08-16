@@ -17,12 +17,10 @@ interface HeaderProps {
   search: string;
   setSearch: (v: string) => void;
   isClient: boolean;
-  showSaleOnly: boolean;
-  setShowSaleOnly: (v: boolean) => void;
   onOpenOrderLookup: () => void;
 }
 
-export default function Header({ userName, showWelcome, setShowWelcome, setShowCart, cart, router, handleLogout, search, setSearch, isClient, showSaleOnly, setShowSaleOnly, onOpenOrderLookup }: HeaderProps) {
+export default function Header({ userName, showWelcome, setShowWelcome, setShowCart, cart, router, handleLogout, search, setSearch, isClient, onOpenOrderLookup }: HeaderProps) {
   return (
     <>
       <style jsx>{`
@@ -75,46 +73,9 @@ export default function Header({ userName, showWelcome, setShowWelcome, setShowC
       </div>
       {/* Menu */}
       <div style={{ display: 'flex', gap: 18 }}>
-        <button style={{ padding: '8px 28px', borderRadius: 22, border: '1.5px solid #b59d3a', background: showWelcome ? '#b59d3a' : '#fff', color: showWelcome ? '#fff' : '#b59d3a', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={() => { setShowWelcome(true); setShowSaleOnly(false); }}>TRANG CHỦ</button>
-        <button style={{ padding: '8px 28px', borderRadius: 22, border: '1.5px solid #b59d3a', background: !showWelcome ? '#b59d3a' : '#fff', color: !showWelcome ? '#fff' : '#b59d3a', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={() => { setShowWelcome(false); setShowSaleOnly(false); }}>SẢN PHẨM</button>
-        <button 
-          style={{ 
-            padding: '8px 20px', 
-            borderRadius: 22, 
-            border: 'none', 
-            background: 'transparent', 
-            color: '#e74c3c', 
-            fontWeight: 900, 
-            fontSize: '1.1rem', 
-            transition: 'all 0.2s', 
-            cursor: 'pointer', 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: showSaleOnly ? '0 4px 12px rgba(231, 76, 60, 0.3)' : 'none',
-            transform: showSaleOnly ? 'scale(1.05)' : 'scale(1)',
-            animation: showSaleOnly ? 'pulse 2s infinite' : 'none'
-          }} 
-          onClick={() => { setShowWelcome(false); setShowSaleOnly(!showSaleOnly); }}
-        >
-          <span style={{
-            display: 'inline-block',
-            width: '20px',
-            height: '20px',
-            background: '#e74c3c',
-            borderRadius: '50%',
+        <button style={{ padding: '8px 28px', borderRadius: 22, border: '1.5px solid #b59d3a', background: showWelcome ? '#b59d3a' : '#fff', color: showWelcome ? '#fff' : '#b59d3a', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={() => { setShowWelcome(true); }}>TRANG CHỦ</button>
+        <button style={{ padding: '8px 28px', borderRadius: 22, border: '1.5px solid #b59d3a', background: !showWelcome ? '#b59d3a' : '#fff', color: !showWelcome ? '#fff' : '#b59d3a', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={() => { setShowWelcome(false); }}>SẢN PHẨM</button>
 
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '14px',
-            fontWeight: 900,
-            color: '#fff',
-            boxShadow: '0 2px 4px rgba(231, 76, 60, 0.3)'
-          }}>
-            %
-          </span>
-          SALE
-        </button>
         <button style={{ padding: '8px 24px', borderRadius: 22, border: '1.5px solid #b59d3a', background: '#fff', color: '#b59d3a', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={onOpenOrderLookup}>TRA CỨU</button>
       </div>
       {/* Tài khoản, giỏ hàng, đăng xuất */}

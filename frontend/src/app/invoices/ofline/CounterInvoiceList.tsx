@@ -13,10 +13,11 @@ const STATUS_OPTIONS = [
     { label: "📄 Tất cả", value: "ALL", color: "#6b7280" },
     { label: "⏰ Chờ xác nhận", value: "Chờ xác nhận", color: "#f59e0b" },
     { label: "✓ Đã xác nhận", value: "Đã xác nhận", color: "#3b82f6" },
+    { label: "✅ Đã thanh toán", value: "Đã thanh toán", color: "#10b981" },
     { label: "🚛 Đang vận chuyển", value: "Đang vận chuyển", color: "#f97316" },
-    { label: "✓ Giao hàng thành công", value: "Giao hàng thành công", color: "#10b981" },
-    { label: "✗ Giao hàng thất bại", value: "Giao hàng thất bại", color: "#ef4444" },
-    { label: "✗ Đã hủy", value: "Đã hủy", color: "#6b7280" },
+    { label: "✅ Giao hàng thành công", value: "Giao hàng thành công", color: "#10b981" },
+    { label: "❌ Giao hàng thất bại", value: "Giao hàng thất bại", color: "#ef4444" },
+    { label: "❌ Đã hủy", value: "Đã hủy", color: "#6b7280" },
 ];
 
 // 2. Sửa màu trạng thái - mỗi trạng thái có màu riêng
@@ -24,6 +25,7 @@ const getStatusColor = (status: string) => {
     switch (status) {
         case "Chờ xác nhận": return "#f59e0b"; // Màu cam
         case "Đã xác nhận": return "#3b82f6"; // Màu xanh dương
+        case "Đã thanh toán": return "#10b981"; // Màu xanh lá (thành công)
         case "Đang vận chuyển": return "#f97316"; // Màu cam đậm
         case "Giao hàng thành công": return "#10b981"; // Màu xanh lá
         case "Giao hàng thất bại": return "#ef4444"; // Màu đỏ
@@ -37,11 +39,12 @@ const getStatusIcon = (status: string) => {
     switch (status) {
         case "Chờ xác nhận": return "⏰";
         case "Đã xác nhận": return "✓";
+        case "Đã thanh toán": return "💳"; // Icon thẻ thanh toán cho MoMo
         case "Đang vận chuyển": return "🚛";
-        case "Giao hàng thành công": return "✓";
-        case "Giao hàng thất bại": return "✗";
-        case "Đã hủy": return "✗";
-        default: return "?";
+        case "Giao hàng thành công": return "🎉"; // Icon party cho thành công
+        case "Giao hàng thất bại": return "❌";
+        case "Đã hủy": return "❌";
+        default: return "❓";
     }
 };
 
@@ -133,14 +136,15 @@ const CounterInvoiceList = () => {
         console.log('Fetching orders from API...');
         axios.get("http://localhost:8080/api/hoadon")
             .then(res => {
-                console.log('API response:', res.data);
+                console.log('✅ API success - Total orders:', res.data.length);
                 const ordersWithId = res.data.map((order: any) => ({
                     ...order,
                     id: order.idHoaDon
                 }));
                 setOrders(sortOrdersByDate(ordersWithId));
             })
-            .catch(() => {
+            .catch(err => {
+                console.log('❌ API failed, using sample data:', err.message);
                 // Thêm dữ liệu mẫu để test scrollbar - chỉ hóa đơn tại cửa hàng
                 const sampleOrders = [
                     {
@@ -150,7 +154,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Giao hàng thành công",
                         tenKhachHang: "Nguyễn Văn A",
                         thanhTien: 2250000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 2,
@@ -159,7 +163,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Đã xác nhận",
                         tenKhachHang: "Trần Thị B",
                         thanhTien: 1890000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 3,
@@ -168,7 +172,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Đang vận chuyển",
                         tenKhachHang: "Lê Văn C",
                         thanhTien: 3200000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 4,
@@ -177,7 +181,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Chờ xác nhận",
                         tenKhachHang: "Phạm Thị D",
                         thanhTien: 1560000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 5,
@@ -186,7 +190,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Giao hàng thành công",
                         tenKhachHang: "Hoàng Văn E",
                         thanhTien: 2780000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 6,
@@ -195,7 +199,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Đã xác nhận",
                         tenKhachHang: "Vũ Thị F",
                         thanhTien: 1950000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 7,
@@ -204,7 +208,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Đang vận chuyển",
                         tenKhachHang: "Đỗ Văn G",
                         thanhTien: 2450000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 8,
@@ -213,7 +217,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Chờ xác nhận",
                         tenKhachHang: "Ngô Thị H",
                         thanhTien: 1670000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 9,
@@ -222,7 +226,7 @@ const CounterInvoiceList = () => {
                         trangThai: "Giao hàng thất bại",
                         tenKhachHang: "Lý Văn I",
                         thanhTien: 890000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     },
                     {
                         idHoaDon: 10,
@@ -231,15 +235,15 @@ const CounterInvoiceList = () => {
                         trangThai: "Đã hủy",
                         tenKhachHang: "Trịnh Thị K",
                         thanhTien: 1200000,
-                        loaiDon: "Tại cửa hàng"
+                        loaiDon: "Tại quầy"
                     }
                 ];
                 setOrders(sortOrdersByDate(sampleOrders));
             });
     }, []);
 
-    // Lọc hóa đơn tại cửa hàng - chỉ hiển thị hóa đơn có loaiDon = "Tại cửa hàng"
-    const storeOrders = orders.filter(order => order.loaiDon === "Tại cửa hàng");
+    // Lọc hóa đơn tại cửa hàng - chỉ hiển thị hóa đơn có loaiDon = "Tại quầy"
+    const storeOrders = orders.filter(order => order.loaiDon === "Tại quầy");
     // Lọc theo trạng thái
     let filteredOrders = activeStatus === "ALL"
         ? storeOrders
@@ -1408,6 +1412,22 @@ const CounterInvoiceList = () => {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15 }}>
                                             <span><b>Phí vận chuyển:</b></span>
                                             <span style={{ color: '#2980b9', fontWeight: 700 }}><b>{Number(selectedOrder.phiShip || 0).toLocaleString()} đ</b></span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15, marginTop: 4 }}>
+                                            <span><b>Thanh toán:</b></span>
+                                            <span style={{ 
+                                              color: selectedOrder.phuongThucThanhToan === 'MOMO' ? '#d82d8b' : 
+                                                     selectedOrder.phuongThucThanhToan === 'Tiền mặt' ? '#27ae60' : 
+                                                     selectedOrder.phuongThucThanhToan === 'Chuyển khoản' ? '#3498db' : '#666',
+                                              fontWeight: 700 
+                                            }}>
+                                              <b>
+                                                {selectedOrder.phuongThucThanhToan === 'MOMO' ? '💳 MoMo' :
+                                                 selectedOrder.phuongThucThanhToan === 'Tiền mặt' ? '💰 Tiền mặt' :
+                                                 selectedOrder.phuongThucThanhToan === 'Chuyển khoản' ? '🏦 Chuyển khoản' :
+                                                 selectedOrder.phuongThucThanhToan || 'Chưa xác định'}
+                                              </b>
+                                            </span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 17, marginTop: 6, fontWeight: 700 }}>
                                             <span><b>Tổng cộng:</b></span>

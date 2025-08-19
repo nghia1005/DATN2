@@ -735,6 +735,293 @@ export function useShopPageLogic() {
         setSelectedVoucher(voucher);
     };
 
+    // Xử lý MoMo payment return
+    useEffect(() => {
+        console.log('🔍 useEffect for MoMo return - Component mounted/updated');
+        
+        const checkMomoPaymentReturn = async () => {
+            console.log('🔍 useEffect triggered - checking MoMo return');
+            const urlParams = new URLSearchParams(window.location.search);
+            const momoReturn = urlParams.get('momo_return');
+            
+            console.log('🔍 Current URL:', window.location.href);
+            console.log('🔍 momo_return param:', momoReturn);
+            console.log('🔍 All URL params:', Object.fromEntries(urlParams.entries()));
+            
+            // Kiểm tra nhiều trường hợp có thể là MoMo return
+            const isMomoReturn = momoReturn === 'true' || 
+                                urlParams.get('resultCode') !== null || 
+                                urlParams.get('message') !== null ||
+                                urlParams.get('orderId') !== null;
+            
+            console.log('🔍 isMomoReturn:', isMomoReturn);
+            
+            if (isMomoReturn) {
+                console.log('🔄 MoMo payment return detected');
+                
+                // Lấy orderId từ localStorage hoặc URL params
+                const momoOrderId = urlParams.get('orderId') || localStorage.getItem('pendingMomoOrderId');
+                
+                if (momoOrderId) {
+                    console.log('📋 MoMo orderId:', momoOrderId);
+                    
+                    try {
+                        // Kiểm tra trạng thái giao dịch MoMo
+                        const statusResponse = await fetch(`http://localhost:8080/api/momo/check-status/${momoOrderId}`);
+                        const statusResult = await statusResponse.json();
+                        
+                        console.log('📊 MoMo status check result:', statusResult);
+                        
+                        console.log('🔍 Status check result:', statusResult);
+                        console.log('🔍 Transaction status:', statusResult.data?.trangThai);
+                        
+                        if (statusResult.success && statusResult.data?.trangThai === 'Thành công') {
+                            // Thanh toán thành công - Tạo hóa đơn và link
+                            console.log('🎉 MoMo payment successful, creating invoice...');
+                            try {
+                                // Lấy thông tin đơn hàng từ localStorage
+                                const checkoutData = localStorage.getItem('checkoutData');
+                                console.log('📋 Checkout data from localStorage:', checkoutData);
+                                if (checkoutData) {
+                                    const orderData = JSON.parse(checkoutData);
+                                    
+                                    console.log('📝 Creating invoice with data:', {
+                                        ...orderData,
+                                        phuongThucThanhToan: 'MOMO',
+                                        trangThai: 'Đã thanh toán'
+                                    });
+                                    
+                                    // Tạo hóa đơn
+                                    const invoiceResponse = await fetch('http://localhost:8080/api/hoadon', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            ...orderData,
+                                            phuongThucThanhToan: 'MOMO',
+                                            trangThai: 'Chờ xác nhận'
+                                        }),
+                                    });
+                                    
+                                    console.log('📊 Invoice response status:', invoiceResponse.status);
+                                    if (invoiceResponse.ok) {
+                                        const invoiceResult = await invoiceResponse.json();
+                                        console.log('✅ Invoice created successfully:', invoiceResult);
+                                        const idHoaDon = invoiceResult.data.idHoaDon;
+                                        
+                                        // Link MoMo transaction với hóa đơn
+                                        console.log('🔗 Linking MoMo transaction with invoice...');
+                                        const linkResponse = await fetch(`http://localhost:8080/api/momo/link-invoice/${momoOrderId}/${idHoaDon}`, {
+                                            method: 'POST'
+                                        });
+                                        console.log('🔗 Link response:', linkResponse.status);
+                                        
+                                        // Redirect về trang thank you với thông tin hóa đơn
+                                        const thankYouUrl = `/shop/thank-you?invoiceCode=${invoiceResult.data.maHoaDon}&email=${orderData.email || customerInfo.email}`;
+                                        console.log('🔄 Redirecting to:', thankYouUrl);
+                                        window.location.href = thankYouUrl;
+                                    } else {
+                                        const errorText = await invoiceResponse.text();
+                                        console.error('❌ Invoice creation failed:', errorText);
+                                        showNotification('❌ Lỗi tạo hóa đơn sau thanh toán MoMo.', 'error');
+                                    }
+                                } else {
+                                    console.log('⚠️ No checkout data found in localStorage');
+                                    console.log('🔍 Available localStorage keys:', Object.keys(localStorage));
+                                    console.log('🔍 pendingMomoOrderId:', localStorage.getItem('pendingMomoOrderId'));
+                                    console.log('🔍 checkoutData:', localStorage.getItem('checkoutData'));
+                                    showNotification('💳 Thanh toán MoMo thành công!', 'success');
+                                }
+                            } catch (error) {
+                                console.error('Error creating invoice after MoMo payment:', error);
+                                showNotification('💳 Thanh toán MoMo thành công!', 'success');
+                            }
+                            
+                            // Xóa orderId khỏi localStorage
+                            localStorage.removeItem('pendingMomoOrderId');
+                            localStorage.removeItem('checkoutData');
+                            
+                            // Xóa params khỏi URL
+                            const newUrl = window.location.pathname;
+                            window.history.replaceState({}, document.title, newUrl);
+                            
+                        } else if (statusResult.success && statusResult.data?.trangThai === 'Chờ thanh toán') {
+                            // Vẫn đang chờ - Tự động thử test thành công
+                            showNotification('⏳ Đang xử lý thanh toán MoMo...', 'info');
+                            
+                            try {
+                                // Tự động trigger test thành công
+                                const testResponse = await fetch(`http://localhost:8080/api/momo/test-success/${momoOrderId}`, {
+                                    method: 'POST'
+                                });
+                                const testResult = await testResponse.json();
+                                
+                                if (testResult.success) {
+                                    // Check lại status sau khi test
+                                    const newStatusResponse = await fetch(`http://localhost:8080/api/momo/check-status/${momoOrderId}`);
+                                    const newStatusResult = await newStatusResponse.json();
+                                    
+                                    if (newStatusResult.success && newStatusResult.data?.trangThai === 'Thành công') {
+                                        showNotification('💳 Thanh toán MoMo thành công! Đơn hàng của bạn đã được xử lý.', 'success');
+                                        
+                                        // Xóa orderId khỏi localStorage
+                                        localStorage.removeItem('pendingMomoOrderId');
+                                        
+                                        // Xóa params khỏi URL
+                                        const newUrl = window.location.pathname;
+                                        window.history.replaceState({}, document.title, newUrl);
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Auto test error:', error);
+                                showNotification('❌ Có lỗi xảy ra khi xử lý thanh toán MoMo. Vui lòng liên hệ hỗ trợ.', 'error');
+                            }
+                        } else {
+                            showNotification('❌ Thanh toán MoMo chưa hoàn thành. Vui lòng thử lại.', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error checking MoMo status:', error);
+                        showNotification('❌ Không thể kiểm tra trạng thái thanh toán MoMo.', 'error');
+                    }
+                } else {
+                    console.log('❌ No MoMo orderId found');
+                }
+            }
+        };
+
+        // Chỉ chạy khi component mount và có params
+        if (typeof window !== 'undefined') {
+            console.log('🔍 Component mounted, calling checkMomoPaymentReturn');
+            checkMomoPaymentReturn();
+        } else {
+            console.log('🔍 Window not available, skipping MoMo check');
+        }
+    }, []);
+
+    // Thêm useEffect để kiểm tra localStorage và force trigger logic tạo hóa đơn
+    useEffect(() => {
+        const checkPendingMomoOrder = async () => {
+            console.log('🔍 Checking for pending MoMo orders in localStorage');
+            
+            let pendingOrderId = localStorage.getItem('pendingMomoOrderId');
+            const checkoutData = localStorage.getItem('checkoutData');
+            
+            console.log('🔍 pendingOrderId:', pendingOrderId);
+            console.log('🔍 checkoutData exists:', !!checkoutData);
+            
+            console.log('🔍 All localStorage keys:', Object.keys(localStorage));
+            console.log('🔍 All localStorage values:', {
+                pendingMomoOrderId: localStorage.getItem('pendingMomoOrderId'),
+                checkoutData: localStorage.getItem('checkoutData'),
+                otherKeys: Object.keys(localStorage).filter(key => key !== 'pendingMomoOrderId' && key !== 'checkoutData')
+            });
+            
+            if (pendingOrderId && checkoutData) {
+                console.log('🔍 Found pending MoMo order, checking status...');
+            } else if (checkoutData && !pendingOrderId) {
+                console.log('🔍 No pendingOrderId but have checkoutData, searching for recent MoMo transactions...');
+                
+                try {
+                    // Tìm giao dịch MoMo gần nhất cho loại Online
+                    const searchResponse = await fetch('http://localhost:8080/api/momo/recent-online');
+                    const searchResult = await searchResponse.json();
+                    
+                    if (searchResult.success && searchResult.data) {
+                        console.log('🔍 Found recent MoMo transaction:', searchResult.data);
+                        pendingOrderId = searchResult.data.orderId;
+                    }
+                } catch (error) {
+                    console.error('Error searching for recent MoMo transaction:', error);
+                }
+            }
+            
+            if (pendingOrderId && checkoutData) {
+                console.log('🔍 Proceeding with orderId:', pendingOrderId);
+                
+                try {
+                    // Kiểm tra trạng thái giao dịch MoMo
+                    const statusResponse = await fetch(`http://localhost:8080/api/momo/check-status/${pendingOrderId}`);
+                    const statusResult = await statusResponse.json();
+                    
+                    console.log('🔍 MoMo status check result:', statusResult);
+                    
+                    if (statusResult.success && statusResult.data?.trangThai === 'Thành công') {
+                        console.log('🎉 MoMo payment successful, creating invoice...');
+                        
+                        const orderData = JSON.parse(checkoutData);
+                        
+                        console.log('📝 Creating invoice with data:', {
+                            ...orderData,
+                            phuongThucThanhToan: 'MOMO',
+                            trangThai: 'Chờ xác nhận'
+                        });
+                        
+                        // Tạo hóa đơn
+                        const invoiceResponse = await fetch('http://localhost:8080/api/hoadon', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                ...orderData,
+                                phuongThucThanhToan: 'MOMO',
+                                trangThai: 'Chờ xác nhận'
+                            }),
+                        });
+                        
+                        console.log('📊 Invoice response status:', invoiceResponse.status);
+                        if (invoiceResponse.ok) {
+                            const invoiceResult = await invoiceResponse.json();
+                            console.log('✅ Invoice created successfully:', invoiceResult);
+                            
+                            console.log('🔍 Invoice result structure:', invoiceResult);
+                            console.log('🔍 invoiceResult.data:', invoiceResult.data);
+                            console.log('🔍 invoiceResult.data.idHoaDon:', invoiceResult.data?.idHoaDon);
+                            
+                            // Kiểm tra idHoaDon trong cả data và root level
+                            const idHoaDon = invoiceResult.data?.idHoaDon || invoiceResult.idHoaDon;
+                            
+                            if (idHoaDon) {
+                                
+                                // Link MoMo transaction với hóa đơn
+                                console.log('🔗 Linking MoMo transaction with invoice...');
+                                const linkResponse = await fetch(`http://localhost:8080/api/momo/link-invoice/${pendingOrderId}/${idHoaDon}`, {
+                                    method: 'POST'
+                                });
+                                console.log('🔗 Link response:', linkResponse.status);
+                                
+                                // Redirect về trang thank you với thông tin hóa đơn
+                                const maHoaDon = invoiceResult.data?.maHoaDon || invoiceResult.maHoaDon;
+                                const thankYouUrl = `/shop/thank-you?invoiceCode=${maHoaDon}&email=${orderData.email || customerInfo.email}`;
+                                console.log('🔄 Redirecting to:', thankYouUrl);
+                                window.location.href = thankYouUrl;
+                            } else {
+                                console.error('❌ Invoice result missing idHoaDon:', invoiceResult);
+                                showNotification('❌ Lỗi tạo hóa đơn: Thiếu thông tin hóa đơn.', 'error');
+                            }
+                        } else {
+                            const errorText = await invoiceResponse.text();
+                            console.error('❌ Invoice creation failed:', errorText);
+                            showNotification('❌ Lỗi tạo hóa đơn sau thanh toán MoMo.', 'error');
+                        }
+                        
+                        // Xóa orderId khỏi localStorage
+                        localStorage.removeItem('pendingMomoOrderId');
+                        localStorage.removeItem('checkoutData');
+                    }
+                } catch (error) {
+                    console.error('Error checking pending MoMo order:', error);
+                }
+            }
+        };
+        
+        // Chạy sau 2 giây để đảm bảo component đã load xong
+        const timer = setTimeout(checkPendingMomoOrder, 2000);
+        
+        return () => clearTimeout(timer);
+    }, []);
+
 
 
     // --- Trả về tất cả các biến/hàm cần thiết cho phần render ---

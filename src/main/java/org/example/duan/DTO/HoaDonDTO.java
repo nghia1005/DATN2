@@ -24,6 +24,7 @@ public class HoaDonDTO {
     private String soDienThoai;
     private String email;
     private String loaiDon;
+    private String phuongThucThanhToan;
     private String tenKhachHang;
     private String diaChiNhanHang;
     public String getTenKhachHang() { return tenKhachHang; }

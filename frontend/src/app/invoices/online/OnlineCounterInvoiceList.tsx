@@ -938,7 +938,7 @@ const OnlineCounterInvoiceList = () => {
                                             <strong>Ngày tạo:</strong> {selectedOrder.ngayTao ? new Date(selectedOrder.ngayTao).toLocaleString('vi-VN') : 'N/A'}
                                         </div>
                                         <div style={{ marginBottom: 8 }}>
-                                            <strong>Khách hàng:</strong> {selectedOrder.tenKhachHang}
+                                            <strong>Khách hàng:</strong> {selectedOrder.tenKhachHang || selectedOrder.tenNguoiNhan || 'Chưa có thông tin'}
                                         </div>
                                     </div>
                                     <div>
@@ -1110,9 +1110,10 @@ const OnlineCounterInvoiceList = () => {
                                         )}
                                     </div>
                                     <div>
-                                        <div><strong>Người nhận:</strong> {selectedOrder.tenNguoiNhan}</div>
-                                        <div><strong>Số điện thoại:</strong> {selectedOrder.soDienThoai}</div>
-                                        <div><strong>Địa chỉ:</strong> {selectedOrder.diaChiNhanHang}</div>
+                                        <div><strong>Người nhận:</strong> {selectedOrder.tenNguoiNhan || 'Chưa có thông tin'}</div>
+                                        <div><strong>Số điện thoại:</strong> {selectedOrder.soDienThoai || 'Chưa có thông tin'}</div>
+                                        <div><strong>Địa chỉ:</strong> {selectedOrder.diaChiNhanHang || 'Chưa có thông tin'}</div>
+                                        <div><strong>Phương thức thanh toán:</strong> {selectedOrder.phuongThucThanhToan || 'Chưa có thông tin'}</div>
                                         {selectedOrder.ghiChu && <div><strong>Ghi chú:</strong> {selectedOrder.ghiChu}</div>}
                                     </div>
                                 </div>

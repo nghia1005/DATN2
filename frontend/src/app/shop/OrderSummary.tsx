@@ -82,6 +82,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     if (method === 'bank') {
       setShowNCBPayment(true);
     }
+    // Bỏ logic mở modal MoMo - chỉ cần chọn radio
   };
 
   const handleNCBPaymentSuccess = async (transactionId: string) => {
@@ -101,6 +102,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     console.error('NCB Payment error:', error);
     setCustomerFormError('Thanh toán thất bại: ' + error);
   };
+
+  // Đã bỏ các hàm xử lý MoMo - xử lý trực tiếp trong nút thanh toán
   return (
     <Box sx={{ flex: 1, bgcolor: '#faf8f2', borderRadius: 2, p: 3, minWidth: 320 }}>
       <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>ĐƠN ĐẶT HÀNG CỦA BẠN</Typography>
@@ -218,6 +221,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <RadioGroup row value={payment} onChange={e => handlePaymentMethodChange(e.target.value)} sx={{ mb: 2 }}>
           <FormControlLabel value="cod" control={<Radio />} label="Thanh toán khi nhận hàng" />
           <FormControlLabel value="bank" control={<Radio />} label="Chuyển khoản NCB" />
+          <FormControlLabel value="momo" control={<Radio />} label="💳 Thanh toán MoMo" />
         </RadioGroup>
       </Box>
       {/* QR Selector modal */}
@@ -258,10 +262,62 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           type="button"
           variant="contained"
           sx={{ bgcolor: '#222', color: '#fff', fontWeight: 700, fontSize: 18, py: 1.5, minWidth: 160 }}
-          onClick={onPay}
+          onClick={async () => {
+            if (payment === 'momo') {
+              // Xử lý thanh toán MoMo trực tiếp
+              try {
+                const response = await fetch('http://localhost:8080/api/momo/create-shop', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    amount: needPay,
+                    orderInfo: `Thanh toán đơn hàng - ${new Date().toLocaleString('vi-VN')}`,
+                    returnUrl: 'http://localhost:3002/shop?momo_return=true'
+                  }),
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                  // Lưu orderId vào localStorage để xử lý khi return
+                  localStorage.setItem('pendingMomoOrderId', result.data.orderId);
+                  
+                  // Lưu checkout data để tạo hóa đơn sau khi thanh toán thành công
+                  const checkoutData = {
+                    tenNguoiNhan: customerInfo.name,
+                    soDienThoai: customerInfo.phone,
+                    email: customerInfo.email,
+                    diaChiNhanHang: `${customerInfo.address}, ${customerInfo.ward}, ${customerInfo.district}, ${customerInfo.city}`,
+                    chiTiet: checkoutItems.map(item => ({
+                      idChiTietSanPham: item.product.idChiTietSanPham,
+                      soLuong: item.quantity,
+                      donGia: item.product.gia,
+                      thanhTien: item.product.gia * item.quantity
+                    })),
+                    tongTien: needPay,
+                    loaiDon: 'Online',
+                    phuongThucThanhToan: 'MOMO'
+                  };
+                  localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+                  
+                  // Redirect to MoMo payment page
+                  window.location.href = result.data.payUrl;
+                } else {
+                  setCustomerFormError(result.message || 'Không thể tạo giao dịch MoMo');
+                }
+              } catch (err) {
+                setCustomerFormError('Lỗi kết nối đến MoMo');
+              }
+            } else {
+              // Xử lý các phương thức thanh toán khác
+              await onPay();
+            }
+          }}
           disabled={!!customerFormError}
         >
-          THANH TOÁN
+          {payment === 'momo' ? '💳 THANH TOÁN MOMO' : 'THANH TOÁN'}
         </Button>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
@@ -282,6 +338,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         onPaymentSuccess={handleNCBPaymentSuccess}
         onPaymentError={handleNCBPaymentError}
       />
+
+      {/* Đã bỏ modal MoMo - xử lý trực tiếp trong nút thanh toán */}
     </Box>
   );
 };

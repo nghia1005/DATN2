@@ -10,6 +10,7 @@ interface InvoiceDetailProps {
         tongTien: number;
         trangThai: string;
         loaiDon?: string;
+        phuongThucThanhToan?: string;
         chiTiet?: {
             tenSanPham: string;
             soLuong: number;
@@ -91,6 +92,20 @@ export default function InvoiceDetail({ invoice, onCloseAction }: InvoiceDetailP
                             <div className="info-row">
                                 <span className="label">Tổng tiền:</span>
                                 <span className="value amount">{formatCurrency(invoice.tongTien)}</span>
+                            </div>
+                            <div className="info-row">
+                                <span className="label">Phương thức thanh toán:</span>
+                                <span className="value" style={{
+                                    color: invoice.phuongThucThanhToan === 'MOMO' ? '#d82d8b' : 
+                                           invoice.phuongThucThanhToan === 'Tiền mặt' ? '#27ae60' : 
+                                           invoice.phuongThucThanhToan === 'Chuyển khoản' ? '#3498db' : '#333',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {invoice.phuongThucThanhToan === 'MOMO' ? '💳 MoMo' :
+                                     invoice.phuongThucThanhToan === 'Tiền mặt' ? '💰 Tiền mặt' :
+                                     invoice.phuongThucThanhToan === 'Chuyển khoản' ? '🏦 Chuyển khoản' :
+                                     invoice.phuongThucThanhToan || 'Chưa xác định'}
+                                </span>
                             </div>
                             <div className="info-row">
                                 <span className="label">Người đại diện:</span>

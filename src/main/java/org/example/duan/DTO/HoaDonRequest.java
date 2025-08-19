@@ -24,6 +24,7 @@ public class HoaDonRequest {
     // Thêm trường trạng thái hóa đơn
     private String trangThai;
     private String diaChiNhanHang;
+    private String phuongThucThanhToan;
     // Xóa các trường địa chỉ chi tiết vì sẽ lấy từ bảng DiaChi của khách hàng
     // private String ngoNgach;
     // private String phuongXa;

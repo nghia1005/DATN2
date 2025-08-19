@@ -24,6 +24,7 @@ public class HoaDon {
     private String ghiChu;
     private Long idPhieuGiamGia;
     private String loaiDon;
+    private String phuongThucThanhToan;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date ngayTao;

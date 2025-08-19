@@ -3,9 +3,12 @@ package org.example.duan.Service;
 import org.example.duan.DTO.*;
 import org.example.duan.Entity.*;
 import org.example.duan.Repository.*;
+import org.example.duan.Entity.HoaDonChiTiet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
 import org.example.duan.Repository.ChiTietSanPhamRepository;
 import org.example.duan.Repository.LichSuHoaDonRepository;
 import org.example.duan.Entity.LichSuHoaDon;
@@ -60,6 +63,7 @@ public class HoaDonService {
         hd.setNgayTao(new Date());
         hd.setIdPhieuGiamGia(req.getIdPhieuGiamGia());
         hd.setLoaiDon(req.getLoaiDon());
+        hd.setPhuongThucThanhToan(req.getPhuongThucThanhToan()); // Thêm field mới
         // Bổ sung map các trường giao hàng
         hd.setTenNguoiNhan(req.getTenNguoiNhan());
         hd.setSoDienThoai(req.getSoDienThoai());
@@ -87,21 +91,40 @@ public class HoaDonService {
         java.math.BigDecimal thanhTien = req.getTongTien().subtract(giamGia).add(req.getPhiShip() != null ? req.getPhiShip() : java.math.BigDecimal.ZERO);
         hd.setThanhTien(thanhTien);
 
-        List<HoaDonChiTiet> chiTietList = new ArrayList<>();
-        if (req.getChiTiet() != null) {
-            for (HoaDonChiTietDTO ct : req.getChiTiet()) {
-                HoaDonChiTiet ctd = new HoaDonChiTiet();
-                ctd.setHoaDon(hd);
-                ctd.setIdChiTietSanPham(ct.getIdChiTietSanPham());
-                ctd.setSoLuong(ct.getSoLuong());
-                ctd.setDonGia(ct.getDonGia());
-                ctd.setThanhTien(ct.getThanhTien());
-                ctd.setTrangThai("Chờ xử lý");
-                chiTietList.add(ctd);
+        // Lưu hóa đơn trước, không gắn chi tiết để tránh JPA cascade lưu trùng HDCT
+        HoaDon savedHoaDon = hoaDonRepo.save(hd);
+        
+        // Gộp chi tiết trùng (merge) và lưu một lần
+        Map<Long, HoaDonChiTietDTO> mergedItems = new HashMap<>();
+        if (req.getChiTiet() != null && !req.getChiTiet().isEmpty()) {
+            for (HoaDonChiTietDTO ctDto : req.getChiTiet()) {
+                Long productId = ctDto.getIdChiTietSanPham();
+                if (mergedItems.containsKey(productId)) {
+                    HoaDonChiTietDTO existing = mergedItems.get(productId);
+                    int newQty = (existing.getSoLuong() != null ? existing.getSoLuong() : 0) +
+                                 (ctDto.getSoLuong() != null ? ctDto.getSoLuong() : 0);
+                    java.math.BigDecimal newThanhTien = existing.getThanhTien().add(ctDto.getThanhTien());
+                    existing.setSoLuong(newQty);
+                    existing.setThanhTien(newThanhTien);
+                } else {
+                    mergedItems.put(productId, ctDto);
+                }
+            }
+
+            for (HoaDonChiTietDTO ctDto : mergedItems.values()) {
+                HoaDonChiTiet chiTietEntity = new HoaDonChiTiet();
+                chiTietEntity.setHoaDon(savedHoaDon);
+                chiTietEntity.setIdChiTietSanPham(ctDto.getIdChiTietSanPham());
+                chiTietEntity.setSoLuong(ctDto.getSoLuong());
+                chiTietEntity.setDonGia(ctDto.getDonGia());
+                chiTietEntity.setThanhTien(ctDto.getThanhTien());
+                chiTietEntity.setTrangThai("Đã xác nhận");
+                
+                chiTietRepo.save(chiTietEntity);
+                logger.info("Đã lưu chi tiết hóa đơn (merged): {} x {} = {}",
+                    ctDto.getIdChiTietSanPham(), ctDto.getSoLuong(), ctDto.getThanhTien());
             }
         }
-        hd.setChiTiet(chiTietList);
-        hoaDonRepo.save(hd);
 
         // Sau khi lưu hóa đơn, giảm số lượng voucher đi 1 nếu có sử dụng
         if (req.getIdPhieuGiamGia() != null) {
@@ -116,37 +139,33 @@ public class HoaDonService {
             }
         }
 
-        // Trừ tồn kho sản phẩm sau khi lưu hóa đơn và chi tiết hóa đơn
-        // Chỉ trừ số lượng nếu trạng thái là "Đã xác nhận" (thanh toán chuyển khoản)
-        if (req.getChiTiet() != null && "Đã xác nhận".equals(trangThai)) {
-            for (HoaDonChiTietDTO ct : req.getChiTiet()) {
+        // Trừ tồn kho theo danh sách đã merge để tránh trừ trùng
+        if (!mergedItems.isEmpty()) {
+            for (HoaDonChiTietDTO ct : mergedItems.values()) {
                 ChiTietSanPham chiTiet = chiTietSanPhamRepository.findById(ct.getIdChiTietSanPham().intValue())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm chi tiết với ID: " + ct.getIdChiTietSanPham()));
-                int soLuongConLai = (chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0) - (ct.getSoLuong() != null ? ct.getSoLuong() : 0);
-                if (soLuongConLai < 0) {
-                    throw new RuntimeException("Số lượng tồn kho không đủ cho sản phẩm: " + chiTiet.getIdChiTietSanPham());
+                
+                int soLuongHienTai = chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0;
+                int soLuongDat = ct.getSoLuong() != null ? ct.getSoLuong() : 0;
+                
+                // Kiểm tra tồn kho trước khi trừ
+                if (soLuongHienTai < soLuongDat) {
+                    throw new RuntimeException("Số lượng tồn kho không đủ cho sản phẩm: " + chiTiet.getIdChiTietSanPham() + 
+                        " (Có: " + soLuongHienTai + ", Cần: " + soLuongDat + ")");
                 }
+                
+                // Trừ tồn kho
+                int soLuongConLai = soLuongHienTai - soLuongDat;
                 chiTiet.setSoLuong(soLuongConLai);
+                
                 // Nếu số lượng = 0 thì cập nhật trạng thái thành "Ngừng bán"
                 if (soLuongConLai == 0) {
                     chiTiet.setTrangThai("Ngừng bán");
                 }
+                
                 chiTietSanPhamRepository.save(chiTiet);
-                logger.info("Đã trừ {} sản phẩm (ID: {}) khỏi kho khi tạo hóa đơn chuyển khoản {}", 
-                    ct.getSoLuong(), ct.getIdChiTietSanPham(), hd.getMaHoaDon());
-            }
-        } else if (req.getChiTiet() != null && "Chờ xác nhận".equals(trangThai)) {
-            // Đối với đơn hàng COD, chỉ kiểm tra tồn kho mà không trừ
-            for (HoaDonChiTietDTO ct : req.getChiTiet()) {
-                ChiTietSanPham chiTiet = chiTietSanPhamRepository.findById(ct.getIdChiTietSanPham().intValue())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm chi tiết với ID: " + ct.getIdChiTietSanPham()));
-                int soLuongHienTai = chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0;
-                int soLuongDat = ct.getSoLuong() != null ? ct.getSoLuong() : 0;
-                if (soLuongHienTai < soLuongDat) {
-                    throw new RuntimeException("Số lượng tồn kho không đủ cho sản phẩm: " + chiTiet.getIdChiTietSanPham());
-                }
-                logger.info("Đã kiểm tra tồn kho cho đơn hàng COD: {} sản phẩm (ID: {}) cho hóa đơn {}", 
-                    soLuongDat, ct.getIdChiTietSanPham(), hd.getMaHoaDon());
+                logger.info("Đã trừ {} sản phẩm (ID: {}) khỏi kho khi tạo hóa đơn {} - Loại: {} - Phương thức: {}",
+                    soLuongDat, ct.getIdChiTietSanPham(), hd.getMaHoaDon(), req.getLoaiDon(), req.getPhuongThucThanhToan());
             }
         }
 
@@ -164,6 +183,7 @@ public class HoaDonService {
         dto.setNgayTao(hd.getNgayTao());
         dto.setIdPhieuGiamGia(hd.getIdPhieuGiamGia());
         dto.setLoaiDon(hd.getLoaiDon());
+        dto.setPhuongThucThanhToan(hd.getPhuongThucThanhToan()); // Thêm mapping field mới
         // Bổ sung mapping các trường người nhận
         dto.setTenNguoiNhan(hd.getTenNguoiNhan());
         dto.setSoDienThoai(hd.getSoDienThoai());
@@ -214,6 +234,7 @@ public class HoaDonService {
             dto.setNgayTao(hd.getNgayTao());
             dto.setIdPhieuGiamGia(hd.getIdPhieuGiamGia());
             dto.setLoaiDon(hd.getLoaiDon());
+            dto.setPhuongThucThanhToan(hd.getPhuongThucThanhToan());
             // Bổ sung mapping các trường người nhận
             dto.setTenNguoiNhan(hd.getTenNguoiNhan());
             dto.setSoDienThoai(hd.getSoDienThoai());
@@ -223,6 +244,36 @@ public class HoaDonService {
                 khachHangRepository.findById(hd.getIdKhachHang().intValue())
                     .ifPresent(kh -> dto.setTenKhachHang(kh.getTenKhachHang()));
             }
+            
+            // Load chi tiết sản phẩm với thông tin đầy đủ
+            List<HoaDonChiTiet> chiTietList = chiTietRepo.findByHoaDon_IdHoaDon(hd.getIdHoaDon());
+            List<HoaDonChiTietDTO> chiTietDTOs = new ArrayList<>();
+            
+            for (HoaDonChiTiet ct : chiTietList) {
+                HoaDonChiTietDTO ctDto = new HoaDonChiTietDTO();
+                ctDto.setIdHoaDonChiTiet(ct.getIdHoaDonChiTiet());
+                ctDto.setIdHoaDon(ct.getHoaDon().getIdHoaDon());
+                ctDto.setIdChiTietSanPham(ct.getIdChiTietSanPham());
+                ctDto.setSoLuong(ct.getSoLuong());
+                ctDto.setDonGia(ct.getDonGia());
+                ctDto.setThanhTien(ct.getThanhTien());
+                ctDto.setTrangThai(ct.getTrangThai());
+                
+                // Load thông tin sản phẩm từ ChiTietSanPham
+                ChiTietSanPham chiTietSanPham = chiTietSanPhamRepository.findById(ct.getIdChiTietSanPham().intValue()).orElse(null);
+                if (chiTietSanPham != null) {
+                    ctDto.setTenSanPham(chiTietSanPham.getSanPham().getTenSanPham());
+                    ctDto.setMaSanPham(chiTietSanPham.getSanPham().getMaSanPham());
+                    ctDto.setDanhMuc(chiTietSanPham.getSanPham().getDanhMuc().getTenDanhMuc());
+                    ctDto.setThuongHieu(chiTietSanPham.getSanPham().getThuongHieu().getTenThuongHieu());
+                    ctDto.setMauSac(chiTietSanPham.getMauSac().getMauSac());
+                    ctDto.setKichCo(chiTietSanPham.getKichCo().getKichCo());
+                }
+                
+                chiTietDTOs.add(ctDto);
+            }
+            
+            dto.setChiTiet(chiTietDTOs);
             dtos.add(dto);
         }
         return dtos;
@@ -245,6 +296,7 @@ public class HoaDonService {
         dto.setNgayTao(hd.getNgayTao());
         dto.setIdPhieuGiamGia(hd.getIdPhieuGiamGia());
         dto.setLoaiDon(hd.getLoaiDon());
+        dto.setPhuongThucThanhToan(hd.getPhuongThucThanhToan()); // Thêm mapping field mới
         // Bổ sung mapping các trường người nhận
         dto.setTenNguoiNhan(hd.getTenNguoiNhan());
         dto.setSoDienThoai(hd.getSoDienThoai());
@@ -254,6 +306,36 @@ public class HoaDonService {
             khachHangRepository.findById(hd.getIdKhachHang().intValue())
                 .ifPresent(kh -> dto.setTenKhachHang(kh.getTenKhachHang()));
         }
+        
+        // Load chi tiết sản phẩm với thông tin đầy đủ
+        List<HoaDonChiTiet> chiTietList = chiTietRepo.findByHoaDon_IdHoaDon(hd.getIdHoaDon());
+        List<HoaDonChiTietDTO> chiTietDTOs = new ArrayList<>();
+        
+        for (HoaDonChiTiet ct : chiTietList) {
+            HoaDonChiTietDTO ctDto = new HoaDonChiTietDTO();
+            ctDto.setIdHoaDonChiTiet(ct.getIdHoaDonChiTiet());
+            ctDto.setIdHoaDon(ct.getHoaDon().getIdHoaDon());
+            ctDto.setIdChiTietSanPham(ct.getIdChiTietSanPham());
+            ctDto.setSoLuong(ct.getSoLuong());
+            ctDto.setDonGia(ct.getDonGia());
+            ctDto.setThanhTien(ct.getThanhTien());
+            ctDto.setTrangThai(ct.getTrangThai());
+            
+            // Load thông tin sản phẩm từ ChiTietSanPham
+            ChiTietSanPham chiTietSanPham = chiTietSanPhamRepository.findById(ct.getIdChiTietSanPham().intValue()).orElse(null);
+            if (chiTietSanPham != null) {
+                ctDto.setTenSanPham(chiTietSanPham.getSanPham().getTenSanPham());
+                ctDto.setMaSanPham(chiTietSanPham.getSanPham().getMaSanPham());
+                ctDto.setDanhMuc(chiTietSanPham.getSanPham().getDanhMuc().getTenDanhMuc());
+                ctDto.setThuongHieu(chiTietSanPham.getSanPham().getThuongHieu().getTenThuongHieu());
+                ctDto.setMauSac(chiTietSanPham.getMauSac().getMauSac());
+                ctDto.setKichCo(chiTietSanPham.getKichCo().getKichCo());
+            }
+            
+            chiTietDTOs.add(ctDto);
+        }
+        
+        dto.setChiTiet(chiTietDTOs);
         return dto;
     }
 
@@ -274,6 +356,7 @@ public class HoaDonService {
         dto.setNgayTao(hd.getNgayTao());
         dto.setIdPhieuGiamGia(hd.getIdPhieuGiamGia());
         dto.setLoaiDon(hd.getLoaiDon());
+        dto.setPhuongThucThanhToan(hd.getPhuongThucThanhToan()); // Thêm mapping field mới
         // Bổ sung mapping các trường người nhận
         dto.setTenNguoiNhan(hd.getTenNguoiNhan());
         dto.setSoDienThoai(hd.getSoDienThoai());
@@ -283,6 +366,36 @@ public class HoaDonService {
             khachHangRepository.findById(hd.getIdKhachHang().intValue())
                 .ifPresent(kh -> dto.setTenKhachHang(kh.getTenKhachHang()));
         }
+        
+        // Load chi tiết sản phẩm với thông tin đầy đủ
+        List<HoaDonChiTiet> chiTietList = chiTietRepo.findByHoaDon_IdHoaDon(hd.getIdHoaDon());
+        List<HoaDonChiTietDTO> chiTietDTOs = new ArrayList<>();
+        
+        for (HoaDonChiTiet ct : chiTietList) {
+            HoaDonChiTietDTO ctDto = new HoaDonChiTietDTO();
+            ctDto.setIdHoaDonChiTiet(ct.getIdHoaDonChiTiet());
+            ctDto.setIdHoaDon(ct.getHoaDon().getIdHoaDon());
+            ctDto.setIdChiTietSanPham(ct.getIdChiTietSanPham());
+            ctDto.setSoLuong(ct.getSoLuong());
+            ctDto.setDonGia(ct.getDonGia());
+            ctDto.setThanhTien(ct.getThanhTien());
+            ctDto.setTrangThai(ct.getTrangThai());
+            
+            // Load thông tin sản phẩm từ ChiTietSanPham
+            ChiTietSanPham chiTietSanPham = chiTietSanPhamRepository.findById(ct.getIdChiTietSanPham().intValue()).orElse(null);
+            if (chiTietSanPham != null) {
+                ctDto.setTenSanPham(chiTietSanPham.getSanPham().getTenSanPham());
+                ctDto.setMaSanPham(chiTietSanPham.getSanPham().getMaSanPham());
+                ctDto.setDanhMuc(chiTietSanPham.getSanPham().getDanhMuc().getTenDanhMuc());
+                ctDto.setThuongHieu(chiTietSanPham.getSanPham().getThuongHieu().getTenThuongHieu());
+                ctDto.setMauSac(chiTietSanPham.getMauSac().getMauSac());
+                ctDto.setKichCo(chiTietSanPham.getKichCo().getKichCo());
+            }
+            
+            chiTietDTOs.add(ctDto);
+        }
+        
+        dto.setChiTiet(chiTietDTOs);
         return dto;
     }
 

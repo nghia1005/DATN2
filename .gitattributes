@@ -1,0 +1,42 @@
+# --- Mặc định: tự động xử lý file text, dùng LF
+* text=auto
+
+# --- Cụ thể cho dự án frontend ---
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.js   text eol=lf
+*.jsx  text eol=lf
+*.json text eol=lf
+*.css  text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+
+# --- Cụ thể cho dự án backend (Java/Maven) ---
+/mvnw          text eol=lf
+/mvnw.cmd      text eol=crlf
+*.java         text eol=lf
+*.xml          text eol=lf
+*.properties   text eol=lf
+*.gradle       text eol=lf
+
+# --- Các file batch/Windows scripts nên dùng CRLF ---
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# --- Shell scripts nên dùng LF ---
+*.sh   text eol=lf
+
+# --- Ignore binary files (no text normalization) ---
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary
+*.pdf  binary

@@ -1,0 +1,579 @@
+.dashboardHome {
+  padding: 0;
+  background: transparent;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header Section */
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 40px 0;
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+}
+
+.welcomeSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(181, 157, 58, 0.2);
+  background: linear-gradient(135deg, #fffbe6 0%, #f9e7b4 100%);
+  border: 3px solid #b59d3a;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(181, 157, 58, 0.3);
+}
+
+.welcomeText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.welcomeTitle {
+  color: #6b4f1d;
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(181, 157, 58, 0.1);
+}
+
+.brand {
+  color: #b59d3a;
+  background: linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcomeDesc {
+  color: #8a7a2a;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.dateTime {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.currentDate {
+  color: #6b4f1d;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.currentTime {
+  color: #b59d3a;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 0 0 30px 0;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+  border-radius: 14px;
+  padding: 16px 14px;
+  box-shadow: 0 4px 16px rgba(181, 157, 58, 0.06);
+  border: 1px solid rgba(181, 157, 58, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #b59d3a 0%, #8a7a2a 100%);
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(181, 157, 58, 0.15);
+}
+
+.statIcon {
+  font-size: 1.6rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fffbe6 0%, #f9e7b4 100%);
+  box-shadow: 0 2px 8px rgba(181, 157, 58, 0.1);
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statTitle {
+  color: #6b4f1d;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.statValue {
+  color: #222;
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.statChange {
+  color: #28a745;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Revenue Section */
+.revenueSection {
+  padding: 0 0 40px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  color: #6b4f1d;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  text-align: center;
+  position: relative;
+}
+
+.sectionTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #b59d3a 0%, #8a7a2a 100%);
+  border-radius: 2px;
+}
+
+.revenueGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.revenueCard {
+  background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 6px 24px rgba(181, 157, 58, 0.08);
+  border: 1px solid rgba(181, 157, 58, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.revenueCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(181, 157, 58, 0.15);
+}
+
+.revenueIcon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fffbe6 0%, #f9e7b4 100%);
+}
+
+.revenueInfo {
+  flex: 1;
+}
+
+.revenueLabel {
+  color: #6b4f1d;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.revenueAmount {
+  color: #222;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* Order Section */
+.orderSection {
+  padding: 0 0 40px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.orderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.orderCard {
+  background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+  border-radius: 16px;
+  padding: 20px 16px;
+  box-shadow: 0 6px 24px rgba(181, 157, 58, 0.08);
+  border: 1px solid rgba(181, 157, 58, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.orderCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(181, 157, 58, 0.15);
+}
+
+.orderIcon {
+  font-size: 1.8rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.successCard .orderIcon {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+}
+
+.pendingCard .orderIcon {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+}
+
+.failedCard .orderIcon {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+}
+
+.cancelledCard .orderIcon {
+  background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+}
+
+.orderInfo {
+  flex: 1;
+}
+
+.orderLabel {
+  color: #6b4f1d;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.orderCount {
+  color: #222;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+/* Support Section */
+.supportSection {
+  padding: 0 0 40px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.supportCard {
+  background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 8px 32px rgba(181, 157, 58, 0.1);
+  border: 1px solid rgba(181, 157, 58, 0.08);
+}
+
+.supportTitle {
+  color: #6b4f1d;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  text-align: center;
+  position: relative;
+}
+
+.supportTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, #b59d3a 0%, #8a7a2a 100%);
+  border-radius: 1px;
+}
+
+.supportGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.supportItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fffbe6 0%, #f9e7b4 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.supportItem:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(181, 157, 58, 0.15);
+}
+
+.supportIcon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.supportInfo {
+  flex: 1;
+}
+
+.supportLabel {
+  color: #6b4f1d;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.supportValue {
+  color: #222;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.supportValue:hover {
+  color: #b59d3a;
+}
+
+/* Footer */
+.footer {
+  background: linear-gradient(135deg, #6b4f1d 0%, #8a7a2a 100%);
+  color: #fff;
+  padding: 32px 40px;
+  text-align: center;
+  margin-top: 40px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(181, 157, 58, 0.2);
+}
+
+.footerContent {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.footerText {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+
+.footerText:last-child {
+  margin-bottom: 0;
+  opacity: 0.7;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .headerSection {
+    padding: 30px 40px 20px 40px;
+  }
+  
+  .statsGrid {
+    padding: 30px 40px;
+  }
+  
+  .revenueSection,
+  .orderSection,
+  .supportSection {
+    padding: 0 40px 30px 40px;
+  }
+  
+  .footer {
+    padding: 24px 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .headerSection {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px 20px 15px 20px;
+    text-align: center;
+  }
+  
+  .welcomeSection {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .welcomeTitle {
+    font-size: 1.8rem;
+  }
+  
+  .welcomeDesc {
+    font-size: 1rem;
+  }
+  
+  .dateTime {
+    align-items: center;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 20px 20px;
+  }
+  
+  .statCard {
+    padding: 12px 10px;
+  }
+  
+  .statIcon {
+    width: 35px;
+    height: 35px;
+    font-size: 1.4rem;
+  }
+  
+  .statValue {
+    font-size: 1rem;
+  }
+  
+  .revenueSection,
+  .orderSection,
+  .supportSection {
+    padding: 0 20px 20px 20px;
+  }
+  
+  .revenueGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .orderGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .supportGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .footer {
+    padding: 20px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .orderGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statCard {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .statIcon {
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
+  }
+  
+  .revenueCard {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .supportGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .supportItem {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+} 

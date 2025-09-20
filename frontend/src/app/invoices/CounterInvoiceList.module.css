@@ -1,0 +1,107 @@
+.formBlock {
+    border: 2px solid #bbb;
+    border-radius: 32px;
+    padding: 32px;
+    margin-bottom: 32px;
+    background: #fff;
+    box-shadow: 0 2px 12px #0001;
+}
+
+.contentRow {
+    display: flex;
+    gap: 32px;
+}
+
+.leftCol {
+    flex: 1;
+    max-width: 340px;
+    border: 2px solid #bbb;
+    border-radius: 32px;
+    padding: 24px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    max-height: 600px; /* Giới hạn chiều cao, có thể điều chỉnh */
+    overflow-y: auto;  /* Hiện thanh kéo khi tràn */
+}
+
+.leftCol::-webkit-scrollbar {
+    width: 8px;
+}
+.leftCol::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+.leftCol::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.rightCol {
+    flex: 2;
+    border: 2px solid #bbb;
+    border-radius: 48px;
+    padding: 48px;
+    background: #fff;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.invoiceCard {
+    border: 2px solid #bbb;
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 18px;
+    background: #fafafa;
+}
+
+.filterBox {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.filterBox input,
+.filterBox select {
+  min-width: 110px;
+  max-width: 180px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 15px;
+  outline: none;
+  box-shadow: 0 1px 3px #0001;
+  transition: border 0.2s;
+  background: #fff;
+}
+.filterBox input:focus,
+.filterBox select:focus {
+  border: 1.5px solid #a3a3a3;
+}
+.filterBox button {
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  padding: 8px 22px;
+  background: #fafafa;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s;
+  box-shadow: 0 1px 3px #0001;
+}
+.filterBox button:hover {
+  background: #f3f4f6;
+  border: 1.5px solid #a3a3a3;
+}
+.filterBox label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+}

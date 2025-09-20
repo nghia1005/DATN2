@@ -1,0 +1,798 @@
+/* Page Container */
+.pageContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fffbe6 0%, #f9e7b4 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid #b59d3a;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(181, 157, 58, 0.1);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.headerLogo {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(181, 157, 58, 0.3);
+  border: 2px solid #b59d3a;
+}
+
+.brandInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandName {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #6b4f1d;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.brandTagline {
+  font-size: 0.9rem;
+  color: #b59d3a;
+  margin: 0;
+  font-style: italic;
+}
+
+.backButton {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #6b4f1d;
+  border: 2px solid #b59d3a;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.backButton:hover {
+  background: #b59d3a;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(181, 157, 58, 0.3);
+}
+
+/* Main Content */
+.mainContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: 2rem;
+}
+
+/* Register Container */
+.registerContainer {
+  display: flex;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 28px;
+  box-shadow: 0 25px 80px rgba(181, 157, 58, 0.2);
+  overflow: hidden;
+  width: 900px;
+  max-width: 95vw;
+  min-height: 500px;
+  backdrop-filter: blur(25px);
+  border: 2px solid rgba(181, 157, 58, 0.15);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.registerContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(181, 157, 58, 0.05) 0%, rgba(139, 115, 85, 0.05) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.registerContainer:hover {
+  box-shadow: 0 35px 100px rgba(181, 157, 58, 0.25);
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(181, 157, 58, 0.3);
+}
+
+/* Left Side - Form */
+.registerLeft {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  min-width: 400px;
+}
+
+.formHeader {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.welcomeTitle {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #6b4f1d;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #b59d3a 0%, #8b7355 50%, #6b4f1d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(181, 157, 58, 0.1);
+  letter-spacing: -0.5px;
+}
+
+.welcomeSubtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inputGroup {
+  position: relative;
+}
+
+.inputWrapper, .selectWrapper, .dateWrapper {
+  position: relative;
+}
+
+.inputWrapper input,
+.selectWrapper select,
+.dateWrapper input {
+  width: 100%;
+  padding: 0.7rem 0.7rem 0.7rem 2.5rem;
+  border: 2px solid #e6d8b4;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #6b4f1d;
+  box-shadow: 0 3px 12px rgba(181, 157, 58, 0.08);
+  position: relative;
+  z-index: 1;
+}
+
+.inputWrapper input:focus,
+.selectWrapper select:focus,
+.dateWrapper input:focus {
+  border-color: #b59d3a;
+  box-shadow: 0 6px 20px rgba(181, 157, 58, 0.15);
+  background: white;
+  transform: translateY(-3px);
+  border-width: 3px;
+}
+
+.inputWrapper input:hover,
+.selectWrapper select:hover,
+.dateWrapper input:hover {
+  border-color: #b59d3a;
+  background: white;
+}
+
+.inputLabel {
+  position: absolute;
+  left: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #b59d3a;
+  font-size: 1rem;
+  font-weight: 500;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+}
+
+.inputWrapper input:focus + .inputLabel,
+.inputWrapper input.filled + .inputLabel,
+.selectWrapper select:focus + .inputLabel,
+.selectWrapper select.filled + .inputLabel,
+.dateWrapper input:focus + .inputLabel,
+.dateWrapper input.filled + .inputLabel {
+  top: 0;
+  left: 1rem;
+  font-size: 0.85rem;
+  color: #b59d3a;
+  background: white;
+  padding: 0 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(181, 157, 58, 0.1);
+  font-weight: 600;
+}
+
+.labelIcon {
+  font-size: 1.2rem;
+}
+
+/* DatePicker Custom Styles */
+.dateWrapper :global(.react-datepicker-wrapper) {
+  width: 100%;
+}
+
+.dateWrapper :global(.react-datepicker__input-container) {
+  width: 100%;
+}
+
+.dateWrapper :global(.react-datepicker__input-container input) {
+  width: 100%;
+  padding: 0.7rem 0.7rem 0.7rem 2.5rem;
+  border: 2px solid #e6d8b4;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  color: #6b4f1d;
+  box-shadow: 0 2px 8px rgba(181, 157, 58, 0.1);
+}
+
+.dateWrapper :global(.react-datepicker__input-container input:focus) {
+  border-color: #b59d3a;
+  box-shadow: 0 4px 16px rgba(181, 157, 58, 0.2);
+  background: white;
+  transform: translateY(-2px);
+}
+
+.dateWrapper :global(.react-datepicker__input-container input:hover) {
+  border-color: #b59d3a;
+  background: white;
+}
+
+/* Error and Success Messages */
+.errorMessage, .successMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease;
+}
+
+.errorMessage {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.successMessage {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.errorIcon, .successIcon {
+  font-size: 1.2rem;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Register Button */
+.registerButton {
+  margin-top: 0.5rem;
+  padding: 0.7rem 2rem;
+  background: linear-gradient(135deg, #b59d3a 0%, #8b7355 50%, #6b4f1d 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 6px 20px rgba(181, 157, 58, 0.25);
+  min-height: 2.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.registerButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.registerButton:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(181, 157, 58, 0.35);
+  background: linear-gradient(135deg, #8b7355 0%, #6b4f1d 50%, #5a3f1a 100%);
+}
+
+.registerButton:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.registerButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.buttonIcon {
+  font-size: 1.2rem;
+}
+
+.loadingSpinner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Form Footer */
+.formFooter {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.loginText {
+  color: #666;
+  margin: 0;
+}
+
+.loginLink {
+  color: #b59d3a;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.loginLink:hover {
+  color: #8b7355;
+  text-decoration: underline;
+}
+
+/* Right Side - Visual */
+.registerRight {
+  flex: 1;
+  background: linear-gradient(135deg, rgba(181, 157, 58, 0.1) 0%, rgba(139, 115, 85, 0.1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  min-width: 400px;
+}
+
+.visualContent {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logoContainer {
+  margin-bottom: 1rem;
+}
+
+.mainLogo {
+  border-radius: 24px;
+  box-shadow: 0 15px 40px rgba(181, 157, 58, 0.25);
+  animation: float 6s ease-in-out infinite;
+  background: white;
+  padding: 1rem;
+  border: 3px solid rgba(181, 157, 58, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mainLogo:hover {
+  transform: scale(1.05) rotate(2deg);
+  box-shadow: 0 20px 50px rgba(181, 157, 58, 0.3);
+  border-color: rgba(181, 157, 58, 0.2);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.welcomeText {
+  margin-bottom: 2rem;
+}
+
+.welcomeHeading {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #6b4f1d;
+  margin: 0 0 0.5rem 0;
+}
+
+.welcomeDescription {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.benefitsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.benefitItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  color: #6b4f1d;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 16px rgba(181, 157, 58, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(181, 157, 58, 0.08);
+  margin-bottom: 0.5rem;
+}
+
+.benefitItem:hover {
+  transform: translateX(5px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(181, 157, 58, 0.15);
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(181, 157, 58, 0.12);
+}
+
+.benefitIcon {
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .registerContainer {
+    flex-direction: column;
+    min-height: auto;
+    width: 95vw;
+  }
+
+  .registerLeft, .registerRight {
+    min-width: auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .welcomeTitle {
+    font-size: 2rem;
+  }
+
+  .mainLogo {
+    width: 150px;
+    height: 150px;
+  }
+
+  .headerContent {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .brandName {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    padding: 1rem;
+  }
+
+  .registerLeft, .registerRight {
+    padding: 1.5rem 1rem;
+  }
+
+  .welcomeTitle {
+    font-size: 1.8rem;
+  }
+
+  .benefitsList {
+    gap: 0.75rem;
+  }
+
+  .benefitItem {
+    padding: 0.5rem 0.75rem;
+  }
+} 
+
+/* DatePicker Custom Styling */
+.datepicker-wrapper {
+  width: 100%;
+}
+
+.datepicker-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 2px solid #cbb86c;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  background-color: white;
+  cursor: pointer;
+}
+
+.datepicker-input:focus {
+  border-color: #b59d3a;
+  box-shadow: 0 0 0 3px rgba(181, 157, 58, 0.1);
+}
+
+.datepicker-input:hover {
+  border-color: #b59d3a;
+}
+
+.datepicker-input.error {
+  border-color: #e57373;
+}
+
+.datepicker-input.error:focus {
+  border-color: #e57373;
+  box-shadow: 0 0 0 3px rgba(229, 115, 115, 0.1);
+}
+
+/* DatePicker Popup Styling */
+.datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.react-datepicker {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  border: 2px solid #cbb86c;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(181, 157, 58, 0.2);
+  background: white;
+}
+
+.react-datepicker__header {
+  background: linear-gradient(135deg, #b59d3a 0%, #8b7355 100%);
+  border-bottom: 2px solid #cbb86c;
+  border-radius: 10px 10px 0 0;
+  padding: 16px;
+}
+
+.react-datepicker__current-month {
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.react-datepicker__day-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 14px;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  margin: 2px;
+}
+
+.react-datepicker__day {
+  color: #6b4f1d;
+  font-weight: 500;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  margin: 2px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(181, 157, 58, 0.2);
+  color: #6b4f1d;
+}
+
+.react-datepicker__day--selected {
+  background: linear-gradient(135deg, #b59d3a 0%, #8b7355 100%);
+  color: white;
+  font-weight: 700;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background: linear-gradient(135deg, #b59d3a 0%, #8b7355 100%);
+  color: white;
+  font-weight: 700;
+}
+
+.react-datepicker__day--outside-month {
+  color: #ccc;
+}
+
+.react-datepicker__day--disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.react-datepicker__day--disabled:hover {
+  background-color: transparent;
+  color: #ccc;
+}
+
+.react-datepicker__navigation {
+  top: 16px;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white;
+  border-width: 2px 2px 0 0;
+}
+
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.react-datepicker__month-dropdown-container,
+.react-datepicker__year-dropdown-container {
+  margin: 0 4px;
+}
+
+.react-datepicker__month-select,
+.react-datepicker__year-select {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b4f1d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.react-datepicker__month-select:hover,
+.react-datepicker__year-select:hover {
+  background: white;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.react-datepicker__month-select:focus,
+.react-datepicker__year-select:focus {
+  outline: none;
+  border-color: white;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.react-datepicker__month-option,
+.react-datepicker__year-option {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #6b4f1d;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.react-datepicker__month-option:hover,
+.react-datepicker__year-option:hover {
+  background-color: rgba(181, 157, 58, 0.1);
+}
+
+.react-datepicker__month-option--selected,
+.react-datepicker__year-option--selected {
+  background: linear-gradient(135deg, #b59d3a 0%, #8b7355 100%);
+  color: white;
+  font-weight: 700;
+}
+
+.react-datepicker__month-option--keyboard-selected,
+.react-datepicker__year-option--keyboard-selected {
+  background: linear-gradient(135deg, #b59d3a 0%, #8b7355 100%);
+  color: white;
+  font-weight: 700;
+}
+
+/* DatePicker wrapper */
+.datepicker-wrapper {
+  position: relative;
+}
+
+/* Date input styling */
+.date-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 2px solid #cbb86c;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  background-color: white;
+  cursor: pointer;
+}
+
+.date-input.error {
+  border-color: #e57373;
+}
+
+.date-input:focus {
+  border-color: #b59d3a;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .react-datepicker {
+    font-size: 12px;
+  }
+  
+  .react-datepicker__day {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    margin: 1px;
+  }
+  
+  .react-datepicker__day-name {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    margin: 1px;
+  }
+} 

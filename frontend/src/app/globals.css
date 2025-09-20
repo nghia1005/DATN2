@@ -1,0 +1,604 @@
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+#__next {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar cho sidebar */
+nav::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+nav::-webkit-scrollbar-track {
+  display: none;
+}
+
+nav::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+nav::-webkit-scrollbar-thumb:hover {
+  display: none;
+}
+
+/* Ẩn tất cả thanh cuộn */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+*::-webkit-scrollbar:horizontal {
+  height: 0;
+  display: none;
+}
+
+*::-webkit-scrollbar:vertical {
+  width: 0;
+  display: none;
+}
+
+/* Đảm bảo không có scroll ngang */
+html, body, #__next, div {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+/* Chỉ cho phép scroll dọc khi cần */
+.allow-vertical-scroll {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+
+
+input[type='date']::placeholder {
+  color: #222;
+  opacity: 1;
+}
+
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  filter: brightness(0) invert(0);
+  opacity: 1;
+}
+
+
+label {
+  color: #222;
+  font-weight: 500;
+}
+
+.custom-datepicker-input {
+  width: 100%;
+  padding: 9px;
+  border-radius: 7px;
+  border: 1.5px solid #b59d3a55;
+  background: #fff;
+  color: #222;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.custom-datepicker-input:focus {
+  outline: 2px solid #b59d3a;
+}
+
+.custom-datepicker-input.error {
+  border: 1.5px solid #e74c3c;
+}
+
+.custom-datepicker-wrapper {
+  width: 100%;
+}
+
+/* Ghi đè mạnh màu dropdown tháng/năm react-datepicker */
+.react-datepicker__dropdown-menu, 
+.react-datepicker__month-dropdown, 
+.react-datepicker__year-dropdown, 
+.react-datepicker__month-option, 
+.react-datepicker__year-option {
+  background: #fff !important;
+  color: #222 !important;
+  border: 1.5px solid #b59d3a55 !important;
+}
+
+.react-datepicker__month-option--selected, .react-datepicker__year-option--selected {
+  background: #e6e6e6 !important;
+  color: #222 !important;
+}
+
+.react-datepicker__month-option:hover, .react-datepicker__year-option:hover {
+  background: #f5f5f5 !important;
+  color: #222 !important;
+}
+
+/* Ép dropdown của select tháng/năm luôn mở xuống dưới */
+select.react-datepicker__month-select, select.react-datepicker__year-select {
+  background: #fff !important;
+  color: #222 !important;
+  border: 1.5px solid #b59d3a55 !important;
+  border-radius: 5px !important;
+  font-size: 16px;
+  font-family: inherit;
+  direction: ltr;
+}
+
+select.react-datepicker__month-select, select.react-datepicker__year-select, select {
+  position: relative;
+  z-index: 10;
+}
+
+select.react-datepicker__month-select option, select.react-datepicker__year-select option {
+  direction: ltr;
+}
+
+select.react-datepicker__month-select:focus, select.react-datepicker__year-select:focus {
+  outline: 2px solid #b59d3a;
+}
+
+/* Tăng khoảng cách giữa select tháng và năm trong react-datepicker */
+.react-datepicker__current-month, .react-datepicker__header__dropdown {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-datepicker__month-dropdown-container, .react-datepicker__year-dropdown-container {
+  margin-right: 8px;
+}
+
+.react-datepicker__year-dropdown-container {
+  margin-right: 0;
+}
+
+.gender-radio {
+  accent-color: #b59d3a; /* viền vàng */
+  background: #fff;
+}
+.gender-radio:not(:checked) {
+  accent-color: #b59d3a;
+  background: #fff;
+}
+.gender-radio:checked {
+  accent-color: #222; /* chấm đen khi chọn */
+  background: #fff;
+}
+
+.custom-radio {
+  position: relative;
+  padding-left: 20px;
+  margin-right: 14px;
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+  align-items: center;
+}
+.custom-radio input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0; width: 0;
+}
+.custom-radio .checkmark {
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  height: 16px; width: 16px;
+  background: #fff;
+  border: 2px solid #b59d3a;
+  border-radius: 50%;
+}
+.custom-radio input[type="radio"]:checked ~ .checkmark {
+  border: 2px solid #b59d3a;
+}
+.custom-radio .checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.custom-radio input[type="radio"]:checked ~ .checkmark:after {
+  display: block;
+}
+.custom-radio .checkmark:after {
+  left: 4px; top: 4px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #222;
+  content: "";
+  position: absolute;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px;
+  font-family: inherit;
+  font-weight: 400;
+  color: #222;
+}
+
+/* Custom scrollbar for react-datepicker year dropdown */
+.react-datepicker__year-dropdown, .react-datepicker__year-dropdown-scrollable {
+  scrollbar-color: #fff #fff;
+  scrollbar-width: thin;
+}
+.react-datepicker__year-dropdown::-webkit-scrollbar, .react-datepicker__year-dropdown-scrollable::-webkit-scrollbar {
+  width: 10px;
+  background: #fff;
+}
+.react-datepicker__year-dropdown::-webkit-scrollbar-thumb, .react-datepicker__year-dropdown-scrollable::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 8px;
+  border: 2px solid #fff;
+}
+.react-datepicker__year-dropdown::-webkit-scrollbar-track, .react-datepicker__year-dropdown-scrollable::-webkit-scrollbar-track {
+  background: #fff;
+  border-radius: 8px;
+}
+
+.custom-datepicker-input.large {
+  padding: 12px 16px !important;
+  font-size: 16px;
+  width: 100%;
+  border-radius: 7px;
+  border: 1.5px solid #b59d3a55;
+  background: #fff;
+  color: #222;
+  margin-bottom: 4px;
+}
+.custom-datepicker-input.large.error {
+  border: 1.5px solid #e74c3c;
+}
+
+/* --- Custom radio button --- */
+.custom-radio-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid #b59d3a;
+  border-radius: 50%;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  margin-right: 4px;
+  transition: border-color 0.2s;
+}
+.custom-radio-input:checked {
+  border: 2.5px solid #b59d3a;
+  background: #fff;
+}
+.custom-radio-input:checked::before {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #222;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+}
+
+/* --- Button styles --- */
+.btn-cancel {
+  background: #fff;
+  color: #888;
+  border: 2px solid #bbb;
+  border-radius: 14px;
+  padding: 10px 28px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-cancel .icon-cancel {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  /*background: url('/icons/cancel.svg') no-repeat center/contain;*/
+  filter: grayscale(1) brightness(0.5);
+}
+.btn-cancel:hover {
+  border-color: #b59d3a;
+  color: #b59d3a;
+}
+
+.btn-save {
+  background: #b59d3a;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 28px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-save .icon-save {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  /*background: url('/icons/save.svg') no-repeat center/contain;*/
+  filter: brightness(10);
+}
+.btn-save:hover {
+  background: #a08a2a;
+}
+
+/* Custom hiển thị thứ trong tuần tiếng Việt cho MUI DatePicker */
+.MuiDayCalendar-weekDayLabel {
+  color: transparent !important;
+  position: relative;
+}
+.MuiDayCalendar-weekDayLabel:nth-child(1)::after { content: "T2"; color: #666; }
+.MuiDayCalendar-weekDayLabel:nth-child(2)::after { content: "T3"; color: #666; }
+.MuiDayCalendar-weekDayLabel:nth-child(3)::after { content: "T4"; color: #666; }
+.MuiDayCalendar-weekDayLabel:nth-child(4)::after { content: "T5"; color: #666; }
+.MuiDayCalendar-weekDayLabel:nth-child(5)::after { content: "T6"; color: #666; }
+.MuiDayCalendar-weekDayLabel:nth-child(6)::after { content: "T7"; color: #666; }
+.MuiDayCalendar-weekDayLabel:nth-child(7)::after { content: "CN"; color: #666; }
+
+/* React DatePicker Base Styles */
+.react-datepicker {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+  display: inline-block;
+  color: #000;
+  border: 2px solid #b59d3a;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(181, 157, 58, 0.2);
+  background: white;
+  z-index: 9999 !important;
+  font-size: 0.8rem;
+}
+
+.react-datepicker-popper {
+  z-index: 9999 !important;
+  position: absolute;
+}
+
+.react-datepicker__header {
+  background: linear-gradient(135deg, #b59d3a 0%, #8b7355 100%);
+  border-bottom: 2px solid #b59d3a;
+  border-radius: 10px 10px 0 0;
+  color: white;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.react-datepicker__current-month {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.react-datepicker__day-name {
+  color: white;
+  font-weight: 600;
+  display: inline-block;
+  width: 1.7rem;
+  line-height: 1.7rem;
+  text-align: center;
+  margin: 0.166rem;
+}
+
+.react-datepicker__day {
+  border-radius: 8px;
+  margin: 2px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-block;
+  width: 1.7rem;
+  line-height: 1.7rem;
+  text-align: center;
+  margin: 0.166rem;
+  cursor: pointer;
+}
+
+.react-datepicker__day:hover {
+  background: #f3e9c7;
+  color: #6b4f1d;
+}
+
+.react-datepicker__day--selected {
+  background: #b59d3a !important;
+  color: white !important;
+  font-weight: 700;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background: #cbb86c !important;
+  color: white !important;
+}
+
+.react-datepicker__navigation {
+  top: 12px;
+  position: absolute;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.react-datepicker__navigation--previous {
+  left: 10px;
+}
+
+.react-datepicker__navigation--next {
+  right: 10px;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white;
+  border-width: 2px 2px 0 0;
+  content: "";
+  display: block;
+  height: 9px;
+  position: absolute;
+  top: 6px;
+  width: 9px;
+}
+
+.react-datepicker__navigation--previous .react-datepicker__navigation-icon::before {
+  transform: rotate(-135deg);
+  left: 7px;
+}
+
+.react-datepicker__navigation--next .react-datepicker__navigation-icon::before {
+  transform: rotate(45deg);
+  right: 7px;
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+  display: block;
+}
+
+.react-datepicker__input-container {
+  width: 100%;
+  display: block;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 2px solid #cbb86c;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  background-color: white;
+  cursor: pointer;
+}
+
+.react-datepicker__input-container input:focus {
+  border-color: #b59d3a;
+}
+/* Tắt validation tooltip của trình duyệt cho toàn bộ ứng dụng */
+input:invalid,
+select:invalid,
+input:focus:invalid,
+select:focus:invalid {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Tắt validation tooltip cho tất cả trình duyệt */
+input::-webkit-validation-bubble-message,
+select::-webkit-validation-bubble-message {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+}
+
+/* Tắt validation cho Firefox */
+input:-moz-ui-invalid,
+select:-moz-ui-invalid {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Tắt validation cho Edge */
+input::-ms-clear,
+input::-ms-expand {
+  display: none !important;
+}
+
+/* Tắt validation cho tất cả input types */
+input[type="email"]:invalid,
+input[type="text"]:invalid,
+input[type="tel"]:invalid,
+input[type="date"]:invalid,
+input[type="password"]:invalid {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Tắt validation cho form */
+form:invalid {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Tắt validation cho tất cả trường hợp */
+*:invalid {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Animation cho loading spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

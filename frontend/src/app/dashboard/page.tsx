@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import KhachHang from "../KhachHang/khachHang";
+// import KhachHang from "../KhachHang/khachHang";
 import AdminLayout from '../../component/Admin-Layout';
+import StaffLayout from '../../component/Staff-Layout';
 import NhanVienPage from "@/app/NhanVien/HienThi/page";
 import dayjs from 'dayjs';
 import styles from './dashboard.module.css';
@@ -442,7 +443,7 @@ export default function Dashboard() {
             case "customers":
                 return (
                     <div className="dashboard-content">
-                        <KhachHang />
+                        {/*<KhachHang />*/}
                     </div>
                 );
             case "statistics":
@@ -568,13 +569,22 @@ export default function Dashboard() {
         return () => clearInterval(interval);
     }, []);
 
-    return (
-        <AdminLayout
-            activeMenu={activeMenu}
-            onMenuChangeAction={setActiveMenu}
-            pageTitle={menuItems.find(item => item.id === activeMenu)?.label || 'Dashboard'}
-        >
-            {renderContent()}
-        </AdminLayout>
-    );
+    // Get user role from localStorage
+    const userRole = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}').vaiTro : '';
+
+    // Common layout props
+    const layoutProps = {
+        activeMenu,
+        onMenuChangeAction: setActiveMenu,
+        pageTitle: menuItems.find(item => item.id === activeMenu)?.label || 'Dashboard'
+    };
+
+    // Render content with appropriate layout based on user role
+    const content = renderContent();
+    
+    if (userRole === 'NHAN_VIEN') {
+        return <StaffLayout {...layoutProps}>{content}</StaffLayout>;
+    }
+    
+    return <AdminLayout {...layoutProps}>{content}</AdminLayout>;
 }

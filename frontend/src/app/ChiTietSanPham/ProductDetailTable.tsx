@@ -202,10 +202,10 @@ export default function ProductDetailTable() {
 
     // Lọc bỏ các sản phẩm cha có tổng số lượng = 0
     const productsWithZeroTotal = Array.from(productGroups.entries())
-      .filter(([maSanPham, variants]) => {
-        const totalQuantity = variants.reduce((sum, v) => sum + (Number(v.soLuong) || 0), 0);
-        return totalQuantity === 0;
-      });
+        .filter(([maSanPham, variants]) => {
+          const totalQuantity = variants.reduce((sum, v) => sum + (Number(v.soLuong) || 0), 0);
+          return totalQuantity === 0;
+        });
 
     console.log('Sản phẩm cha có tổng số lượng = 0 (sẽ bị ẩn):', productsWithZeroTotal.map(([ma, _]) => ma));
 
@@ -227,10 +227,10 @@ export default function ProductDetailTable() {
           console.log('Raw data from backend:', data);
           // Sắp xếp giảm dần theo idChiTietSanPham (mới nhất lên đầu)
           data.sort((a: ProductDetail, b: ProductDetail) => b.idChiTietSanPham - a.idChiTietSanPham);
-          
+
           // Lọc bỏ sản phẩm cha có tổng số lượng = 0
           const filteredData = filterOutZeroQuantityProducts(data);
-          
+
           setDetails(filteredData);
         })
         .finally(() => setPageLoading(false));
@@ -661,7 +661,7 @@ export default function ProductDetailTable() {
         const refreshRes = await fetch('http://localhost:8080/chi-tiet-san-pham/hien-thi');
         const refreshData = await refreshRes.json();
         refreshData.sort((a: ProductDetail, b: ProductDetail) => b.idChiTietSanPham - a.idChiTietSanPham);
-        
+
         // Lọc bỏ sản phẩm cha có tổng số lượng = 0
         const filteredData = filterOutZeroQuantityProducts(refreshData);
         setDetails(filteredData);
@@ -746,7 +746,7 @@ export default function ProductDetailTable() {
     const refreshRes = await fetch('http://localhost:8080/chi-tiet-san-pham/hien-thi');
     const refreshData = await refreshRes.json();
     refreshData.sort((a: ProductDetail, b: ProductDetail) => b.idChiTietSanPham - a.idChiTietSanPham);
-    
+
     // Lọc bỏ sản phẩm cha có tổng số lượng = 0
     const filteredData = filterOutZeroQuantityProducts(refreshData);
     setDetails(filteredData);
@@ -993,15 +993,15 @@ export default function ProductDetailTable() {
 
     setEditVariantImageLoading(true);
     setEditVariantImageError("");
-    
+
     try {
       let uploadedCount = 0;
       let newImages: ChiTietSanPhamHinhAnh[] = [];
-      
+
       // Upload từng file một
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
+
         // Kiểm tra giới hạn số lượng ảnh
         if (editVariantImages.length + uploadedCount >= 10) {
           setEditVariantImageError(`Chỉ có thể upload tối đa 10 ảnh. Đã upload ${uploadedCount} ảnh thành công.`);
@@ -1011,14 +1011,14 @@ export default function ProductDetailTable() {
         // Upload file lên server
         const formData = new FormData();
         formData.append('file', file);
-        
+
         const uploadResponse = await fetch('http://localhost:8080/hinh-anh/upload', {
           method: 'POST',
           body: formData
         });
-        
+
         const uploadData = await uploadResponse.json();
-        
+
         if (!uploadResponse.ok) {
           throw new Error(uploadData.message || 'Lỗi upload ảnh');
         }
@@ -1048,7 +1048,7 @@ export default function ProductDetailTable() {
         setEditVariantImageSuccess(`Upload thành công ${uploadedCount} ảnh!`);
         setTimeout(() => setEditVariantImageSuccess(""), 3000);
       }
-      
+
     } catch (error) {
       setEditVariantImageError(error instanceof Error ? error.message : 'Lỗi không xác định');
     } finally {
@@ -1059,12 +1059,12 @@ export default function ProductDetailTable() {
   // Hàm xóa ảnh cho modal sửa biến thể
   const handleEditVariantDeleteImage = async (imageId: number) => {
     if (!editVariantForm) return;
-    
+
     try {
       const response = await fetch(`http://localhost:8080/chi-tiet-san-pham-hinh-anh/xoa/${imageId}`, {
         method: 'DELETE'
       });
-      
+
       if (!response.ok) {
         throw new Error('Lỗi khi xóa hình ảnh');
       }
@@ -1080,7 +1080,7 @@ export default function ProductDetailTable() {
 
       setEditVariantImageSuccess('Xóa hình ảnh thành công!');
       setTimeout(() => setEditVariantImageSuccess(""), 3000);
-      
+
     } catch (error) {
       setEditVariantImageError('Lỗi khi xóa hình ảnh');
     }
@@ -1089,7 +1089,7 @@ export default function ProductDetailTable() {
   // Hàm đặt ảnh chính cho modal sửa biến thể
   const handleEditVariantSetMainImage = async (imageId: number) => {
     if (!editVariantForm) return;
-    
+
     try {
       const updatedImages = editVariantImages.map((img: ChiTietSanPhamHinhAnh) => ({
         ...img,
@@ -1101,7 +1101,7 @@ export default function ProductDetailTable() {
       setEditVariantHasImageChanges(true);
       setEditVariantImageSuccess('Đã đặt ảnh chính!');
       setTimeout(() => setEditVariantImageSuccess(""), 3000);
-      
+
     } catch (error) {
       setEditVariantImageError('Lỗi khi đặt ảnh chính');
     }
@@ -1111,7 +1111,7 @@ export default function ProductDetailTable() {
   const handleEditVariant = async (variant: ProductDetail) => {
     console.log('Opening edit variant with data:', variant);
     setEditVariant(variant);
-    setEditVariantForm({ 
+    setEditVariantForm({
       ...variant,
       gia: Number(variant.gia) || 0, // Đảm bảo giá không bị null và là number
       soLuong: Number(variant.soLuong) || 0, // Đảm bảo số lượng không bị null và là number
@@ -1119,16 +1119,16 @@ export default function ProductDetailTable() {
 
     });
     setEditVariantPreviewImg(variant.duongDanHinhAnh ? `http://localhost:8080/images/${variant.duongDanHinhAnh.replace(/^.*[\\/]/, '')}` : '');
-    
+
     // Load danh sách ảnh của biến thể
     try {
       console.log('Loading images for variant:', variant.idChiTietSanPham);
       console.log('Variant full data:', variant);
-      
+
       // Test endpoint trực tiếp
       const response = await fetch(`http://localhost:8080/chi-tiet-san-pham-hinh-anh/${variant.idChiTietSanPham}`);
       console.log('Response status:', response.status);
-      
+
       if (!response.ok) {
         console.error('API response not ok:', response.status, response.statusText);
         setEditVariantImages([]);
@@ -1136,10 +1136,10 @@ export default function ProductDetailTable() {
         setEditVariantHasImageChanges(false);
         return;
       }
-      
+
       const data = await response.json();
       console.log('Response from image API:', data);
-      
+
       if (data.success && data.data) {
         const images = data.data || [];
         console.log('Found images:', images);
@@ -1165,7 +1165,7 @@ export default function ProductDetailTable() {
       setEditVariantOriginalImages([]);
       setEditVariantHasImageChanges(false);
     }
-    
+
     setOpenEditVariantModal(true);
   };
   // Hàm lưu biến thể (cho phép sửa số lượng và hình ảnh)
@@ -1181,11 +1181,11 @@ export default function ProductDetailTable() {
       setEditVariantSoLuongError('');
     }
     if (hasError) return;
-    
+
     // Tự động cập nhật trạng thái dựa trên số lượng
     const newTrangThai = soLuong === 0 ? 'Ngừng bán' : 'Đang bán';
-    
-    try { 
+
+    try {
       // Gửi đầy đủ thông tin cần thiết lên server
       const payload = {
         soLuong: soLuong,
@@ -1197,15 +1197,15 @@ export default function ProductDetailTable() {
         // Thêm idHinhAnh nếu có ảnh mới
         ...(editVariantForm.idHinhAnh && { idHinhAnh: editVariantForm.idHinhAnh })
       };
-      
+
       console.log('Sending payload to server:', payload);
-      
+
       const response = await fetch(`http://localhost:8080/chi-tiet-san-pham/sua/${editVariantForm.idChiTietSanPham}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
+
       if (!response.ok) {
         setEditVariantSoLuongError('Lỗi khi lưu biến thể!');
         return;
@@ -1218,7 +1218,7 @@ export default function ProductDetailTable() {
         // Tách ảnh mới và ảnh cũ
         const newImages = editVariantImages.filter(img => img.idChiTietSanPhamHinhAnh < 0);
         const existingImages = editVariantImages.filter(img => img.idChiTietSanPhamHinhAnh > 0);
-        
+
         // Thêm ảnh mới vào database
         for (const newImage of newImages) {
           const imageData = {
@@ -1246,58 +1246,58 @@ export default function ProductDetailTable() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(existingImages)
           });
-          
+
           if (!updateResponse.ok) {
             throw new Error('Lỗi khi cập nhật ảnh cũ');
           }
         }
       }
-      
-              // Cập nhật giao diện - Refresh toàn bộ dữ liệu để đảm bảo đồng bộ
-        try {
-          const refreshRes = await fetch('http://localhost:8080/chi-tiet-san-pham/hien-thi');
-          const refreshData = await refreshRes.json();
-          refreshData.sort((a: ProductDetail, b: ProductDetail) => b.idChiTietSanPham - a.idChiTietSanPham);
-          
-          // Lọc bỏ sản phẩm cha có tổng số lượng = 0
-          const filteredData = filterOutZeroQuantityProducts(refreshData);
-          setDetails(filteredData);
-          
-          // Cập nhật lại detailData nếu đang xem chi tiết sản phẩm
-          if (detailData) {
-            const prod = refreshData.filter((d: ProductDetail) => d.maSanPham === detailData.maSanPham);
-            setDetailData({ ...detailData, bienThe: prod });
-          }
-          
-          // Refresh danh sách ảnh trong modal nếu có thay đổi ảnh
-          if (editVariantHasImageChanges && editVariantForm) {
-            try {
-              const imagesRes = await fetch(`http://localhost:8080/chi-tiet-san-pham-hinh-anh/${editVariantForm.idChiTietSanPham}`);
-              if (imagesRes.ok) {
-                const imagesData = await imagesRes.json();
-                if (imagesData.success && imagesData.data) {
-                  setEditVariantImages(imagesData.data);
-                  // Cập nhật lại ảnh preview nếu có ảnh chính
-                  const anhChinh = imagesData.data.find((img: any) => img.laAnhChinh);
-                  if (anhChinh) {
-                    setEditVariantPreviewImg(`http://localhost:8080/hinh-anh/view/${anhChinh.urlHinhAnh}`);
-                  }
+
+      // Cập nhật giao diện - Refresh toàn bộ dữ liệu để đảm bảo đồng bộ
+      try {
+        const refreshRes = await fetch('http://localhost:8080/chi-tiet-san-pham/hien-thi');
+        const refreshData = await refreshRes.json();
+        refreshData.sort((a: ProductDetail, b: ProductDetail) => b.idChiTietSanPham - a.idChiTietSanPham);
+
+        // Lọc bỏ sản phẩm cha có tổng số lượng = 0
+        const filteredData = filterOutZeroQuantityProducts(refreshData);
+        setDetails(filteredData);
+
+        // Cập nhật lại detailData nếu đang xem chi tiết sản phẩm
+        if (detailData) {
+          const prod = refreshData.filter((d: ProductDetail) => d.maSanPham === detailData.maSanPham);
+          setDetailData({ ...detailData, bienThe: prod });
+        }
+
+        // Refresh danh sách ảnh trong modal nếu có thay đổi ảnh
+        if (editVariantHasImageChanges && editVariantForm) {
+          try {
+            const imagesRes = await fetch(`http://localhost:8080/chi-tiet-san-pham-hinh-anh/${editVariantForm.idChiTietSanPham}`);
+            if (imagesRes.ok) {
+              const imagesData = await imagesRes.json();
+              if (imagesData.success && imagesData.data) {
+                setEditVariantImages(imagesData.data);
+                // Cập nhật lại ảnh preview nếu có ảnh chính
+                const anhChinh = imagesData.data.find((img: any) => img.laAnhChinh);
+                if (anhChinh) {
+                  setEditVariantPreviewImg(`http://localhost:8080/hinh-anh/view/${anhChinh.urlHinhAnh}`);
                 }
               }
-            } catch (error) {
-              console.error('Lỗi khi refresh danh sách ảnh:', error);
             }
+          } catch (error) {
+            console.error('Lỗi khi refresh danh sách ảnh:', error);
           }
-        } catch (error) {
-          console.error('Lỗi khi refresh dữ liệu:', error);
         }
-      
+      } catch (error) {
+        console.error('Lỗi khi refresh dữ liệu:', error);
+      }
+
       const successMessage = editVariantForm.idHinhAnh || editVariantHasImageChanges
-        ? 'Cập nhật số lượng và hình ảnh thành công!' 
-        : 'Cập nhật số lượng thành công!';
-      
+          ? 'Cập nhật số lượng và hình ảnh thành công!'
+          : 'Cập nhật số lượng thành công!';
+
       setSnackbar({ open: true, message: successMessage, severity: 'success' });
-      
+
       // Đóng modal và reset state
       setOpenEditVariantModal(false);
       setEditVariant(null);
@@ -1325,10 +1325,10 @@ export default function ProductDetailTable() {
       });
       const data = await res.json();
       if (res.ok && data.idHinhAnh) {
-        setEditVariantForm((f:any) => ({ 
-          ...f, 
-          idHinhAnh: data.idHinhAnh, 
-          newImageFile: file 
+        setEditVariantForm((f:any) => ({
+          ...f,
+          idHinhAnh: data.idHinhAnh,
+          newImageFile: file
         }));
       } else {
         alert('Lỗi upload ảnh!');
@@ -1365,11 +1365,11 @@ export default function ProductDetailTable() {
       const refreshRes = await fetch('http://localhost:8080/chi-tiet-san-pham/hien-thi');
       const refreshData = await refreshRes.json();
       refreshData.sort((a: ProductDetail, b: ProductDetail) => b.idChiTietSanPham - a.idChiTietSanPham);
-      
+
       // Lọc bỏ sản phẩm cha có tổng số lượng = 0
       const filteredData = filterOutZeroQuantityProducts(refreshData);
       setDetails(filteredData);
-      
+
       setSnackbar({ open: true, message: 'Đổi trạng thái sản phẩm thành công!', severity: 'success' });
     } catch (err) {
       setSnackbar({ open: true, message: 'Lỗi đổi trạng thái sản phẩm!', severity: 'error' });
@@ -1394,392 +1394,392 @@ export default function ProductDetailTable() {
   };
 
   return (
-    <>
-      <style jsx>{`
-        .product-row:hover {
-          background: rgba(181, 157, 58, 0.05) !important;
-        }
-        .status-active {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          color: white;
-          font-weight: 600;
-          border-radius: 20px;
-          padding: 6px 16px;
-          font-size: 12px;
-          display: inline-block;
-          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        .status-inactive {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
-          font-weight: 600;
-          border-radius: 20px;
-          padding: 6px 16px;
-          font-size: 12px;
-          display: inline-block;
-          box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-      `}</style>
-      
-      {/* Main Content Container */}
-      <div style={{
-        background: 'transparent',
-        minHeight: '100%',
-        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
-      }}>
-        {/* Search and Filter Section */}
+      <>
+        <style jsx>{`
+          .product-row:hover {
+            background: rgba(181, 157, 58, 0.05) !important;
+          }
+          .status-active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 600;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 12px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .status-inactive {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            font-weight: 600;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 12px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+        `}</style>
+
+        {/* Main Content Container */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(249, 231, 180, 0.9) 100%)',
-          borderRadius: 16,
-          padding: '24px',
-          marginBottom: '32px',
-          boxShadow: '0 4px 20px rgba(181, 157, 58, 0.1)',
-          border: '1px solid rgba(181, 157, 58, 0.1)',
-          backdropFilter: 'blur(10px)'
+          background: 'transparent',
+          minHeight: '100%',
+          fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
         }}>
+          {/* Search and Filter Section */}
           <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '16px'
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(249, 231, 180, 0.9) 100%)',
+            borderRadius: 16,
+            padding: '24px',
+            marginBottom: '32px',
+            boxShadow: '0 4px 20px rgba(181, 157, 58, 0.1)',
+            border: '1px solid rgba(181, 157, 58, 0.1)',
+            backdropFilter: 'blur(10px)'
           }}>
             <div style={{
               display: 'flex',
-              gap: '12px',
+              justifyContent: 'space-between',
               alignItems: 'center',
               flexWrap: 'wrap',
-              flex: 1,
-              minWidth: 0
+              gap: '16px'
             }}>
-              {/* Search Input */}
               <div style={{
-                position: 'relative',
-                minWidth: '280px',
-                flex: 1
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                flex: 1,
+                minWidth: 0
               }}>
-                <FaSearch style={{
-                  position: 'absolute',
-                  left: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: '#8a7a2a',
-                  fontSize: '16px',
-                  zIndex: 1
-                }} />
+                {/* Search Input */}
+                <div style={{
+                  position: 'relative',
+                  minWidth: '280px',
+                  flex: 1
+                }}>
+                  <FaSearch style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#8a7a2a',
+                    fontSize: '16px',
+                    zIndex: 1
+                  }} />
                   <TextField
-                  placeholder="Tìm kiếm sản phẩm..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
+                      placeholder="Tìm kiếm sản phẩm..."
+                      value={searchTerm}
+                      onChange={e => setSearchTerm(e.target.value)}
                       size="small"
-                  sx={{
-                    width: '100%',
+                      sx={{
+                        width: '100%',
+                        '& .MuiOutlinedInput-root': {
+                          background: 'white',
+                          borderRadius: '12px',
+                          boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
+                          '& fieldset': {
+                            border: '1px solid rgba(181, 157, 58, 0.2)',
+                            borderRadius: '12px'
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#b59d3a'
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#b59d3a',
+                            borderWidth: '2px'
+                          }
+                        },
+                        '& .MuiInputBase-input': {
+                          paddingLeft: '40px',
+                          fontSize: '14px'
+                        }
+                      }}
+                  />
+                </div>
+
+                {/* Filter Dropdowns */}
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  flexWrap: 'wrap'
+                }}>
+                  <FormControl size="small" sx={{
+                    minWidth: '160px',
                     '& .MuiOutlinedInput-root': {
                       background: 'white',
-                      borderRadius: '12px',
+                      borderRadius: '10px',
                       boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
                       '& fieldset': {
                         border: '1px solid rgba(181, 157, 58, 0.2)',
-                        borderRadius: '12px'
+                        borderRadius: '10px'
                       },
                       '&:hover fieldset': {
                         borderColor: '#b59d3a'
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#b59d3a',
-                        borderWidth: '2px'
                       }
-                    },
-                    '& .MuiInputBase-input': {
-                      paddingLeft: '40px',
-                      fontSize: '14px'
                     }
-                  }}
-                />
+                  }}>
+                    <Select
+                        value={filterBrand}
+                        onChange={e => setFilterBrand(e.target.value)}
+                        displayEmpty
+                        sx={{
+                          fontSize: '14px',
+                          '& .MuiSelect-select': {
+                            padding: '8px 12px'
+                          }
+                        }}
+                    >
+                      <MenuItem value="" sx={{ fontSize: '14px' }}>
+                        <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Thương hiệu
+                      </MenuItem>
+                      {thuongHieus.map(th => (
+                          <MenuItem key={th.idThuongHieu} value={th.tenThuongHieu} sx={{ fontSize: '14px' }}>
+                            {th.tenThuongHieu}
+                          </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl size="small" sx={{
+                    minWidth: '140px',
+                    '& .MuiOutlinedInput-root': {
+                      background: 'white',
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
+                      '& fieldset': {
+                        border: '1px solid rgba(181, 157, 58, 0.2)',
+                        borderRadius: '10px'
+                      }
+                    }
+                  }}>
+                    <Select
+                        value={filterCategory}
+                        onChange={e => setFilterCategory(e.target.value)}
+                        displayEmpty
+                        sx={{ fontSize: '14px' }}
+                    >
+                      <MenuItem value="" sx={{ fontSize: '14px' }}>
+                        <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Danh mục
+                      </MenuItem>
+                      {danhMucs.map(dm => (
+                          <MenuItem key={dm.idDanhMuc} value={dm.tenDanhMuc} sx={{ fontSize: '14px' }}>
+                            {dm.tenDanhMuc}
+                          </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl size="small" sx={{
+                    minWidth: '120px',
+                    '& .MuiOutlinedInput-root': {
+                      background: 'white',
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
+                      '& fieldset': {
+                        border: '1px solid rgba(181, 157, 58, 0.2)',
+                        borderRadius: '10px'
+                      }
+                    }
+                  }}>
+                    <Select
+                        value={filterColor}
+                        onChange={e => setFilterColor(e.target.value)}
+                        displayEmpty
+                        sx={{ fontSize: '14px' }}
+                    >
+                      <MenuItem value="" sx={{ fontSize: '14px' }}>
+                        <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Màu sắc
+                      </MenuItem>
+                      {mauSacs.map(ms => (
+                          <MenuItem key={ms.idMauSac} value={ms.mauSac} sx={{ fontSize: '14px' }}>
+                            {ms.mauSac}
+                          </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl size="small" sx={{
+                    minWidth: '120px',
+                    '& .MuiOutlinedInput-root': {
+                      background: 'white',
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
+                      '& fieldset': {
+                        border: '1px solid rgba(181, 157, 58, 0.2)',
+                        borderRadius: '10px'
+                      }
+                    }
+                  }}>
+                    <Select
+                        value={filterSize}
+                        onChange={e => setFilterSize(e.target.value)}
+                        displayEmpty
+                        sx={{ fontSize: '14px' }}
+                    >
+                      <MenuItem value="" sx={{ fontSize: '14px' }}>
+                        <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Kích cỡ
+                      </MenuItem>
+                      {kichCos.map(kc => (
+                          <MenuItem key={kc.idKichCo} value={kc.kichCo} sx={{ fontSize: '14px' }}>
+                            {kc.kichCo}
+                          </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl size="small" sx={{
+                    minWidth: '120px',
+                    '& .MuiOutlinedInput-root': {
+                      background: 'white',
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
+                      '& fieldset': {
+                        border: '1px solid rgba(181, 157, 58, 0.2)',
+                        borderRadius: '10px'
+                      }
+                    }
+                  }}>
+                    <Select
+                        value={filterStatus}
+                        onChange={e => setFilterStatus(e.target.value)}
+                        displayEmpty
+                        sx={{ fontSize: '14px' }}
+                    >
+                      <MenuItem value="" sx={{ fontSize: '14px' }}>
+                        <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Trạng thái
+                      </MenuItem>
+                      <MenuItem value="Đang bán" sx={{ fontSize: '14px' }}>Đang bán</MenuItem>
+                      <MenuItem value="Ngừng bán" sx={{ fontSize: '14px' }}>Ngừng bán</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  {/* Clear Filters Button */}
+                  {(searchTerm || filterBrand || filterCategory || filterColor || filterSize || filterStatus) && (
+                      <Button
+                          onClick={() => {
+                            setSearchTerm('');
+                            setFilterBrand('');
+                            setFilterCategory('');
+                            setFilterColor('');
+                            setFilterSize('');
+                            setFilterStatus('');
+                            setPage(0);
+                          }}
+                          variant="outlined"
+                          sx={{
+                            borderRadius: '10px',
+                            borderColor: 'rgba(181, 157, 58, 0.3)',
+                            color: '#8a7a2a',
+                            fontWeight: 600,
+                            fontSize: '14px',
+                            padding: '8px 16px',
+                            '&:hover': {
+                              borderColor: '#b59d3a',
+                              color: '#b59d3a',
+                              background: 'rgba(181, 157, 58, 0.05)'
+                            }
+                          }}
+                          startIcon={<FaTimesCircle />}
+                      >
+                        Xóa lọc
+                      </Button>
+                  )}
+                </div>
               </div>
 
-              {/* Filter Dropdowns */}
-              <div style={{
-                display: 'flex',
-                gap: '8px',
-                flexWrap: 'wrap'
-              }}>
-                <FormControl size="small" sx={{
-                  minWidth: '160px',
-                  '& .MuiOutlinedInput-root': {
-                    background: 'white',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
-                    '& fieldset': {
-                      border: '1px solid rgba(181, 157, 58, 0.2)',
-                      borderRadius: '10px'
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#b59d3a'
-                    }
-                  }
-                }}>
-                  <Select
-                    value={filterBrand}
-                    onChange={e => setFilterBrand(e.target.value)}
-                    displayEmpty
-                    sx={{
-                      fontSize: '14px',
-                      '& .MuiSelect-select': {
-                        padding: '8px 12px'
-                      }
-                    }}
-                  >
-                    <MenuItem value="" sx={{ fontSize: '14px' }}>
-                      <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
-                      Thương hiệu
-                    </MenuItem>
-                {thuongHieus.map(th => (
-                      <MenuItem key={th.idThuongHieu} value={th.tenThuongHieu} sx={{ fontSize: '14px' }}>
-                        {th.tenThuongHieu}
-                      </MenuItem>
-                ))}
-              </Select>
-                </FormControl>
-
-                <FormControl size="small" sx={{
-                  minWidth: '140px',
-                  '& .MuiOutlinedInput-root': {
-                    background: 'white',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
-                    '& fieldset': {
-                      border: '1px solid rgba(181, 157, 58, 0.2)',
-                      borderRadius: '10px'
-                    }
-                  }
-                }}>
-                  <Select
-                    value={filterCategory}
-                    onChange={e => setFilterCategory(e.target.value)}
-                    displayEmpty
-                    sx={{ fontSize: '14px' }}
-                  >
-                    <MenuItem value="" sx={{ fontSize: '14px' }}>
-                      <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
-                      Danh mục
-                    </MenuItem>
-                {danhMucs.map(dm => (
-                      <MenuItem key={dm.idDanhMuc} value={dm.tenDanhMuc} sx={{ fontSize: '14px' }}>
-                        {dm.tenDanhMuc}
-                      </MenuItem>
-                ))}
-              </Select>
-                </FormControl>
-
-                <FormControl size="small" sx={{
-                  minWidth: '120px',
-                  '& .MuiOutlinedInput-root': {
-                    background: 'white',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
-                    '& fieldset': {
-                      border: '1px solid rgba(181, 157, 58, 0.2)',
-                      borderRadius: '10px'
-                    }
-                  }
-                }}>
-                  <Select
-                    value={filterColor}
-                    onChange={e => setFilterColor(e.target.value)}
-                    displayEmpty
-                    sx={{ fontSize: '14px' }}
-                  >
-                    <MenuItem value="" sx={{ fontSize: '14px' }}>
-                      <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
-                      Màu sắc
-                    </MenuItem>
-                {mauSacs.map(ms => (
-                      <MenuItem key={ms.idMauSac} value={ms.mauSac} sx={{ fontSize: '14px' }}>
-                        {ms.mauSac}
-                      </MenuItem>
-                ))}
-              </Select>
-                </FormControl>
-
-                <FormControl size="small" sx={{
-                  minWidth: '120px',
-                  '& .MuiOutlinedInput-root': {
-                    background: 'white',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
-                    '& fieldset': {
-                      border: '1px solid rgba(181, 157, 58, 0.2)',
-                      borderRadius: '10px'
-                    }
-                  }
-                }}>
-                  <Select
-                    value={filterSize}
-                    onChange={e => setFilterSize(e.target.value)}
-                    displayEmpty
-                    sx={{ fontSize: '14px' }}
-                  >
-                    <MenuItem value="" sx={{ fontSize: '14px' }}>
-                      <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
-                      Kích cỡ
-                    </MenuItem>
-                {kichCos.map(kc => (
-                      <MenuItem key={kc.idKichCo} value={kc.kichCo} sx={{ fontSize: '14px' }}>
-                        {kc.kichCo}
-                      </MenuItem>
-                ))}
-              </Select>
-                </FormControl>
-
-                <FormControl size="small" sx={{
-                  minWidth: '120px',
-                  '& .MuiOutlinedInput-root': {
-                    background: 'white',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
-                    '& fieldset': {
-                      border: '1px solid rgba(181, 157, 58, 0.2)',
-                      borderRadius: '10px'
-                    }
-                  }
-                }}>
-                  <Select
-                    value={filterStatus}
-                    onChange={e => setFilterStatus(e.target.value)}
-                    displayEmpty
-                    sx={{ fontSize: '14px' }}
-                  >
-                    <MenuItem value="" sx={{ fontSize: '14px' }}>
-                      <FaFilter style={{ marginRight: '8px', fontSize: '12px' }} />
-                      Trạng thái
-                    </MenuItem>
-                    <MenuItem value="Đang bán" sx={{ fontSize: '14px' }}>Đang bán</MenuItem>
-                    <MenuItem value="Ngừng bán" sx={{ fontSize: '14px' }}>Ngừng bán</MenuItem>
-              </Select>
-                </FormControl>
-
-                {/* Clear Filters Button */}
-              {(searchTerm || filterBrand || filterCategory || filterColor || filterSize || filterStatus) && (
-                  <Button
-                    onClick={() => {
-                    setSearchTerm('');
-                    setFilterBrand('');
-                    setFilterCategory('');
-                    setFilterColor('');
-                    setFilterSize('');
-                    setFilterStatus('');
-                    setPage(0);
-                    }}
-                    variant="outlined"
-                    sx={{
-                      borderRadius: '10px',
-                      borderColor: 'rgba(181, 157, 58, 0.3)',
-                      color: '#8a7a2a',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      padding: '8px 16px',
-                      '&:hover': {
-                        borderColor: '#b59d3a',
-                        color: '#b59d3a',
-                        background: 'rgba(181, 157, 58, 0.05)'
-                      }
-                    }}
-                    startIcon={<FaTimesCircle />}
-                  >
-                    Xóa lọc
-                  </Button>
-              )}
-            </div>
-            </div>
-
-            {/* Add Product Button */}
+              {/* Add Product Button */}
               <Button
                   variant="contained"
-              sx={{
-                background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-                color: 'white',
+                  sx={{
+                    background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                    color: 'white',
                     fontWeight: 700,
-                fontSize: '15px',
-                borderRadius: '12px',
-                height: '44px',
-                minWidth: '200px',
-                padding: '0 24px',
-                boxShadow: '0 4px 15px rgba(181, 157, 58, 0.3)',
-                textTransform: 'none',
+                    fontSize: '15px',
+                    borderRadius: '12px',
+                    height: '44px',
+                    minWidth: '200px',
+                    padding: '0 24px',
+                    boxShadow: '0 4px 15px rgba(181, 157, 58, 0.3)',
+                    textTransform: 'none',
                     display: 'flex',
                     alignItems: 'center',
-                gap: '10px',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 20px rgba(181, 157, 58, 0.4)'
-                }
+                    gap: '10px',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 20px rgba(181, 157, 58, 0.4)'
+                    }
                   }}
                   onClick={() => {
                     window.location.href = '/ChiTietSanPham/ThemChiTietSanPham';
                   }}
               >
-              <FaPlus style={{ fontSize: '16px' }} />
-              Thêm sản phẩm mới
+                <FaPlus style={{ fontSize: '16px' }} />
+                Thêm sản phẩm mới
               </Button>
             </div>
           </div>
 
-        {/* Products Table */}
-        <div style={{
-          background: 'white',
-          borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(181, 157, 58, 0.1)',
-          overflow: 'hidden',
-          border: '1px solid rgba(181, 157, 58, 0.1)'
-        }}>
+          {/* Products Table */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-            padding: '20px 24px',
-            borderBottom: '1px solid rgba(181, 157, 58, 0.1)'
+            background: 'white',
+            borderRadius: '16px',
+            boxShadow: '0 4px 20px rgba(181, 157, 58, 0.1)',
+            overflow: 'hidden',
+            border: '1px solid rgba(181, 157, 58, 0.1)'
           }}>
             <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
+              background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
+              padding: '20px 24px',
+              borderBottom: '1px solid rgba(181, 157, 58, 0.1)'
             }}>
-              <h3 style={{
-                margin: 0,
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: '#6b4f1d'
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
               }}>
-                Danh sách sản phẩm ({groupedProducts.length})
-              </h3>
-              {pageLoading && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  color: '#8a7a2a',
-                  fontSize: '14px'
+                <h3 style={{
+                  margin: 0,
+                  fontSize: '1.25rem',
+                  fontWeight: 700,
+                  color: '#6b4f1d'
                 }}>
-                  <CircularProgress size={16} />
-                  Đang tải...
-                </div>
-              )}
+                  Danh sách sản phẩm ({groupedProducts.length})
+                </h3>
+                {pageLoading && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      color: '#8a7a2a',
+                      fontSize: '14px'
+                    }}>
+                      <CircularProgress size={16} />
+                      Đang tải...
+                    </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '14px',
-              lineHeight: 1.5
-            }}>
-              <thead>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                fontSize: '14px',
+                lineHeight: 1.5
+              }}>
+                <thead>
                 <tr style={{
                   background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.6) 0%, rgba(249, 231, 180, 0.6) 100%)'
                 }}>
@@ -1863,621 +1863,621 @@ export default function ProductDetailTable() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
                   }}>Thao tác</th>
-              </tr>
-              </thead>
-              <tbody>
-              {pagedProducts.map((prod, idx) => (
-                  <tr 
-                    key={(prod.idSanPham ?? prod.maSanPham) + '-' + idx} 
-                    className="product-row"
-                    style={{
-                      color: '#6b4f1d',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <td style={{
-                      padding: '16px 12px',
-                      textAlign: 'center',
-                      fontWeight: 600,
-                      color: '#8a7a2a'
-                    }}>{page * pageSize + idx + 1}</td>
-                    <td style={{
-                      padding: '16px 12px',
-                      fontWeight: 600,
-                      color: '#6b4f1d'
-                    }}>{prod.maSanPham}</td>
-                    <td style={{
-                      padding: '16px 12px',
-                      fontWeight: 500,
-                      color: '#6b4f1d'
-                    }}>{prod.tenSanPham}</td>
-                    <td style={{
-                      padding: '16px 12px',
-                      color: '#8a7a2a'
-                    }}>{prod.tenThuongHieu}</td>
-                    <td style={{
-                      padding: '16px 12px',
-                      color: '#8a7a2a'
-                    }}>{prod.tenDanhMuc}</td>
-                    <td style={{
-                      padding: '16px 12px',
-                      textAlign: 'center',
-                      fontWeight: 600,
-                      color: prod.tongSoLuong > 0 ? '#059669' : '#dc2626'
-                    }}>
-                      {prod.tongSoLuong && prod.tongSoLuong >= 0 ? prod.tongSoLuong : 0}
-                    </td>
-                    <td style={{
-                      padding: '16px 12px',
-                      textAlign: 'center'
-                    }}>
-                      {prod.trangThai === 'Đang bán' && (
-                        <span className="status-active">
+                </tr>
+                </thead>
+                <tbody>
+                {pagedProducts.map((prod, idx) => (
+                    <tr
+                        key={(prod.idSanPham ?? prod.maSanPham) + '-' + idx}
+                        className="product-row"
+                        style={{
+                          color: '#6b4f1d',
+                          transition: 'all 0.2s ease'
+                        }}
+                    >
+                      <td style={{
+                        padding: '16px 12px',
+                        textAlign: 'center',
+                        fontWeight: 600,
+                        color: '#8a7a2a'
+                      }}>{page * pageSize + idx + 1}</td>
+                      <td style={{
+                        padding: '16px 12px',
+                        fontWeight: 600,
+                        color: '#6b4f1d'
+                      }}>{prod.maSanPham}</td>
+                      <td style={{
+                        padding: '16px 12px',
+                        fontWeight: 500,
+                        color: '#6b4f1d'
+                      }}>{prod.tenSanPham}</td>
+                      <td style={{
+                        padding: '16px 12px',
+                        color: '#8a7a2a'
+                      }}>{prod.tenThuongHieu}</td>
+                      <td style={{
+                        padding: '16px 12px',
+                        color: '#8a7a2a'
+                      }}>{prod.tenDanhMuc}</td>
+                      <td style={{
+                        padding: '16px 12px',
+                        textAlign: 'center',
+                        fontWeight: 600,
+                        color: prod.tongSoLuong > 0 ? '#059669' : '#dc2626'
+                      }}>
+                        {prod.tongSoLuong && prod.tongSoLuong >= 0 ? prod.tongSoLuong : 0}
+                      </td>
+                      <td style={{
+                        padding: '16px 12px',
+                        textAlign: 'center'
+                      }}>
+                        {prod.trangThai === 'Đang bán' && (
+                            <span className="status-active">
                           Đang bán
                         </span>
-                      )}
-                      {prod.trangThai === 'Ngừng bán' && (
-                        <span className="status-inactive">
+                        )}
+                        {prod.trangThai === 'Ngừng bán' && (
+                            <span className="status-inactive">
                           Ngừng bán
                         </span>
-                      )}
-                    </td>
-                    <td style={{
-                      padding: '16px 12px',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        gap: '8px',
-                        justifyContent: 'center',
-                        alignItems: 'center'
+                        )}
+                      </td>
+                      <td style={{
+                        padding: '16px 12px',
+                        textAlign: 'center'
                       }}>
-                        {/* View Details Button */}
-                      <button
-                          style={{
-                            background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '8px',
-                            cursor: 'pointer',
-                            fontWeight: 600,
-                            fontSize: '14px',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 2px 8px rgba(181, 157, 58, 0.3)',
-                            transition: 'all 0.2s ease',
-                            width: '36px',
-                            height: '36px'
-                          }}
-                          title="Xem chi tiết"
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.4)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(181, 157, 58, 0.3)';
-                          }}
-                          onClick={async () => {
-                            const res = await fetch('http://localhost:8080/chi-tiet-san-pham/hien-thi');
-                            const data: ProductDetail[] = await res.json();
-                            data.sort((a: ProductDetail, b: ProductDetail) => b.idChiTietSanPham - a.idChiTietSanPham);
-                            const filtered = data.filter((d: ProductDetail) => d.maSanPham === prod.maSanPham);
-                            if (filtered.length > 0) {
-                              setDetailData({
-                                maSanPham: filtered[0].maSanPham,
-                                tenSanPham: filtered[0].tenSanPham,
-                                tenThuongHieu: filtered[0].tenThuongHieu,
-                                tenDanhMuc: filtered[0].tenDanhMuc,
-                                moTa: filtered[0].moTa,
-                                tongSoLuong: filtered.reduce((sum: number, v: ProductDetail) => sum + (Number(v.soLuong) || 0), 0),
-                                trangThai: filtered[0].trangThai,
-                                bienThe: filtered,
-                              });
-                              setOpenDetail(true);
-                            }
-                          }}
-                      >
-                          <FaEye style={{ fontSize: '14px' }} />
-                      </button>
+                        <div style={{
+                          display: 'flex',
+                          gap: '8px',
+                          justifyContent: 'center',
+                          alignItems: 'center'
+                        }}>
+                          {/* View Details Button */}
+                          <button
+                              style={{
+                                background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '8px',
+                                cursor: 'pointer',
+                                fontWeight: 600,
+                                fontSize: '14px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 2px 8px rgba(181, 157, 58, 0.3)',
+                                transition: 'all 0.2s ease',
+                                width: '36px',
+                                height: '36px'
+                              }}
+                              title="Xem chi tiết"
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.4)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(181, 157, 58, 0.3)';
+                              }}
+                              onClick={async () => {
+                                const res = await fetch('http://localhost:8080/chi-tiet-san-pham/hien-thi');
+                                const data: ProductDetail[] = await res.json();
+                                data.sort((a: ProductDetail, b: ProductDetail) => b.idChiTietSanPham - a.idChiTietSanPham);
+                                const filtered = data.filter((d: ProductDetail) => d.maSanPham === prod.maSanPham);
+                                if (filtered.length > 0) {
+                                  setDetailData({
+                                    maSanPham: filtered[0].maSanPham,
+                                    tenSanPham: filtered[0].tenSanPham,
+                                    tenThuongHieu: filtered[0].tenThuongHieu,
+                                    tenDanhMuc: filtered[0].tenDanhMuc,
+                                    moTa: filtered[0].moTa,
+                                    tongSoLuong: filtered.reduce((sum: number, v: ProductDetail) => sum + (Number(v.soLuong) || 0), 0),
+                                    trangThai: filtered[0].trangThai,
+                                    bienThe: filtered,
+                                  });
+                                  setOpenDetail(true);
+                                }
+                              }}
+                          >
+                            <FaEye style={{ fontSize: '14px' }} />
+                          </button>
 
-                        {/* Toggle Status Button */}
-                      <button
-                          style={{
-                            background: prod.trangThai === 'Đang bán'
-                              ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                              : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '8px',
-                            cursor: prod.tongSoLuong === 0 ? 'not-allowed' : 'pointer',
-                            fontWeight: 600,
-                            fontSize: '14px',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: prod.trangThai === 'Đang bán'
-                              ? '0 2px 8px rgba(16, 185, 129, 0.3)'
-                              : '0 2px 8px rgba(245, 158, 11, 0.3)',
-                            transition: 'all 0.2s ease',
-                            opacity: prod.tongSoLuong === 0 ? 0.5 : 1,
-                            width: '36px',
-                            height: '36px'
-                          }}
-                          title={prod.trangThai === 'Đang bán' ? 'Ngừng bán' : 'Đang bán'}
-                          disabled={prod.tongSoLuong === 0}
-                          onMouseEnter={(e) => {
-                            if (prod.tongSoLuong > 0) {
-                              e.currentTarget.style.transform = 'translateY(-2px)';
-                              e.currentTarget.style.boxShadow = prod.trangThai === 'Đang bán'
-                                ? '0 4px 12px rgba(16, 185, 129, 0.4)'
-                                : '0 4px 12px rgba(245, 158, 11, 0.4)';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = prod.trangThai === 'Đang bán'
-                              ? '0 2px 8px rgba(16, 185, 129, 0.3)'
-                              : '0 2px 8px rgba(245, 158, 11, 0.3)';
-                          }}
-                          onClick={() => handleOpenConfirmModal(prod.maSanPham, prod.trangThai)}
-                      >
-                          <FaPowerOff style={{ fontSize: '14px' }} />
-                      </button>
-                      </div>
-                    </td>
-                  </tr>
-              ))}
-              </tbody>
-            </table>
+                          {/* Toggle Status Button */}
+                          <button
+                              style={{
+                                background: prod.trangThai === 'Đang bán'
+                                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                                    : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '8px',
+                                cursor: prod.tongSoLuong === 0 ? 'not-allowed' : 'pointer',
+                                fontWeight: 600,
+                                fontSize: '14px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: prod.trangThai === 'Đang bán'
+                                    ? '0 2px 8px rgba(16, 185, 129, 0.3)'
+                                    : '0 2px 8px rgba(245, 158, 11, 0.3)',
+                                transition: 'all 0.2s ease',
+                                opacity: prod.tongSoLuong === 0 ? 0.5 : 1,
+                                width: '36px',
+                                height: '36px'
+                              }}
+                              title={prod.trangThai === 'Đang bán' ? 'Ngừng bán' : 'Đang bán'}
+                              disabled={prod.tongSoLuong === 0}
+                              onMouseEnter={(e) => {
+                                if (prod.tongSoLuong > 0) {
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                  e.currentTarget.style.boxShadow = prod.trangThai === 'Đang bán'
+                                      ? '0 4px 12px rgba(16, 185, 129, 0.4)'
+                                      : '0 4px 12px rgba(245, 158, 11, 0.4)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = prod.trangThai === 'Đang bán'
+                                    ? '0 2px 8px rgba(16, 185, 129, 0.3)'
+                                    : '0 2px 8px rgba(245, 158, 11, 0.3)';
+                              }}
+                              onClick={() => handleOpenConfirmModal(prod.maSanPham, prod.trangThai)}
+                          >
+                            <FaPowerOff style={{ fontSize: '14px' }} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Empty State */}
+            {pagedProducts.length === 0 && !pageLoading && (
+                <div style={{
+                  padding: '60px 20px',
+                  textAlign: 'center',
+                  color: '#8a7a2a'
+                }}>
+                  <div style={{
+                    fontSize: '48px',
+                    marginBottom: '16px',
+                    opacity: 0.5
+                  }}>📦</div>
+                  <h3 style={{
+                    margin: '0 0 8px 0',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    color: '#6b4f1d'
+                  }}>
+                    Không tìm thấy sản phẩm
+                  </h3>
+                  <p style={{
+                    margin: 0,
+                    fontSize: '14px',
+                    color: '#8a7a2a'
+                  }}>
+                    Thử thay đổi bộ lọc hoặc tìm kiếm để xem kết quả khác
+                  </p>
+                </div>
+            )}
           </div>
 
-          {/* Empty State */}
-          {pagedProducts.length === 0 && !pageLoading && (
-            <div style={{
-              padding: '60px 20px',
-              textAlign: 'center',
-              color: '#8a7a2a'
-            }}>
+          {/* Pagination */}
+          {groupedProducts.length > 0 && (
               <div style={{
-                fontSize: '48px',
-                marginBottom: '16px',
-                opacity: 0.5
-              }}>📦</div>
-              <h3 style={{
-                margin: '0 0 8px 0',
-                fontSize: '18px',
-                fontWeight: 600,
-                color: '#6b4f1d'
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '8px',
+                marginTop: '32px',
+                padding: '20px',
+                background: 'white',
+                borderRadius: '12px',
+                boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
+                border: '1px solid rgba(181, 157, 58, 0.1)'
               }}>
-                Không tìm thấy sản phẩm
-              </h3>
-              <p style={{
-                margin: 0,
-                fontSize: '14px',
-                color: '#8a7a2a'
-              }}>
-                Thử thay đổi bộ lọc hoặc tìm kiếm để xem kết quả khác
-              </p>
-            </div>
+                <Button
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 0}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: '8px',
+                      borderColor: 'rgba(181, 157, 58, 0.3)',
+                      color: '#8a7a2a',
+                      fontWeight: 600,
+                      minWidth: '80px',
+                      '&:hover': {
+                        borderColor: '#b59d3a',
+                        color: '#b59d3a',
+                        background: 'rgba(181, 157, 58, 0.05)'
+                      },
+                      '&:disabled': {
+                        borderColor: 'rgba(181, 157, 58, 0.1)',
+                        color: 'rgba(181, 157, 58, 0.3)'
+                      }
+                    }}
+                >
+                  Trước
+                </Button>
+
+                {Array.from({ length: Math.max(1, Math.ceil(groupedProducts.length / pageSize)) }, (_, i) => (
+                    <Button
+                        key={i}
+                        onClick={() => handlePageChange(i)}
+                        disabled={i === page}
+                        variant={i === page ? 'contained' : 'outlined'}
+                        sx={{
+                          borderRadius: '8px',
+                          minWidth: '40px',
+                          fontWeight: 700,
+                          fontSize: '14px',
+                          ...(i === page ? {
+                            background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                            color: 'white',
+                            boxShadow: '0 2px 8px rgba(181, 157, 58, 0.3)',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)'
+                            }
+                          } : {
+                            borderColor: 'rgba(181, 157, 58, 0.3)',
+                            color: '#8a7a2a',
+                            '&:hover': {
+                              borderColor: '#b59d3a',
+                              color: '#b59d3a',
+                              background: 'rgba(181, 157, 58, 0.05)'
+                            }
+                          })
+                        }}
+                    >
+                      {i + 1}
+                    </Button>
+                ))}
+
+                <Button
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === Math.max(1, Math.ceil(groupedProducts.length / pageSize)) - 1}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: '8px',
+                      borderColor: 'rgba(181, 157, 58, 0.3)',
+                      color: '#8a7a2a',
+                      fontWeight: 600,
+                      minWidth: '80px',
+                      '&:hover': {
+                        borderColor: '#b59d3a',
+                        color: '#b59d3a',
+                        background: 'rgba(181, 157, 58, 0.05)'
+                      },
+                      '&:disabled': {
+                        borderColor: 'rgba(181, 157, 58, 0.1)',
+                        color: 'rgba(181, 157, 58, 0.3)'
+                      }
+                    }}
+                >
+                  Sau
+                </Button>
+              </div>
           )}
         </div>
 
-        {/* Pagination */}
-        {groupedProducts.length > 0 && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '8px',
-            marginTop: '32px',
-            padding: '20px',
-            background: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
-            border: '1px solid rgba(181, 157, 58, 0.1)'
+        {/* Modal chi tiết biến thể */}
+        <Dialog
+            open={openDetail}
+            onClose={() => setOpenDetail(false)}
+            maxWidth="lg"
+            fullWidth
+            PaperProps={{
+              style: {
+                borderRadius: 24,
+                minWidth: 1000,
+                maxWidth: 1400,
+                background: 'white',
+                boxShadow: '0 20px 60px rgba(181, 157, 58, 0.25)',
+                overflow: 'hidden'
+              }
+            }}
+        >
+          <DialogTitle sx={{
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: '1.8rem',
+            color: 'white',
+            background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+            py: 3,
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+              opacity: 0.3
+            }
           }}>
-            <Button
-              onClick={() => handlePageChange(page - 1)}
-              disabled={page === 0}
-              variant="outlined"
-              sx={{
-                borderRadius: '8px',
-                borderColor: 'rgba(181, 157, 58, 0.3)',
-                color: '#8a7a2a',
-                fontWeight: 600,
-                minWidth: '80px',
-                '&:hover': {
-                  borderColor: '#b59d3a',
-                  color: '#b59d3a',
-                  background: 'rgba(181, 157, 58, 0.05)'
-                },
-                '&:disabled': {
-                  borderColor: 'rgba(181, 157, 58, 0.1)',
-                  color: 'rgba(181, 157, 58, 0.3)'
-                }
-              }}
-            >
-              Trước
-            </Button>
-            
-            {Array.from({ length: Math.max(1, Math.ceil(groupedProducts.length / pageSize)) }, (_, i) => (
-              <Button
-                key={i}
-                onClick={() => handlePageChange(i)}
-                disabled={i === page}
-                variant={i === page ? 'contained' : 'outlined'}
-                sx={{
-                  borderRadius: '8px',
-                  minWidth: '40px',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  ...(i === page ? {
-                    background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-                    color: 'white',
-                    boxShadow: '0 2px 8px rgba(181, 157, 58, 0.3)',
-                    '&:hover': {
-                      background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)'
-                    }
-                  } : {
-                    borderColor: 'rgba(181, 157, 58, 0.3)',
-                    color: '#8a7a2a',
-                    '&:hover': {
-                      borderColor: '#b59d3a',
-                      color: '#b59d3a',
-                      background: 'rgba(181, 157, 58, 0.05)'
-                    }
-                  })
-                }}
-              >
-                {i + 1}
-              </Button>
-            ))}
-            
-            <Button
-              onClick={() => handlePageChange(page + 1)}
-              disabled={page === Math.max(1, Math.ceil(groupedProducts.length / pageSize)) - 1}
-              variant="outlined"
-              sx={{
-                borderRadius: '8px',
-                borderColor: 'rgba(181, 157, 58, 0.3)',
-                color: '#8a7a2a',
-                fontWeight: 600,
-                minWidth: '80px',
-                '&:hover': {
-                  borderColor: '#b59d3a',
-                  color: '#b59d3a',
-                  background: 'rgba(181, 157, 58, 0.05)'
-                },
-                '&:disabled': {
-                  borderColor: 'rgba(181, 157, 58, 0.1)',
-                  color: 'rgba(181, 157, 58, 0.3)'
-                }
-              }}
-            >
-              Sau
-            </Button>
-          </div>
-        )}
-      </div>
+            ✨ Danh sách biến thể của sản phẩm
+          </DialogTitle>
+          <DialogContent sx={{
+            p: 4,
+            background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.3) 0%, rgba(249, 231, 180, 0.3) 100%)'
+          }}>
+            {detailData && (
+                <Box sx={{
+                  background: 'white',
+                  borderRadius: 16,
+                  p: 4,
+                  mb: 4,
+                  boxShadow: '0 8px 32px rgba(181, 157, 58, 0.1)',
+                  border: '1px solid rgba(181, 157, 58, 0.1)'
+                }}>
+                  {/* Header thông tin sản phẩm */}
+                  <Box sx={{
+                    mb: 3,
+                    p: 3,
+                    background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
+                    borderRadius: 12,
+                    border: '1px solid rgba(181, 157, 58, 0.2)',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h5" sx={{
+                      color: '#6b4f1d',
+                      fontWeight: 700,
+                      mb: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 1
+                    }}>
+                      📦 {detailData.tenSanPham}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#8a7a2a', fontWeight: 500, mb: 2 }}>
+                      Mã: {detailData.maSanPham} • Thương hiệu: {detailData.tenThuongHieu} • Danh mục: {detailData.tenDanhMuc}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#6b4f1d', fontStyle: 'italic' }}>
+                      {detailData.moTa}
+                    </Typography>
+                  </Box>
 
-          {/* Modal chi tiết biến thể */}
-          <Dialog
-              open={openDetail}
-              onClose={() => setOpenDetail(false)}
-        maxWidth="lg"
-              fullWidth
-        PaperProps={{ 
-          style: { 
-            borderRadius: 24, 
-            minWidth: 1000, 
-            maxWidth: 1400,
-            background: 'white',
-            boxShadow: '0 20px 60px rgba(181, 157, 58, 0.25)',
-            overflow: 'hidden'
-          } 
-        }}
-      >
-        <DialogTitle sx={{
-          textAlign: 'center', 
-          fontWeight: 700, 
-          fontSize: '1.8rem',
-          color: 'white',
-          background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-          py: 3,
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-            opacity: 0.3
-          }
-        }}>
-          ✨ Danh sách biến thể của sản phẩm
-        </DialogTitle>
-        <DialogContent sx={{ 
-          p: 4,
-          background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.3) 0%, rgba(249, 231, 180, 0.3) 100%)'
-        }}>
-              {detailData && (
-            <Box sx={{
-              background: 'white',
-              borderRadius: 16,
-              p: 4,
-              mb: 4,
-              boxShadow: '0 8px 32px rgba(181, 157, 58, 0.1)',
-              border: '1px solid rgba(181, 157, 58, 0.1)'
-            }}>
-              {/* Header thông tin sản phẩm */}
-              <Box sx={{
-                mb: 3,
-                p: 3,
-                background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-                borderRadius: 12,
-                border: '1px solid rgba(181, 157, 58, 0.2)',
-                textAlign: 'center'
-              }}>
-                <Typography variant="h5" sx={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 700, 
-                  mb: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 1
-                }}>
-                  📦 {detailData.tenSanPham}
-                </Typography>
-                <Typography variant="body1" sx={{ color: '#8a7a2a', fontWeight: 500, mb: 2 }}>
-                  Mã: {detailData.maSanPham} • Thương hiệu: {detailData.tenThuongHieu} • Danh mục: {detailData.tenDanhMuc}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#6b4f1d', fontStyle: 'italic' }}>
-                  {detailData.moTa}
-                </Typography>
-              </Box>
-
-              {/* Thống kê tổng quan */}
-              <Box sx={{
-                display: 'flex',
-                gap: 3,
-                mb: 3,
-                flexWrap: 'wrap',
-                justifyContent: 'center'
-              }}>
-                <Box sx={{
-                  p: 2,
-                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
-                  borderRadius: 12,
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
-                  textAlign: 'center',
-                  minWidth: 120
-                }}>
-                  <Typography variant="h6" sx={{ color: '#059669', fontWeight: 700 }}>
-                    {detailData.tongSoLuong}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#6b4f1d', fontWeight: 600 }}>
-                    Tổng số lượng
-                  </Typography>
-                </Box>
-                <Box sx={{
-                  p: 2,
-                  background: 'linear-gradient(135deg, rgba(181, 157, 58, 0.1) 0%, rgba(138, 122, 42, 0.1) 100%)',
-                  borderRadius: 12,
-                  border: '1px solid rgba(181, 157, 58, 0.2)',
-                  textAlign: 'center',
-                  minWidth: 120
-                }}>
-                  <Typography variant="h6" sx={{ color: '#b59d3a', fontWeight: 700 }}>
-                    {Array.isArray(detailData?.bienThe) ? detailData.bienThe.length : 0}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#6b4f1d', fontWeight: 600 }}>
-                    Biến thể
-                  </Typography>
-                </Box>
-                <Box sx={{
-                  p: 2,
-                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
-                  borderRadius: 12,
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
-                  textAlign: 'center',
-                  minWidth: 120
-                }}>
-                  <Typography variant="h6" sx={{ color: '#059669', fontWeight: 700 }}>
-                    {detailData.trangThai}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#6b4f1d', fontWeight: 600 }}>
-                    Trạng thái
-                  </Typography>
-                </Box>
+                  {/* Thống kê tổng quan */}
+                  <Box sx={{
+                    display: 'flex',
+                    gap: 3,
+                    mb: 3,
+                    flexWrap: 'wrap',
+                    justifyContent: 'center'
+                  }}>
+                    <Box sx={{
+                      p: 2,
+                      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                      borderRadius: 12,
+                      border: '1px solid rgba(16, 185, 129, 0.2)',
+                      textAlign: 'center',
+                      minWidth: 120
+                    }}>
+                      <Typography variant="h6" sx={{ color: '#059669', fontWeight: 700 }}>
+                        {detailData.tongSoLuong}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#6b4f1d', fontWeight: 600 }}>
+                        Tổng số lượng
+                      </Typography>
+                    </Box>
+                    <Box sx={{
+                      p: 2,
+                      background: 'linear-gradient(135deg, rgba(181, 157, 58, 0.1) 0%, rgba(138, 122, 42, 0.1) 100%)',
+                      borderRadius: 12,
+                      border: '1px solid rgba(181, 157, 58, 0.2)',
+                      textAlign: 'center',
+                      minWidth: 120
+                    }}>
+                      <Typography variant="h6" sx={{ color: '#b59d3a', fontWeight: 700 }}>
+                        {Array.isArray(detailData?.bienThe) ? detailData.bienThe.length : 0}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#6b4f1d', fontWeight: 600 }}>
+                        Biến thể
+                      </Typography>
+                    </Box>
+                    <Box sx={{
+                      p: 2,
+                      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                      borderRadius: 12,
+                      border: '1px solid rgba(16, 185, 129, 0.2)',
+                      textAlign: 'center',
+                      minWidth: 120
+                    }}>
+                      <Typography variant="h6" sx={{ color: '#059669', fontWeight: 700 }}>
+                        {detailData.trangThai}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#6b4f1d', fontWeight: 600 }}>
+                        Trạng thái
+                      </Typography>
                     </Box>
                   </Box>
-              )}
+                </Box>
+            )}
 
-              {/* Bảng biến thể */}
-              {detailData && (
-            <Box sx={{ 
-              background: 'white',
-              borderRadius: 16,
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(181, 157, 58, 0.1)',
-              border: '1px solid rgba(181, 157, 58, 0.1)'
-            }}>
-              <Box sx={{
-                p: 3,
-                background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-                borderBottom: '1px solid rgba(181, 157, 58, 0.2)'
-              }}>
-                <Typography variant="h6" sx={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
+            {/* Bảng biến thể */}
+            {detailData && (
+                <Box sx={{
+                  background: 'white',
+                  borderRadius: 16,
+                  overflow: 'hidden',
+                  boxShadow: '0 8px 32px rgba(181, 157, 58, 0.1)',
+                  border: '1px solid rgba(181, 157, 58, 0.1)'
                 }}>
-                  🎨 Chi tiết các biến thể
-                </Typography>
-              </Box>
-              
-              <Box sx={{ overflow: 'auto' }}>
-                <table style={{
-                  width: '100%', 
-                  borderCollapse: 'collapse', 
-                  background: 'white', 
-                  fontSize: 15, 
-                  lineHeight: 1.4
-                }}>
-                      <thead>
-                    <tr style={{
-                      background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.9) 0%, rgba(249, 231, 180, 0.9) 100%)'
+                  <Box sx={{
+                    p: 3,
+                    background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
+                    borderBottom: '1px solid rgba(181, 157, 58, 0.2)'
+                  }}>
+                    <Typography variant="h6" sx={{
+                      color: '#6b4f1d',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1
                     }}>
-                      <th style={{
-                        padding: '16px 12px', 
-                        fontWeight: 700, 
-                        textAlign: "center", 
-                        fontSize: "0.95rem", 
-                        borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
-                        color: '#6b4f1d',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>STT</th>
-                      <th style={{
-                        padding: '16px 12px', 
-                        fontWeight: 700, 
-                        textAlign: "left", 
-                        fontSize: "0.95rem", 
-                        borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
-                        color: '#6b4f1d',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Màu sắc</th>
-                      <th style={{
-                        padding: '16px 12px', 
-                        fontWeight: 700, 
-                        textAlign: "left", 
-                        fontSize: "0.95rem", 
-                        borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
-                        color: '#6b4f1d',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Kích cỡ</th>
-                      <th style={{
-                        padding: '16px 12px', 
-                        fontWeight: 700, 
-                        textAlign: "center", 
-                        fontSize: "0.95rem", 
-                        borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
-                        color: '#6b4f1d',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Số lượng</th>
-                      <th style={{
-                        padding: '16px 12px', 
-                        fontWeight: 700, 
-                        textAlign: "center", 
-                        fontSize: "0.95rem", 
-                        borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
-                        color: '#6b4f1d',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Trạng thái</th>
-                      <th style={{
-                        padding: '16px 12px', 
-                        fontWeight: 700, 
-                        textAlign: "center", 
-                        fontSize: "0.95rem", 
-                        borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
-                        color: '#6b4f1d',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Giá</th>
-                      <th style={{
-                        padding: '16px 12px', 
-                        fontWeight: 700, 
-                        textAlign: "center", 
-                        fontSize: "0.95rem", 
-                        borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
-                        color: '#6b4f1d',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Ảnh</th>
-                      <th style={{
-                        padding: '16px 12px', 
-                        fontWeight: 700, 
-                        textAlign: "center", 
-                        fontSize: "0.95rem", 
-                        borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
-                        color: '#6b4f1d',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Thao tác</th>
+                      🎨 Chi tiết các biến thể
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ overflow: 'auto' }}>
+                    <table style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      background: 'white',
+                      fontSize: 15,
+                      lineHeight: 1.4
+                    }}>
+                      <thead>
+                      <tr style={{
+                        background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.9) 0%, rgba(249, 231, 180, 0.9) 100%)'
+                      }}>
+                        <th style={{
+                          padding: '16px 12px',
+                          fontWeight: 700,
+                          textAlign: "center",
+                          fontSize: "0.95rem",
+                          borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
+                          color: '#6b4f1d',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>STT</th>
+                        <th style={{
+                          padding: '16px 12px',
+                          fontWeight: 700,
+                          textAlign: "left",
+                          fontSize: "0.95rem",
+                          borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
+                          color: '#6b4f1d',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>Màu sắc</th>
+                        <th style={{
+                          padding: '16px 12px',
+                          fontWeight: 700,
+                          textAlign: "left",
+                          fontSize: "0.95rem",
+                          borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
+                          color: '#6b4f1d',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>Kích cỡ</th>
+                        <th style={{
+                          padding: '16px 12px',
+                          fontWeight: 700,
+                          textAlign: "center",
+                          fontSize: "0.95rem",
+                          borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
+                          color: '#6b4f1d',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>Số lượng</th>
+                        <th style={{
+                          padding: '16px 12px',
+                          fontWeight: 700,
+                          textAlign: "center",
+                          fontSize: "0.95rem",
+                          borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
+                          color: '#6b4f1d',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>Trạng thái</th>
+                        <th style={{
+                          padding: '16px 12px',
+                          fontWeight: 700,
+                          textAlign: "center",
+                          fontSize: "0.95rem",
+                          borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
+                          color: '#6b4f1d',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>Giá</th>
+                        <th style={{
+                          padding: '16px 12px',
+                          fontWeight: 700,
+                          textAlign: "center",
+                          fontSize: "0.95rem",
+                          borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
+                          color: '#6b4f1d',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>Ảnh</th>
+                        <th style={{
+                          padding: '16px 12px',
+                          fontWeight: 700,
+                          textAlign: "center",
+                          fontSize: "0.95rem",
+                          borderBottom: "2px solid rgba(181, 157, 58, 0.3)",
+                          color: '#6b4f1d',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>Thao tác</th>
                       </tr>
                       </thead>
                       <tbody>
                       {Array.isArray(detailData?.bienThe) && detailData.bienThe.map((v: ProductDetail, idx: number) => (
-                      <tr 
-                        key={v.idChiTietSanPham} 
-                        className="variant-row"
-                        style={{ 
-                          borderBottom: '1px solid rgba(181, 157, 58, 0.1)',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        <td style={{ 
-                          padding: '16px 12px', 
-                          textAlign: 'center', 
-                          color: '#8a7a2a',
-                          fontWeight: 600,
-                          fontSize: '1.1rem'
-                        }}>
-                          {idx + 1}
-                        </td>
-                        <td style={{ 
-                          padding: '16px 12px', 
-                          color: '#6b4f1d',
-                          fontWeight: 500
-                        }}>
-                          {v.tenMauSac}
-                        </td>
-                        <td style={{ 
-                          padding: '16px 12px', 
-                          color: '#6b4f1d',
-                          fontWeight: 500
-                        }}>
-                          {v.tenKichCo}
-                        </td>
-                        <td style={{ 
-                          padding: '16px 12px', 
-                          textAlign: 'center', 
-                          fontWeight: 700, 
-                          fontSize: '1.1rem',
-                          color: v.soLuong && v.soLuong > 0 ? '#059669' : '#dc2626'
-                        }}>
+                          <tr
+                              key={v.idChiTietSanPham}
+                              className="variant-row"
+                              style={{
+                                borderBottom: '1px solid rgba(181, 157, 58, 0.1)',
+                                transition: 'all 0.2s ease'
+                              }}
+                          >
+                            <td style={{
+                              padding: '16px 12px',
+                              textAlign: 'center',
+                              color: '#8a7a2a',
+                              fontWeight: 600,
+                              fontSize: '1.1rem'
+                            }}>
+                              {idx + 1}
+                            </td>
+                            <td style={{
+                              padding: '16px 12px',
+                              color: '#6b4f1d',
+                              fontWeight: 500
+                            }}>
+                              {v.tenMauSac}
+                            </td>
+                            <td style={{
+                              padding: '16px 12px',
+                              color: '#6b4f1d',
+                              fontWeight: 500
+                            }}>
+                              {v.tenKichCo}
+                            </td>
+                            <td style={{
+                              padding: '16px 12px',
+                              textAlign: 'center',
+                              fontWeight: 700,
+                              fontSize: '1.1rem',
+                              color: v.soLuong && v.soLuong > 0 ? '#059669' : '#dc2626'
+                            }}>
                               {v.soLuong && v.soLuong >= 0 ? v.soLuong : 0}
                             </td>
-                        <td style={{ padding: '16px 12px', textAlign: 'center' }}>
-                          {v.trangThai === 'Đang bán' ? (
-                            <span className="status-active">ĐANG BÁN</span>
-                          ) : (
-                            <span className="status-inactive">NGỪNG BÁN</span>
-                          )}
+                            <td style={{ padding: '16px 12px', textAlign: 'center' }}>
+                              {v.trangThai === 'Đang bán' ? (
+                                  <span className="status-active">ĐANG BÁN</span>
+                              ) : (
+                                  <span className="status-inactive">NGỪNG BÁN</span>
+                              )}
                             </td>
-                        <td style={{ 
-                          padding: '16px 12px', 
-                          textAlign: 'right', 
-                          fontWeight: 700, 
-                          fontSize: '1.1rem',
-                          color: '#6b4f1d'
-                        }}>
+                            <td style={{
+                              padding: '16px 12px',
+                              textAlign: 'right',
+                              fontWeight: 700,
+                              fontSize: '1.1rem',
+                              color: '#6b4f1d'
+                            }}>
                               {v.gia && v.gia > 0 ? `${v.gia.toLocaleString('vi-VN')}đ` : '0đ'}
                             </td>
-                        <td style={{ padding: '16px 12px', textAlign: 'center' }}>
+                            <td style={{ padding: '16px 12px', textAlign: 'center' }}>
                               {v.duongDanHinhAnh ? (
                                   <img
                                       src={
@@ -2486,452 +2486,452 @@ export default function ProductDetailTable() {
                                             : `http://localhost:8080/images/${v.duongDanHinhAnh.replace(/^.*[\\/]/, '')}`
                                       }
                                       alt="Ảnh"
-                              style={{ 
-                                width: 56, 
-                                height: 56, 
-                                objectFit: 'contain', 
-                                borderRadius: 8, 
-                                border: '2px solid rgba(181, 157, 58, 0.2)', 
-                                background: 'white',
-                                boxShadow: '0 2px 8px rgba(181, 157, 58, 0.15)'
-                              }}
+                                      style={{
+                                        width: 56,
+                                        height: 56,
+                                        objectFit: 'contain',
+                                        borderRadius: 8,
+                                        border: '2px solid rgba(181, 157, 58, 0.2)',
+                                        background: 'white',
+                                        boxShadow: '0 2px 8px rgba(181, 157, 58, 0.15)'
+                                      }}
                                   />
                               ) : (
-                            <Box sx={{
-                              width: 56,
-                              height: 56,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              background: 'rgba(181, 157, 58, 0.1)',
-                              borderRadius: 8,
-                              border: '2px dashed rgba(181, 157, 58, 0.3)'
-                            }}>
-                              <span style={{ 
+                                  <Box sx={{
+                                    width: 56,
+                                    height: 56,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'rgba(181, 157, 58, 0.1)',
+                                    borderRadius: 8,
+                                    border: '2px dashed rgba(181, 157, 58, 0.3)'
+                                  }}>
+                              <span style={{
                                 color: '#8a7a2a',
                                 fontSize: '0.8rem',
                                 fontWeight: 500
                               }}>
                                 Không có ảnh
                               </span>
-                            </Box>
+                                  </Box>
                               )}
                             </td>
-                        <td style={{ padding: '16px 12px', textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                            {/* Nút Sửa biến thể */}
-                            <button
-                              style={{
-                                background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: 8,
-                                padding: 8,
-                                cursor: 'pointer',
-                                fontWeight: 600,
-                                fontSize: 16,
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: '0 4px 12px rgba(181, 157, 58, 0.3)',
-                                transition: 'all 0.3s ease',
-                                minWidth: 40,
-                                height: 40
-                              }}
-                              title="Sửa biến thể"
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(181, 157, 58, 0.4)';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.3)';
-                              }}
-                              onClick={() => handleEditVariant(v)}
-                            >
-                              <FaEdit style={{ fontSize: 16 }} />
-                            </button>
-                          </div>
-                        </td>
+                            <td style={{ padding: '16px 12px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                {/* Nút Sửa biến thể */}
+                                <button
+                                    style={{
+                                      background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: 8,
+                                      padding: 8,
+                                      cursor: 'pointer',
+                                      fontWeight: 600,
+                                      fontSize: 16,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      boxShadow: '0 4px 12px rgba(181, 157, 58, 0.3)',
+                                      transition: 'all 0.3s ease',
+                                      minWidth: 40,
+                                      height: 40
+                                    }}
+                                    title="Sửa biến thể"
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.transform = 'translateY(-2px)';
+                                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(181, 157, 58, 0.4)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.transform = 'translateY(0)';
+                                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.3)';
+                                    }}
+                                    onClick={() => handleEditVariant(v)}
+                                >
+                                  <FaEdit style={{ fontSize: 16 }} />
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                       ))}
                       </tbody>
                     </table>
-              </Box>
                   </Box>
-              )}
-            </DialogContent>
-        <DialogActions sx={{ 
-          justifyContent: 'center', 
-          pb: 4, 
-          px: 4,
-          background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-          gap: 2
-        }}>
-          <Button 
-            onClick={() => setOpenDetail(false)} 
-            sx={{
-              background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-              color: 'white',
-              fontWeight: 700,
-              px: 4,
-              py: 1.5,
-              borderRadius: 12,
-              fontSize: '1rem',
-              textTransform: 'none',
-              minWidth: 120,
-              boxShadow: '0 8px 20px rgba(181, 157, 58, 0.3)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 12px 30px rgba(181, 157, 58, 0.4)'
-              },
-              transition: 'all 0.3s ease'
-            }}
-          >
-            ❌ Đóng
-          </Button>
-            </DialogActions>
-          </Dialog>
+                </Box>
+            )}
+          </DialogContent>
+          <DialogActions sx={{
+            justifyContent: 'center',
+            pb: 4,
+            px: 4,
+            background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
+            gap: 2
+          }}>
+            <Button
+                onClick={() => setOpenDetail(false)}
+                sx={{
+                  background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                  color: 'white',
+                  fontWeight: 700,
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 12,
+                  fontSize: '1rem',
+                  textTransform: 'none',
+                  minWidth: 120,
+                  boxShadow: '0 8px 20px rgba(181, 157, 58, 0.3)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 12px 30px rgba(181, 157, 58, 0.4)'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+            >
+              ❌ Đóng
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-          {/* Modal sửa sản phẩm */}
-      <Dialog 
-        open={!!editDetail} 
-        onClose={() => setEditDetail(null)} 
-        maxWidth="sm" 
-        fullWidth
-        PaperProps={{ 
-          style: { 
-            borderRadius: 16,
-            background: 'white',
-            boxShadow: '0 8px 32px rgba(181, 157, 58, 0.15)'
-          } 
-        }}
-      >
-        <DialogTitle sx={{
-          background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-          color: '#6b4f1d',
-          fontWeight: 700,
-          borderBottom: '1px solid rgba(181, 157, 58, 0.1)'
-        }}>
-          Sửa chi tiết sản phẩm
-        </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
-              {editForm && (
-            <Box component="form" sx={{ mt: 2 }}>
-              <TextField 
-                label="Mã SP" 
-                value={editForm.maSanPham} 
-                onChange={e => setEditForm((f: any) => ({ ...f, maSanPham: e.target.value }))} 
-                fullWidth 
-                sx={{ mb: 2 }} 
-                onBlur={e => checkMaSanPhamTrung(e.target.value)} 
-                error={!!maSanPhamError} 
-                helperText={maSanPhamError} 
-              />
-              <TextField 
-                label="Tên SP" 
-                value={editForm.tenSanPham} 
-                onChange={e => setEditForm((f: any) => ({ ...f, tenSanPham: e.target.value }))} 
-                fullWidth 
-                sx={{ mb: 2 }} 
-              />
-              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                      <InputLabel>Thương hiệu</InputLabel>
-                      <Select
-                          value={editForm.idThuongHieu || ''}
-                          label="Thương hiệu"
-                  onChange={e => setEditForm((f: any) => ({ ...f, idThuongHieu: e.target.value }))}
-                      >
-                        <MenuItem value="">---</MenuItem>
-                        {thuongHieus.map(th => (
-                            <MenuItem key={th.idThuongHieu} value={String(th.idThuongHieu)}>
-                              {th.tenThuongHieu}
-                            </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                      <InputLabel>Danh mục</InputLabel>
-                      <Select
-                          value={editForm.idDanhMuc || ''}
-                          label="Danh mục"
-                  onChange={e => setEditForm((f: any) => ({ ...f, idDanhMuc: e.target.value }))}
-                      >
-                        <MenuItem value="">---</MenuItem>
-                        {danhMucs.map(dm => (
-                            <MenuItem key={dm.idDanhMuc} value={String(dm.idDanhMuc)}>
-                              {dm.tenDanhMuc}
-                            </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                      <InputLabel>Màu sắc</InputLabel>
-                      <Select
-                          value={editForm.idMauSac || ''}
-                          label="Màu sắc"
-                  onChange={e => setEditForm((f: any) => ({ ...f, idMauSac: e.target.value }))}
-                      >
-                        <MenuItem value="">---</MenuItem>
-                        {mauSacs.map(ms => (
-                            <MenuItem key={ms.idMauSac} value={String(ms.idMauSac)}>
-                              {ms.mauSac}
-                            </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                      <InputLabel>Kích cỡ</InputLabel>
-                      <Select
-                          value={editForm.idKichCo || ''}
-                          label="Kích cỡ"
-                  onChange={e => setEditForm((f: any) => ({ ...f, idKichCo: e.target.value }))}
-                      >
-                        <MenuItem value="">---</MenuItem>
-                        {kichCos.map(kc => (
-                            <MenuItem key={kc.idKichCo} value={String(kc.idKichCo)}>
-                              {kc.kichCo}
-                            </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-              <TextField 
-                label="Giá" 
-                value={editForm.gia} 
-                onChange={e => setEditForm((f: any) => ({ ...f, gia: e.target.value }))} 
-                fullWidth 
-                sx={{ mb: 2 }} 
-                type="number" 
-              />
-              <TextField 
-                label="Số lượng" 
-                value={editForm.soLuong} 
-                onChange={e => setEditForm((f: any) => ({ ...f, soLuong: e.target.value }))} 
-                fullWidth 
-                sx={{ mb: 2 }} 
-                type="number" 
-              />
-              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                      <InputLabel>Trạng thái</InputLabel>
-                      <Select
-                          value={editForm.trangThai || ''}
-                          label="Trạng thái"
-                  onChange={e => setEditForm((f: any) => ({ ...f, trangThai: e.target.value }))}
-                      >
-                        <MenuItem value="">---</MenuItem>
-                        <MenuItem value="Đang bán">Đang bán</MenuItem>
-                        <MenuItem value="Ngừng bán">Ngừng bán</MenuItem>
-                      </Select>
-                    </FormControl>
-              <TextField 
-                label="Mô tả" 
-                value={editForm.moTa} 
-                onChange={e => setEditForm((f: any) => ({ ...f, moTa: e.target.value }))} 
-                fullWidth 
-                sx={{ mb: 2 }} 
-                multiline 
-                minRows={2} 
-              />
-                    {/* Upload ảnh */}
-              <Box sx={{ mb: 2 }}>
-                      <input type="file" accept="image/*" onChange={handleUploadImg} />
-                {uploadingImg && <CircularProgress size={18} sx={{ ml: 2 }} />}
-                      {uploadImgError && <Alert severity="error">{uploadImgError}</Alert>}
-                      {previewImg ? (
-                  <img 
-                    src={previewImg} 
-                    alt="Preview" 
-                    style={{
-                      width: 60, 
-                      height: 60, 
-                      objectFit: 'contain', 
-                      borderRadius: 6, 
-                      border: '1px solid rgba(181, 157, 58, 0.2)', 
-                      background: '#fafafa', 
-                      marginTop: 8 
-                    }} 
+        {/* Modal sửa sản phẩm */}
+        <Dialog
+            open={!!editDetail}
+            onClose={() => setEditDetail(null)}
+            maxWidth="sm"
+            fullWidth
+            PaperProps={{
+              style: {
+                borderRadius: 16,
+                background: 'white',
+                boxShadow: '0 8px 32px rgba(181, 157, 58, 0.15)'
+              }
+            }}
+        >
+          <DialogTitle sx={{
+            background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
+            color: '#6b4f1d',
+            fontWeight: 700,
+            borderBottom: '1px solid rgba(181, 157, 58, 0.1)'
+          }}>
+            Sửa chi tiết sản phẩm
+          </DialogTitle>
+          <DialogContent sx={{ p: 3 }}>
+            {editForm && (
+                <Box component="form" sx={{ mt: 2 }}>
+                  <TextField
+                      label="Mã SP"
+                      value={editForm.maSanPham}
+                      onChange={e => setEditForm((f: any) => ({ ...f, maSanPham: e.target.value }))}
+                      fullWidth
+                      sx={{ mb: 2 }}
+                      onBlur={e => checkMaSanPhamTrung(e.target.value)}
+                      error={!!maSanPhamError}
+                      helperText={maSanPhamError}
                   />
-                      ) : (
-                          editForm?.duongDanHinhAnh && (
-                              <img
-                                  src={`http://localhost:8080/images/${editForm.duongDanHinhAnh.replace(/^.*[\\/]/, '')}`}
-                                  alt="Ảnh hiện tại"
-                      style={{
-                        width: 60, 
-                        height: 60, 
-                        objectFit: 'contain', 
-                        borderRadius: 6, 
-                        border: '1px solid rgba(181, 157, 58, 0.2)', 
-                        background: '#fafafa', 
-                        marginTop: 8, 
-                        marginRight: 8 
-                      }}
-                              />
-                          )
-                      )}
-                    </Box>
+                  <TextField
+                      label="Tên SP"
+                      value={editForm.tenSanPham}
+                      onChange={e => setEditForm((f: any) => ({ ...f, tenSanPham: e.target.value }))}
+                      fullWidth
+                      sx={{ mb: 2 }}
+                  />
+                  <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                    <InputLabel>Thương hiệu</InputLabel>
+                    <Select
+                        value={editForm.idThuongHieu || ''}
+                        label="Thương hiệu"
+                        onChange={e => setEditForm((f: any) => ({ ...f, idThuongHieu: e.target.value }))}
+                    >
+                      <MenuItem value="">---</MenuItem>
+                      {thuongHieus.map(th => (
+                          <MenuItem key={th.idThuongHieu} value={String(th.idThuongHieu)}>
+                            {th.tenThuongHieu}
+                          </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                    <InputLabel>Danh mục</InputLabel>
+                    <Select
+                        value={editForm.idDanhMuc || ''}
+                        label="Danh mục"
+                        onChange={e => setEditForm((f: any) => ({ ...f, idDanhMuc: e.target.value }))}
+                    >
+                      <MenuItem value="">---</MenuItem>
+                      {danhMucs.map(dm => (
+                          <MenuItem key={dm.idDanhMuc} value={String(dm.idDanhMuc)}>
+                            {dm.tenDanhMuc}
+                          </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                    <InputLabel>Màu sắc</InputLabel>
+                    <Select
+                        value={editForm.idMauSac || ''}
+                        label="Màu sắc"
+                        onChange={e => setEditForm((f: any) => ({ ...f, idMauSac: e.target.value }))}
+                    >
+                      <MenuItem value="">---</MenuItem>
+                      {mauSacs.map(ms => (
+                          <MenuItem key={ms.idMauSac} value={String(ms.idMauSac)}>
+                            {ms.mauSac}
+                          </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                    <InputLabel>Kích cỡ</InputLabel>
+                    <Select
+                        value={editForm.idKichCo || ''}
+                        label="Kích cỡ"
+                        onChange={e => setEditForm((f: any) => ({ ...f, idKichCo: e.target.value }))}
+                    >
+                      <MenuItem value="">---</MenuItem>
+                      {kichCos.map(kc => (
+                          <MenuItem key={kc.idKichCo} value={String(kc.idKichCo)}>
+                            {kc.kichCo}
+                          </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                      label="Giá"
+                      value={editForm.gia}
+                      onChange={e => setEditForm((f: any) => ({ ...f, gia: e.target.value }))}
+                      fullWidth
+                      sx={{ mb: 2 }}
+                      type="number"
+                  />
+                  <TextField
+                      label="Số lượng"
+                      value={editForm.soLuong}
+                      onChange={e => setEditForm((f: any) => ({ ...f, soLuong: e.target.value }))}
+                      fullWidth
+                      sx={{ mb: 2 }}
+                      type="number"
+                  />
+                  <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                    <InputLabel>Trạng thái</InputLabel>
+                    <Select
+                        value={editForm.trangThai || ''}
+                        label="Trạng thái"
+                        onChange={e => setEditForm((f: any) => ({ ...f, trangThai: e.target.value }))}
+                    >
+                      <MenuItem value="">---</MenuItem>
+                      <MenuItem value="Đang bán">Đang bán</MenuItem>
+                      <MenuItem value="Ngừng bán">Ngừng bán</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <TextField
+                      label="Mô tả"
+                      value={editForm.moTa}
+                      onChange={e => setEditForm((f: any) => ({ ...f, moTa: e.target.value }))}
+                      fullWidth
+                      sx={{ mb: 2 }}
+                      multiline
+                      minRows={2}
+                  />
+                  {/* Upload ảnh */}
+                  <Box sx={{ mb: 2 }}>
+                    <input type="file" accept="image/*" onChange={handleUploadImg} />
+                    {uploadingImg && <CircularProgress size={18} sx={{ ml: 2 }} />}
+                    {uploadImgError && <Alert severity="error">{uploadImgError}</Alert>}
+                    {previewImg ? (
+                        <img
+                            src={previewImg}
+                            alt="Preview"
+                            style={{
+                              width: 60,
+                              height: 60,
+                              objectFit: 'contain',
+                              borderRadius: 6,
+                              border: '1px solid rgba(181, 157, 58, 0.2)',
+                              background: '#fafafa',
+                              marginTop: 8
+                            }}
+                        />
+                    ) : (
+                        editForm?.duongDanHinhAnh && (
+                            <img
+                                src={`http://localhost:8080/images/${editForm.duongDanHinhAnh.replace(/^.*[\\/]/, '')}`}
+                                alt="Ảnh hiện tại"
+                                style={{
+                                  width: 60,
+                                  height: 60,
+                                  objectFit: 'contain',
+                                  borderRadius: 6,
+                                  border: '1px solid rgba(181, 157, 58, 0.2)',
+                                  background: '#fafafa',
+                                  marginTop: 8,
+                                  marginRight: 8
+                                }}
+                            />
+                        )
+                    )}
                   </Box>
-              )}
-            </DialogContent>
-        <DialogActions sx={{ 
-          justifyContent: 'center', 
-          pb: 3, 
-          px: 3,
-          background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.5) 0%, rgba(249, 231, 180, 0.5) 100%)'
-        }}>
-          <Button 
-            onClick={() => setEditDetail(null)} 
-            disabled={editLoading}
-            sx={{
-              color: '#8a7a2a',
-              fontWeight: 600,
-              px: 3,
-              py: 1,
-              borderRadius: 2,
-              border: '1px solid rgba(181, 157, 58, 0.3)',
-              '&:hover': {
-                borderColor: '#b59d3a',
-                color: '#b59d3a',
-                backgroundColor: 'rgba(181, 157, 58, 0.05)'
+                </Box>
+            )}
+          </DialogContent>
+          <DialogActions sx={{
+            justifyContent: 'center',
+            pb: 3,
+            px: 3,
+            background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.5) 0%, rgba(249, 231, 180, 0.5) 100%)'
+          }}>
+            <Button
+                onClick={() => setEditDetail(null)}
+                disabled={editLoading}
+                sx={{
+                  color: '#8a7a2a',
+                  fontWeight: 600,
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
+                  border: '1px solid rgba(181, 157, 58, 0.3)',
+                  '&:hover': {
+                    borderColor: '#b59d3a',
+                    color: '#b59d3a',
+                    backgroundColor: 'rgba(181, 157, 58, 0.05)'
+                  }
+                }}
+            >
+              Hủy
+            </Button>
+            <Button
+                variant="contained"
+                onClick={handleSaveEdit}
+                disabled={editLoading}
+                sx={{
+                  background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                  color: 'white',
+                  fontWeight: 600,
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)'
+                  }
+                }}
+            >
+              {editLoading ? 'Đang lưu...' : 'Lưu'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Modal sửa biến thể */}
+        <Dialog
+            open={openEditVariantModal}
+            onClose={() => setOpenEditVariantModal(false)}
+            maxWidth="md"
+            fullWidth
+            PaperProps={{
+              style: {
+                borderRadius: 24,
+                background: 'white',
+                boxShadow: '0 20px 60px rgba(181, 157, 58, 0.25)',
+                overflow: 'hidden'
               }
             }}
-          >
-            Hủy
-          </Button>
-              <Button
-                  variant="contained"
-                  onClick={handleSaveEdit}
-                  disabled={editLoading}
-            sx={{
-              background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-              color: 'white',
-              fontWeight: 600,
-              px: 3,
-              py: 1,
-              borderRadius: 2,
-              '&:hover': {
-                background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)'
-              }
-            }}
-              >
-                {editLoading ? 'Đang lưu...' : 'Lưu'}
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          {/* Modal sửa biến thể */}
-      <Dialog 
-        open={openEditVariantModal} 
-        onClose={() => setOpenEditVariantModal(false)} 
-        maxWidth="md"
-        fullWidth
-        PaperProps={{ 
-          style: { 
-            borderRadius: 24,
-            background: 'white',
-            boxShadow: '0 20px 60px rgba(181, 157, 58, 0.25)',
-            overflow: 'hidden'
-          } 
-        }}
-      >
-        <DialogTitle sx={{
-          background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-          color: 'white',
-          fontWeight: 700,
-          fontSize: '1.5rem',
-          textAlign: 'center',
-          py: 3,
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-            opacity: 0.3
-          }
-        }}>
-          ✨ Chỉnh sửa biến thể sản phẩm
-        </DialogTitle>
-        <DialogContent sx={{ 
-          p: 4,
-          background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.3) 0%, rgba(249, 231, 180, 0.3) 100%)',
-          minHeight: '500px'
-        }}>
-              {editVariantForm && (
-            <Box sx={{ 
-              width: '100%',
-              background: 'white',
-              borderRadius: 16,
-              p: 4,
-              boxShadow: '0 8px 32px rgba(181, 157, 58, 0.1)',
-              border: '1px solid rgba(181, 157, 58, 0.1)'
-            }}>
-              {/* Header thông tin */}
-              <Box sx={{
-                mb: 4,
-                p: 3,
-                background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-                borderRadius: 12,
-                border: '1px solid rgba(181, 157, 58, 0.2)',
-                textAlign: 'center'
-              }}>
-                <Typography variant="h6" sx={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 700, 
-                  mb: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 1
+        >
+          <DialogTitle sx={{
+            background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+            color: 'white',
+            fontWeight: 700,
+            fontSize: '1.5rem',
+            textAlign: 'center',
+            py: 3,
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+              opacity: 0.3
+            }
+          }}>
+            ✨ Chỉnh sửa biến thể sản phẩm
+          </DialogTitle>
+          <DialogContent sx={{
+            p: 4,
+            background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.3) 0%, rgba(249, 231, 180, 0.3) 100%)',
+            minHeight: '500px'
+          }}>
+            {editVariantForm && (
+                <Box sx={{
+                  width: '100%',
+                  background: 'white',
+                  borderRadius: 16,
+                  p: 4,
+                  boxShadow: '0 8px 32px rgba(181, 157, 58, 0.1)',
+                  border: '1px solid rgba(181, 157, 58, 0.1)'
                 }}>
-                  🎨 {mauSacs.find(ms => String(ms.idMauSac) === String(editVariantForm.idMauSac))?.mauSac || 'Màu sắc'}
-                  <span style={{ color: '#8a7a2a' }}>•</span>
-                  📏 {kichCos.find(kc => String(kc.idKichCo) === String(editVariantForm.idKichCo))?.kichCo || 'Kích cỡ'}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#8a7a2a', fontWeight: 500 }}>
-                  Chỉnh sửa số lượng và hình ảnh biến thể sản phẩm
-                </Typography>
-              </Box>
-
-              {/* Form fields */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {/* Row 1: Màu sắc và Số lượng */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  gap: 3, 
-                  flexDirection: { xs: 'column', md: 'row' }
-                }}>
-                  <FormControl fullWidth sx={{ minWidth: 200 }}>
-                    <Typography variant="subtitle1" sx={{ 
-                      color: '#6b4f1d', 
-                      fontWeight: 700, 
+                  {/* Header thông tin */}
+                  <Box sx={{
+                    mb: 4,
+                    p: 3,
+                    background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
+                    borderRadius: 12,
+                    border: '1px solid rgba(181, 157, 58, 0.2)',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="h6" sx={{
+                      color: '#6b4f1d',
+                      fontWeight: 700,
                       mb: 1,
-                      fontSize: '1rem'
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 1
                     }}>
-                      🎨 Màu sắc
+                      🎨 {mauSacs.find(ms => String(ms.idMauSac) === String(editVariantForm.idMauSac))?.mauSac || 'Màu sắc'}
+                      <span style={{ color: '#8a7a2a' }}>•</span>
+                      📏 {kichCos.find(kc => String(kc.idKichCo) === String(editVariantForm.idKichCo))?.kichCo || 'Kích cỡ'}
                     </Typography>
+                    <Typography variant="body2" sx={{ color: '#8a7a2a', fontWeight: 500 }}>
+                      Chỉnh sửa số lượng và hình ảnh biến thể sản phẩm
+                    </Typography>
+                  </Box>
+
+                  {/* Form fields */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {/* Row 1: Màu sắc và Số lượng */}
+                    <Box sx={{
+                      display: 'flex',
+                      gap: 3,
+                      flexDirection: { xs: 'column', md: 'row' }
+                    }}>
+                      <FormControl fullWidth sx={{ minWidth: 200 }}>
+                        <Typography variant="subtitle1" sx={{
+                          color: '#6b4f1d',
+                          fontWeight: 700,
+                          mb: 1,
+                          fontSize: '1rem'
+                        }}>
+                          🎨 Màu sắc
+                        </Typography>
                         <Select
                             value={editVariantForm.idMauSac || ''}
                             disabled
                             sx={{
-                        borderRadius: 12,
-                        background: 'rgba(255, 251, 230, 0.5)',
-                        height: '56px',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(181, 157, 58, 0.3)',
-                          borderWidth: 2
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#b59d3a'
-                        },
+                              borderRadius: 12,
+                              background: 'rgba(255, 251, 230, 0.5)',
+                              height: '56px',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'rgba(181, 157, 58, 0.3)',
+                                borderWidth: 2
+                              },
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#b59d3a'
+                              },
                               '& .Mui-disabled': {
-                          color: '#6b4f1d !important',
-                          WebkitTextFillColor: '#6b4f1d !important',
-                          background: 'rgba(255, 251, 230, 0.8)'
+                                color: '#6b4f1d !important',
+                                WebkitTextFillColor: '#6b4f1d !important',
+                                background: 'rgba(255, 251, 230, 0.8)'
                               }
                             }}
                         >
@@ -2943,80 +2943,80 @@ export default function ProductDetailTable() {
                           ))}
                         </Select>
                       </FormControl>
-                  
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    <Typography variant="subtitle1" sx={{ 
-                      color: '#6b4f1d', 
-                      fontWeight: 700, 
-                      mb: 1,
-                      fontSize: '1rem'
-                    }}>
-                      📦 Số lượng
-                    </Typography>
-                      <TextField
-                          type="number"
-                          value={editVariantForm.soLuong || 0}
-                          onChange={e => {
-                        setEditVariantForm((f: any) => ({ ...f, soLuong: e.target.value }));
-                            setEditVariantSoLuongError('');
-                          }}
-                          fullWidth
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: 12,
-                          background: 'rgba(255, 251, 230, 0.5)',
-                          height: '56px',
-                          '& fieldset': {
-                            borderColor: 'rgba(181, 157, 58, 0.3)',
-                            borderWidth: 2
-                          },
-                          '&:hover fieldset': {
-                            borderColor: '#b59d3a'
-                          },
-                          '&.Mui-focused fieldset': {
-                            borderColor: '#b59d3a'
-                          }
-                        }
-                      }}
-                          error={!!editVariantSoLuongError}
-                          helperText={editVariantSoLuongError}
-                      />
-                    </Box>
+
+                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                        <Typography variant="subtitle1" sx={{
+                          color: '#6b4f1d',
+                          fontWeight: 700,
+                          mb: 1,
+                          fontSize: '1rem'
+                        }}>
+                          📦 Số lượng
+                        </Typography>
+                        <TextField
+                            type="number"
+                            value={editVariantForm.soLuong || 0}
+                            onChange={e => {
+                              setEditVariantForm((f: any) => ({ ...f, soLuong: e.target.value }));
+                              setEditVariantSoLuongError('');
+                            }}
+                            fullWidth
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: 12,
+                                background: 'rgba(255, 251, 230, 0.5)',
+                                height: '56px',
+                                '& fieldset': {
+                                  borderColor: 'rgba(181, 157, 58, 0.3)',
+                                  borderWidth: 2
+                                },
+                                '&:hover fieldset': {
+                                  borderColor: '#b59d3a'
+                                },
+                                '&.Mui-focused fieldset': {
+                                  borderColor: '#b59d3a'
+                                }
+                              }
+                            }}
+                            error={!!editVariantSoLuongError}
+                            helperText={editVariantSoLuongError}
+                        />
+                      </Box>
                     </Box>
 
-                {/* Row 2: Kích cỡ và Giá */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  gap: 3, 
-                  flexDirection: { xs: 'column', md: 'row' }
-                }}>
-                  <FormControl fullWidth sx={{ minWidth: 200 }}>
-                    <Typography variant="subtitle1" sx={{ 
-                      color: '#6b4f1d', 
-                      fontWeight: 700, 
-                      mb: 1,
-                      fontSize: '1rem'
+                    {/* Row 2: Kích cỡ và Giá */}
+                    <Box sx={{
+                      display: 'flex',
+                      gap: 3,
+                      flexDirection: { xs: 'column', md: 'row' }
                     }}>
-                      📏 Kích cỡ
-                    </Typography>
+                      <FormControl fullWidth sx={{ minWidth: 200 }}>
+                        <Typography variant="subtitle1" sx={{
+                          color: '#6b4f1d',
+                          fontWeight: 700,
+                          mb: 1,
+                          fontSize: '1rem'
+                        }}>
+                          📏 Kích cỡ
+                        </Typography>
                         <Select
                             value={editVariantForm.idKichCo || ''}
                             disabled
                             sx={{
-                        borderRadius: 12,
-                        background: 'rgba(255, 251, 230, 0.5)',
-                        height: '56px',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(181, 157, 58, 0.3)',
-                          borderWidth: 2
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#b59d3a'
-                        },
+                              borderRadius: 12,
+                              background: 'rgba(255, 251, 230, 0.5)',
+                              height: '56px',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'rgba(181, 157, 58, 0.3)',
+                                borderWidth: 2
+                              },
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#b59d3a'
+                              },
                               '& .Mui-disabled': {
-                          color: '#6b4f1d !important',
-                          WebkitTextFillColor: '#6b4f1d !important',
-                          background: 'rgba(255, 251, 230, 0.8)'
+                                color: '#6b4f1d !important',
+                                WebkitTextFillColor: '#6b4f1d !important',
+                                background: 'rgba(255, 251, 230, 0.8)'
                               }
                             }}
                         >
@@ -3028,139 +3028,379 @@ export default function ProductDetailTable() {
                           ))}
                         </Select>
                       </FormControl>
-                  
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    <Typography variant="subtitle1" sx={{ 
-                      color: '#6b4f1d', 
-                      fontWeight: 700, 
-                      mb: 1,
-                      fontSize: '1rem'
+
+                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                        <Typography variant="subtitle1" sx={{
+                          color: '#6b4f1d',
+                          fontWeight: 700,
+                          mb: 1,
+                          fontSize: '1rem'
+                        }}>
+                          💰 Giá (VNĐ)
+                        </Typography>
+                        <TextField
+                            type="number"
+                            value={editVariantForm.gia || 0}
+                            disabled
+                            fullWidth
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: 12,
+                                background: 'rgba(255, 251, 230, 0.5)',
+                                height: '56px',
+                                '& fieldset': {
+                                  borderColor: 'rgba(181, 157, 58, 0.3)',
+                                  borderWidth: 2
+                                },
+                                '&:hover fieldset': {
+                                  borderColor: '#b59d3a'
+                                }
+                              },
+                              '& .Mui-disabled': {
+                                color: '#6b4f1d !important',
+                                WebkitTextFillColor: '#6b4f1d !important',
+                                background: 'rgba(255, 251, 230, 0.8)'
+                              }
+                            }}
+                        />
+                      </Box>
+                    </Box>
+
+                    {/* Quản lý Sale */}
+                    <Box sx={{
+                      mt: 2,
+                      p: 3,
+                      background: 'linear-gradient(135deg, rgba(255, 192, 203, 0.6) 0%, rgba(255, 105, 180, 0.6) 100%)',
+                      borderRadius: 12,
+                      border: '1px solid rgba(255, 105, 180, 0.2)'
                     }}>
-                      💰 Giá (VNĐ)
-                    </Typography>
-                      <TextField
-                          type="number"
-                          value={editVariantForm.gia || 0}
-                          disabled
-                          fullWidth
-                          sx={{ 
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: 12,
-                          background: 'rgba(255, 251, 230, 0.5)',
-                          height: '56px',
-                          '& fieldset': {
-                            borderColor: 'rgba(181, 157, 58, 0.3)',
-                            borderWidth: 2
-                          },
-                          '&:hover fieldset': {
-                            borderColor: '#b59d3a'
-                          }
-                        },
-                            '& .Mui-disabled': {
-                          color: '#6b4f1d !important',
-                          WebkitTextFillColor: '#6b4f1d !important',
-                          background: 'rgba(255, 251, 230, 0.8)'
-                            }
-                          }}
-                      />
-                    </Box>
+
                     </Box>
 
-                {/* Quản lý Sale */}
-                <Box sx={{ 
-                  mt: 2,
-                  p: 3,
-                  background: 'linear-gradient(135deg, rgba(255, 192, 203, 0.6) 0%, rgba(255, 105, 180, 0.6) 100%)',
-                  borderRadius: 12,
-                  border: '1px solid rgba(255, 105, 180, 0.2)'
-                }}>
-
-                </Box>
-
-                {/* Quản lý nhiều ảnh */}
-                <Box sx={{ 
-                  mt: 2,
-                  p: 3,
-                  background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.6) 0%, rgba(249, 231, 180, 0.6) 100%)',
-                  borderRadius: 12,
-                  border: '1px solid rgba(181, 157, 58, 0.2)'
-                }}>
-                  <Typography variant="h6" sx={{ 
-                    color: '#6b4f1d', 
-                    fontWeight: 700, 
-                    mb: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 1
-                  }}>
-                    📸 Quản lý hình ảnh ({editVariantImages.length}/10)
-                    {editVariantHasImageChanges && (
-                      <Typography variant="caption" sx={{ 
-                        color: '#f59e0b', 
-                        fontWeight: 600,
-                        ml: 2,
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: 8,
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        border: '1px solid rgba(245, 158, 11, 0.3)'
+                    {/* Quản lý nhiều ảnh */}
+                    <Box sx={{
+                      mt: 2,
+                      p: 3,
+                      background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.6) 0%, rgba(249, 231, 180, 0.6) 100%)',
+                      borderRadius: 12,
+                      border: '1px solid rgba(181, 157, 58, 0.2)'
+                    }}>
+                      <Typography variant="h6" sx={{
+                        color: '#6b4f1d',
+                        fontWeight: 700,
+                        mb: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 1
                       }}>
-                        ⚠️ Có thay đổi
+                        📸 Quản lý hình ảnh ({editVariantImages.length}/10)
+                        {editVariantHasImageChanges && (
+                            <Typography variant="caption" sx={{
+                              color: '#f59e0b',
+                              fontWeight: 600,
+                              ml: 2,
+                              px: 2,
+                              py: 0.5,
+                              borderRadius: 8,
+                              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                              border: '1px solid rgba(245, 158, 11, 0.3)'
+                            }}>
+                              ⚠️ Có thay đổi
+                            </Typography>
+                        )}
                       </Typography>
-                    )}
-                  </Typography>
 
-                  {/* Thông báo lỗi/thành công */}
-                  {editVariantImageError && (
-                    <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
-                      {editVariantImageError}
-                    </Alert>
-                  )}
-                  {editVariantImageSuccess && (
-                    <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
-                      {editVariantImageSuccess}
-                    </Alert>
-                  )}
+                      {/* Thông báo lỗi/thành công */}
+                      {editVariantImageError && (
+                          <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+                            {editVariantImageError}
+                          </Alert>
+                      )}
+                      {editVariantImageSuccess && (
+                          <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
+                            {editVariantImageSuccess}
+                          </Alert>
+                      )}
 
-                  {/* Upload ảnh mới */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle2" sx={{ 
-                      color: '#8a7a2a', 
-                      fontWeight: 600, 
+                      {/* Upload ảnh mới */}
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="subtitle2" sx={{
+                          color: '#8a7a2a',
+                          fontWeight: 600,
+                          mb: 2
+                        }}>
+                          📁 Thêm ảnh mới (có thể chọn nhiều)
+                        </Typography>
+                        <Box sx={{
+                          p: 3,
+                          background: 'white',
+                          borderRadius: 12,
+                          border: '2px dashed rgba(181, 157, 58, 0.3)',
+                          textAlign: 'center'
+                        }}>
+                          <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={handleEditVariantUploadImage}
+                              style={{ display: 'none' }}
+                              id="edit-variant-image-upload"
+                              disabled={editVariantImageLoading || editVariantImages.length >= 10}
+                          />
+                          <label htmlFor="edit-variant-image-upload">
+                            <Button
+                                component="span"
+                                variant="outlined"
+                                disabled={editVariantImageLoading || editVariantImages.length >= 10}
+                                sx={{
+                                  borderColor: '#b59d3a',
+                                  color: '#b59d3a',
+                                  fontWeight: 600,
+                                  px: 4,
+                                  py: 2,
+                                  borderRadius: 12,
+                                  fontSize: '1rem',
+                                  textTransform: 'none',
+                                  '&:hover': {
+                                    borderColor: '#8a7a2a',
+                                    color: '#8a7a2a',
+                                    backgroundColor: 'rgba(181, 157, 58, 0.08)',
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: '0 4px 12px rgba(181, 157, 58, 0.2)'
+                                  },
+                                  '&:disabled': {
+                                    borderColor: '#9ca3af',
+                                    color: '#9ca3af',
+                                    cursor: 'not-allowed'
+                                  },
+                                  transition: 'all 0.3s ease'
+                                }}
+                            >
+                              {editVariantImageLoading ? (
+                                  <>
+                                    <CircularProgress size={20} sx={{ mr: 1, color: '#b59d3a' }} />
+                                    Đang upload...
+                                  </>
+                              ) : editVariantImages.length >= 10 ? (
+                                  'Đã đạt giới hạn 10 ảnh'
+                              ) : (
+                                  '📁 Chọn ảnh (có thể chọn nhiều)'
+                              )}
+                            </Button>
+                          </label>
+                          <Typography variant="caption" sx={{
+                            display: 'block',
+                            mt: 2,
+                            color: '#8a7a2a',
+                            fontWeight: 500
+                          }}>
+                            {editVariantImages.length}/10 ảnh đã sử dụng
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Danh sách ảnh hiện tại */}
+                      <Box>
+                        <Typography variant="subtitle2" sx={{
+                          color: '#8a7a2a',
+                          fontWeight: 600,
+                          mb: 2
+                        }}>
+                          📸 Ảnh hiện tại ({editVariantImages.length})
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 2, display: 'block' }}>
+                          Debug: {editVariantImages.length} ảnh được load
+                        </Typography>
+
+                        {editVariantImages.length === 0 ? (
+                            <Box sx={{
+                              p: 4,
+                              textAlign: 'center',
+                              background: 'rgba(156, 163, 175, 0.1)',
+                              borderRadius: 12,
+                              border: '2px dashed rgba(156, 163, 175, 0.3)'
+                            }}>
+                              <Typography variant="h4" sx={{ mb: 2, color: '#9ca3af' }}>
+                                📷
+                              </Typography>
+                              <Typography variant="body1" sx={{ color: '#6b7280', fontWeight: 500 }}>
+                                Chưa có ảnh nào
+                              </Typography>
+                              <Typography variant="body2" sx={{ color: '#9ca3af', mt: 1 }}>
+                                Hãy thêm ảnh đầu tiên cho sản phẩm này
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: '#9ca3af', mt: 1, display: 'block' }}>
+                                Debug: editVariantImages.length = {editVariantImages.length}
+                              </Typography>
+                            </Box>
+                        ) : (
+                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 2 }}>
+                              {editVariantImages.map((image, index) => (
+                                  <Box key={image.idChiTietSanPhamHinhAnh} sx={{
+                                    background: 'white',
+                                    borderRadius: 8,
+                                    p: 2,
+                                    border: '1px solid rgba(181, 157, 58, 0.2)',
+                                    boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
+                                    position: 'relative',
+                                    overflow: 'hidden'
+                                  }}>
+                                    {/* Ảnh chính badge */}
+                                    {image.laAnhChinh && (
+                                        <Box sx={{
+                                          position: 'absolute',
+                                          top: 8,
+                                          left: 8,
+                                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                          color: 'white',
+                                          px: 1.5,
+                                          py: 0.3,
+                                          borderRadius: 6,
+                                          fontSize: '0.6rem',
+                                          fontWeight: 700,
+                                          zIndex: 1
+                                        }}>
+                                          Ảnh chính
+                                        </Box>
+                                    )}
+
+                                    {/* Thứ tự */}
+                                    <Box sx={{
+                                      position: 'absolute',
+                                      top: 8,
+                                      right: 8,
+                                      background: 'rgba(0, 0, 0, 0.7)',
+                                      color: 'white',
+                                      width: 24,
+                                      height: 24,
+                                      borderRadius: '50%',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontSize: '0.7rem',
+                                      fontWeight: 700,
+                                      zIndex: 1
+                                    }}>
+                                      {image.thuTu}
+                                    </Box>
+
+                                    {/* Ảnh */}
+                                    <Box sx={{
+                                      width: '100%',
+                                      height: 100,
+                                      borderRadius: 6,
+                                      overflow: 'hidden',
+                                      mb: 1,
+                                      background: '#f3f4f6',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center'
+                                    }}>
+                                      <img
+                                          src={`http://localhost:8080/hinh-anh/view/${image.urlHinhAnh || image.tenHinhAnh}`}
+                                          alt={`Ảnh ${image.thuTu}`}
+                                          style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                          }}
+                                          onError={(e) => {
+                                            console.error('Lỗi load ảnh:', image.urlHinhAnh || image.tenHinhAnh);
+                                            e.currentTarget.style.display = 'none';
+                                          }}
+                                      />
+                                    </Box>
+
+                                    {/* Thông tin ảnh */}
+                                    <Typography variant="caption" sx={{
+                                      color: '#374151',
+                                      fontWeight: 500,
+                                      mb: 1,
+                                      textAlign: 'center',
+                                      display: 'block',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap'
+                                    }}>
+                                      {image.tenHinhAnh}
+                                    </Typography>
+
+                                    {/* Các nút hành động */}
+                                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', flexWrap: 'wrap' }}>
+                                      {!image.laAnhChinh && (
+                                          <Button
+                                              size="small"
+                                              variant="outlined"
+                                              onClick={() => handleEditVariantSetMainImage(image.idChiTietSanPhamHinhAnh)}
+                                              sx={{
+                                                borderColor: '#10b981',
+                                                color: '#10b981',
+                                                fontSize: '0.6rem',
+                                                py: 0.3,
+                                                px: 1,
+                                                minWidth: 'auto',
+                                                '&:hover': {
+                                                  borderColor: '#059669',
+                                                  color: '#059669',
+                                                  backgroundColor: 'rgba(16, 185, 129, 0.08)'
+                                                }
+                                              }}
+                                          >
+                                            Chính
+                                          </Button>
+                                      )}
+
+                                      <Button
+                                          size="small"
+                                          variant="outlined"
+                                          color="error"
+                                          onClick={() => handleEditVariantDeleteImage(image.idChiTietSanPhamHinhAnh)}
+                                          sx={{
+                                            fontSize: '0.6rem',
+                                            py: 0.3,
+                                            px: 1,
+                                            minWidth: 'auto',
+                                            '&:hover': {
+                                              backgroundColor: 'rgba(239, 68, 68, 0.08)'
+                                            }
+                                          }}
+                                      >
+                                        Xóa
+                                      </Button>
+                                    </Box>
+                                  </Box>
+                              ))}
+                            </Box>
+                        )}
+                      </Box>
+                    </Box>
+                    <Typography variant="subtitle2" sx={{
+                      color: '#8a7a2a',
+                      fontWeight: 600,
                       mb: 2
                     }}>
-                      📁 Thêm ảnh mới (có thể chọn nhiều)
+                      Thay đổi ảnh:
                     </Typography>
-                    <Box sx={{
-                      p: 3,
-                      background: 'white',
-                      borderRadius: 12,
-                      border: '2px dashed rgba(181, 157, 58, 0.3)',
-                      textAlign: 'center'
-                    }}>
-                      <input
+                    <input
                         type="file"
                         accept="image/*"
-                        multiple
-                        onChange={handleEditVariantUploadImage}
+                        onChange={handleEditVariantImg}
                         style={{ display: 'none' }}
                         id="edit-variant-image-upload"
-                        disabled={editVariantImageLoading || editVariantImages.length >= 10}
-                      />
-                      <label htmlFor="edit-variant-image-upload">
-                        <Button
+                    />
+                    <label htmlFor="edit-variant-image-upload">
+                      <Button
                           component="span"
                           variant="outlined"
-                          disabled={editVariantImageLoading || editVariantImages.length >= 10}
                           sx={{
                             borderColor: '#b59d3a',
                             color: '#b59d3a',
                             fontWeight: 600,
-                            px: 4,
-                            py: 2,
+                            px: 3,
+                            py: 1.5,
                             borderRadius: 12,
-                            fontSize: '1rem',
+                            fontSize: '0.9rem',
                             textTransform: 'none',
                             '&:hover': {
                               borderColor: '#8a7a2a',
@@ -3169,385 +3409,145 @@ export default function ProductDetailTable() {
                               transform: 'translateY(-1px)',
                               boxShadow: '0 4px 12px rgba(181, 157, 58, 0.2)'
                             },
-                            '&:disabled': {
-                              borderColor: '#9ca3af',
-                              color: '#9ca3af',
-                              cursor: 'not-allowed'
-                            },
                             transition: 'all 0.3s ease'
                           }}
-                        >
-                          {editVariantImageLoading ? (
-                            <>
-                              <CircularProgress size={20} sx={{ mr: 1, color: '#b59d3a' }} />
-                              Đang upload...
-                            </>
-                          ) : editVariantImages.length >= 10 ? (
-                            'Đã đạt giới hạn 10 ảnh'
-                          ) : (
-                            '📁 Chọn ảnh (có thể chọn nhiều)'
-                          )}
-                        </Button>
-                      </label>
-                      <Typography variant="caption" sx={{ 
-                        display: 'block', 
-                        mt: 2, 
-                        color: '#8a7a2a',
-                        fontWeight: 500 
-                      }}>
-                        {editVariantImages.length}/10 ảnh đã sử dụng
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Danh sách ảnh hiện tại */}
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ 
-                      color: '#8a7a2a', 
-                      fontWeight: 600, 
-                      mb: 2
-                    }}>
-                      📸 Ảnh hiện tại ({editVariantImages.length})
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#666', mb: 2, display: 'block' }}>
-                      Debug: {editVariantImages.length} ảnh được load
-                    </Typography>
-                    
-                    {editVariantImages.length === 0 ? (
-                      <Box sx={{
-                        p: 4,
-                        textAlign: 'center',
-                        background: 'rgba(156, 163, 175, 0.1)',
-                        borderRadius: 12,
-                        border: '2px dashed rgba(156, 163, 175, 0.3)'
-                      }}>
-                        <Typography variant="h4" sx={{ mb: 2, color: '#9ca3af' }}>
-                          📷
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: '#6b7280', fontWeight: 500 }}>
-                          Chưa có ảnh nào
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#9ca3af', mt: 1 }}>
-                          Hãy thêm ảnh đầu tiên cho sản phẩm này
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#9ca3af', mt: 1, display: 'block' }}>
-                          Debug: editVariantImages.length = {editVariantImages.length}
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 2 }}>
-                        {editVariantImages.map((image, index) => (
-                          <Box key={image.idChiTietSanPhamHinhAnh} sx={{
-                            background: 'white',
-                            borderRadius: 8,
-                            p: 2,
-                            border: '1px solid rgba(181, 157, 58, 0.2)',
-                            boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
-                            position: 'relative',
-                            overflow: 'hidden'
-                          }}>
-                            {/* Ảnh chính badge */}
-                            {image.laAnhChinh && (
-                              <Box sx={{
-                                position: 'absolute',
-                                top: 8,
-                                left: 8,
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                color: 'white',
-                                px: 1.5,
-                                py: 0.3,
-                                borderRadius: 6,
-                                fontSize: '0.6rem',
-                                fontWeight: 700,
-                                zIndex: 1
-                              }}>
-                                Ảnh chính
-                              </Box>
-                            )}
-
-                            {/* Thứ tự */}
-                            <Box sx={{
-                              position: 'absolute',
-                              top: 8,
-                              right: 8,
-                              background: 'rgba(0, 0, 0, 0.7)',
-                              color: 'white',
-                              width: 24,
-                              height: 24,
-                              borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '0.7rem',
-                              fontWeight: 700,
-                              zIndex: 1
-                            }}>
-                              {image.thuTu}
-                            </Box>
-
-                            {/* Ảnh */}
-                            <Box sx={{
-                              width: '100%',
-                              height: 100,
-                              borderRadius: 6,
-                              overflow: 'hidden',
-                              mb: 1,
-                              background: '#f3f4f6',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}>
-                              <img 
-                                src={`http://localhost:8080/hinh-anh/view/${image.urlHinhAnh || image.tenHinhAnh}`}
-                                alt={`Ảnh ${image.thuTu}`}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover'
-                                }}
-                                onError={(e) => {
-                                  console.error('Lỗi load ảnh:', image.urlHinhAnh || image.tenHinhAnh);
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            </Box>
-
-                            {/* Thông tin ảnh */}
-                            <Typography variant="caption" sx={{ 
-                              color: '#374151', 
-                              fontWeight: 500, 
-                              mb: 1,
-                              textAlign: 'center',
-                              display: 'block',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {image.tenHinhAnh}
-                            </Typography>
-
-                            {/* Các nút hành động */}
-                            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', flexWrap: 'wrap' }}>
-                              {!image.laAnhChinh && (
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  onClick={() => handleEditVariantSetMainImage(image.idChiTietSanPhamHinhAnh)}
-                                  sx={{
-                                    borderColor: '#10b981',
-                                    color: '#10b981',
-                                    fontSize: '0.6rem',
-                                    py: 0.3,
-                                    px: 1,
-                                    minWidth: 'auto',
-                                    '&:hover': {
-                                      borderColor: '#059669',
-                                      color: '#059669',
-                                      backgroundColor: 'rgba(16, 185, 129, 0.08)'
-                                    }
-                                  }}
-                                >
-                                  Chính
-                                </Button>
-                              )}
-                              
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                color="error"
-                                onClick={() => handleEditVariantDeleteImage(image.idChiTietSanPhamHinhAnh)}
-                                sx={{
-                                  fontSize: '0.6rem',
-                                  py: 0.3,
-                                  px: 1,
-                                  minWidth: 'auto',
-                                  '&:hover': {
-                                    backgroundColor: 'rgba(239, 68, 68, 0.08)'
-                                  }
-                                }}
-                              >
-                                Xóa
-                              </Button>
-                            </Box>
-                          </Box>
-                        ))}
-                      </Box>
-                    )}
-                  </Box>
-                </Box>
-                    <Typography variant="subtitle2" sx={{ 
-                      color: '#8a7a2a', 
-                      fontWeight: 600, 
-                      mb: 2
-                    }}>
-                      Thay đổi ảnh:
-                    </Typography>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleEditVariantImg}
-                      style={{ display: 'none' }}
-                      id="edit-variant-image-upload"
-                    />
-                    <label htmlFor="edit-variant-image-upload">
-                      <Button
-                        component="span"
-                        variant="outlined"
-                        sx={{
-                          borderColor: '#b59d3a',
-                          color: '#b59d3a',
-                          fontWeight: 600,
-                          px: 3,
-                          py: 1.5,
-                          borderRadius: 12,
-                          fontSize: '0.9rem',
-                          textTransform: 'none',
-                          '&:hover': {
-                            borderColor: '#8a7a2a',
-                            color: '#8a7a2a',
-                            backgroundColor: 'rgba(181, 157, 58, 0.08)',
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 4px 12px rgba(181, 157, 58, 0.2)'
-                          },
-                          transition: 'all 0.3s ease'
-                        }}
                       >
                         📁 Chọn ảnh mới
                       </Button>
                     </label>
                     {editVariantForm.newImageFile && (
-                      <Typography variant="caption" sx={{ 
-                        display: 'block', 
-                        mt: 1, 
-                        color: '#2ecc40', 
-                        fontWeight: 500 
-                      }}>
-                        ✅ Đã chọn: {editVariantForm.newImageFile.name}
-                      </Typography>
+                        <Typography variant="caption" sx={{
+                          display: 'block',
+                          mt: 1,
+                          color: '#2ecc40',
+                          fontWeight: 500
+                        }}>
+                          ✅ Đã chọn: {editVariantForm.newImageFile.name}
+                        </Typography>
                     )}
                   </Box>
                 </Box>
-              )}
-            </DialogContent>
-        <DialogActions sx={{ 
-          justifyContent: 'center', 
-          pb: 4, 
-          px: 4,
-          background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-          gap: 2
-        }}>
-          <Button 
-            onClick={() => setOpenEditVariantModal(false)}
-            sx={{
-              color: '#8a7a2a',
-              fontWeight: 700,
-              px: 4,
-              py: 1.5,
-              borderRadius: 12,
-              border: '2px solid rgba(181, 157, 58, 0.4)',
-              fontSize: '1rem',
-              textTransform: 'none',
-              minWidth: 120,
-              '&:hover': {
-                borderColor: '#b59d3a',
-                color: '#b59d3a',
-                backgroundColor: 'rgba(181, 157, 58, 0.08)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 8px 20px rgba(181, 157, 58, 0.2)'
-              },
-              transition: 'all 0.3s ease'
-            }}
-          >
-            ❌ Hủy
-          </Button>
-          <Button 
-            variant="contained" 
-            onClick={handleSaveEditVariant}
-            sx={{
-              background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-              color: 'white',
-              fontWeight: 700,
-              px: 4,
-              py: 1.5,
-              borderRadius: 12,
-              fontSize: '1rem',
-              textTransform: 'none',
-              minWidth: 120,
-              boxShadow: '0 8px 20px rgba(181, 157, 58, 0.3)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 12px 30px rgba(181, 157, 58, 0.4)'
-              },
-              transition: 'all 0.3s ease'
-            }}
-          >
-            💾 Lưu thay đổi
-          </Button>
-            </DialogActions>
-          </Dialog>
-          
-          {/* Modal confirm thay đổi trạng thái */}
-          <Dialog 
-            open={openConfirmModal} 
+            )}
+          </DialogContent>
+          <DialogActions sx={{
+            justifyContent: 'center',
+            pb: 4,
+            px: 4,
+            background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
+            gap: 2
+          }}>
+            <Button
+                onClick={() => setOpenEditVariantModal(false)}
+                sx={{
+                  color: '#8a7a2a',
+                  fontWeight: 700,
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 12,
+                  border: '2px solid rgba(181, 157, 58, 0.4)',
+                  fontSize: '1rem',
+                  textTransform: 'none',
+                  minWidth: 120,
+                  '&:hover': {
+                    borderColor: '#b59d3a',
+                    color: '#b59d3a',
+                    backgroundColor: 'rgba(181, 157, 58, 0.08)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 20px rgba(181, 157, 58, 0.2)'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+            >
+              ❌ Hủy
+            </Button>
+            <Button
+                variant="contained"
+                onClick={handleSaveEditVariant}
+                sx={{
+                  background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                  color: 'white',
+                  fontWeight: 700,
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 12,
+                  fontSize: '1rem',
+                  textTransform: 'none',
+                  minWidth: 120,
+                  boxShadow: '0 8px 20px rgba(181, 157, 58, 0.3)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 12px 30px rgba(181, 157, 58, 0.4)'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+            >
+              💾 Lưu thay đổi
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Modal confirm thay đổi trạng thái */}
+        <Dialog
+            open={openConfirmModal}
             onClose={() => {
               setOpenConfirmModal(false);
               setConfirmData(null);
             }}
             maxWidth="xs"
             fullWidth
-        PaperProps={{ 
-          style: { 
-            borderRadius: 16,
-            background: 'white',
-            boxShadow: '0 8px 32px rgba(181, 157, 58, 0.15)'
-          } 
-        }}
-          >
-            <DialogTitle sx={{ 
-              textAlign: 'center', 
-              fontWeight: 700, 
-              fontSize: 20,
-              color: '#b59d3a',
-          pb: 1,
-          background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-          borderBottom: '1px solid rgba(181, 157, 58, 0.1)'
-            }}>
-              Xác nhận
-            </DialogTitle>
-            <DialogContent sx={{ textAlign: 'center', py: 2 }}>
-          <Typography sx={{ color: '#6b4f1d' }}>
-                Bạn có muốn thay đổi trạng thái sản phẩm này không?
-              </Typography>
-              {confirmData && (
-            <Typography variant="body2" sx={{ mt: 1, color: '#8a7a2a' }}>
+            PaperProps={{
+              style: {
+                borderRadius: 16,
+                background: 'white',
+                boxShadow: '0 8px 32px rgba(181, 157, 58, 0.15)'
+              }
+            }}
+        >
+          <DialogTitle sx={{
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: 20,
+            color: '#b59d3a',
+            pb: 1,
+            background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
+            borderBottom: '1px solid rgba(181, 157, 58, 0.1)'
+          }}>
+            Xác nhận
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: 'center', py: 2 }}>
+            <Typography sx={{ color: '#6b4f1d' }}>
+              Bạn có muốn thay đổi trạng thái sản phẩm này không?
+            </Typography>
+            {confirmData && (
+                <Typography variant="body2" sx={{ mt: 1, color: '#8a7a2a' }}>
                   Từ "{confirmData.currentStatus}" sang "{confirmData.currentStatus === 'Đang bán' ? 'Ngừng bán' : 'Đang bán'}"
                 </Typography>
-              )}
-            </DialogContent>
-            <DialogActions sx={{ justifyContent: 'center', pb: 3, px: 3 }}>
-              <Button
+            )}
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: 'center', pb: 3, px: 3 }}>
+            <Button
                 onClick={() => {
                   setOpenConfirmModal(false);
                   setConfirmData(null);
                 }}
                 sx={{
-              color: '#8a7a2a',
+                  color: '#8a7a2a',
                   fontWeight: 600,
                   px: 3,
                   py: 1,
                   borderRadius: 2,
-              border: '1px solid rgba(181, 157, 58, 0.3)',
+                  border: '1px solid rgba(181, 157, 58, 0.3)',
                   '&:hover': {
-                borderColor: '#b59d3a',
-                color: '#b59d3a',
-                backgroundColor: 'rgba(181, 157, 58, 0.05)'
+                    borderColor: '#b59d3a',
+                    color: '#b59d3a',
+                    backgroundColor: 'rgba(181, 157, 58, 0.05)'
                   }
                 }}
-              >
-                Hủy
-              </Button>
-              <Button
+            >
+              Hủy
+            </Button>
+            <Button
                 onClick={() => {
                   if (confirmData) {
                     handleToggleProductStatus(confirmData.maSanPham, confirmData.currentStatus);
@@ -3555,43 +3555,43 @@ export default function ProductDetailTable() {
                 }}
                 variant="contained"
                 sx={{
-              background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                  background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
                   color: '#fff',
                   fontWeight: 700,
                   px: 3,
                   py: 1,
                   borderRadius: 2,
                   '&:hover': {
-                background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)'
+                    background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)'
                   }
                 }}
-              >
-                Đồng ý
-              </Button>
-            </DialogActions>
-          </Dialog>
+            >
+              Đồng ý
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-      {/* Snackbar thông báo */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <MuiAlert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity} 
-          sx={{ 
-            width: '100%',
-            background: snackbar.severity === 'success' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-            color: 'white',
-            fontWeight: 600
-          }}
+        {/* Snackbar thông báo */}
+        <Snackbar
+            open={snackbar.open}
+            autoHideDuration={4000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
-          {snackbar.message}
-        </MuiAlert>
-      </Snackbar>
+          <MuiAlert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              sx={{
+                width: '100%',
+                background: snackbar.severity === 'success' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: 'white',
+                fontWeight: 600
+              }}
+          >
+            {snackbar.message}
+          </MuiAlert>
+        </Snackbar>
 
-    </>
+      </>
   );
 } 

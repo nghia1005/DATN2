@@ -380,7 +380,7 @@ export default function LoginPage() {
                 className={styles.modalButton}
                 onClick={() => { 
                   setShowStaffChoice(false); 
-                  router.push('/dashboard'); 
+                  router.push('/pos'); 
                 }}
               >
                 <span className={styles.buttonIcon}>💼</span>

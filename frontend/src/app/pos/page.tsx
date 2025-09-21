@@ -286,34 +286,46 @@ function POSPageInner() {
   // Xử lý khi quay về từ trang MoMo
   useEffect(() => {
     const checkMomoPaymentReturn = async () => {
+      // Kiểm tra nếu có tham số cancel từ MoMo
+      const urlParams = new URLSearchParams(window.location.search);
+      const isCancelled = urlParams.get('cancel') === 'true';
+
       const pendingPayment = localStorage.getItem('pendingMomoPayment');
+
+      if (isCancelled && pendingPayment) {
+        // Xử lý khi người dùng hủy thanh toán
+        localStorage.removeItem('pendingMomoPayment');
+        toast.info('Bạn đã hủy thanh toán qua MoMo');
+        return;
+      }
+
       if (pendingPayment) {
         try {
           const paymentData = JSON.parse(pendingPayment);
           const { momoOrderId, orderDetails } = paymentData;
-          
+
           // Xóa dữ liệu tạm thời
           localStorage.removeItem('pendingMomoPayment');
-          
+
           // Kiểm tra trạng thái giao dịch
           const statusResponse = await fetch(`http://localhost:8080/api/momo/check-status/${momoOrderId}`);
           const statusResult = await statusResponse.json();
-          
+
           console.log('MoMo status check result:', statusResult);
-          
+
           if (statusResult.success && statusResult.data) {
             const transactionStatus = statusResult.data.trangThai || statusResult.status;
-            
+
             if (transactionStatus === 'Thành công') {
               // Thanh toán thành công
               toast.success('💳 Thanh toán MoMo thành công!');
-              
+
               // Khôi phục order và tạo hóa đơn
               await handleMomoReturnSuccess(statusResult.data, orderDetails);
             } else if (transactionStatus === 'Thất bại') {
               // Thanh toán thất bại
               toast.error('❌ Thanh toán MoMo thất bại!');
-              
+
               // Khôi phục order về trạng thái ban đầu
               const restoredOrder = {
                 ...orderDetails,
@@ -325,19 +337,19 @@ function POSPageInner() {
               setActiveOrderId(restoredOrder.id);
             } else if (transactionStatus === 'Chờ thanh toán') {
               toast.info('⏳ Đang xử lý thanh toán MoMo...');
-              
+
               try {
                 // Tự động trigger test thành công
                 const testResponse = await fetch(`http://localhost:8080/api/momo/test-success/${momoOrderId}`, {
                   method: 'POST'
                 });
                 const testResult = await testResponse.json();
-                
+
                 if (testResult.success) {
                   // Check lại status sau khi test
                   const newStatusResponse = await fetch(`http://localhost:8080/api/momo/check-status/${momoOrderId}`);
                   const newStatusResult = await newStatusResponse.json();
-                  
+
                   if (newStatusResult.success && newStatusResult.data?.trangThai === 'Thành công') {
                     toast.success('💳 Thanh toán MoMo thành công! Đang tạo hóa đơn...');
                     await handleMomoReturnSuccess(newStatusResult.data, orderDetails);
@@ -347,12 +359,12 @@ function POSPageInner() {
               } catch (error) {
                 console.error('Auto test error:', error);
               }
-              
+
               // Nếu auto test không thành công, hiển thị nút test thủ công
               toast.info(
                 <div>
                   <div>Giao dịch đang chờ xử lý</div>
-                  <button 
+                  <button
                     style={{
                       marginTop: '8px',
                       padding: '4px 8px',
@@ -373,7 +385,7 @@ function POSPageInner() {
                           // Thay vì reload, check lại status ngay lập tức
                           const newStatusResponse = await fetch(`http://localhost:8080/api/momo/check-status/${momoOrderId}`);
                           const newStatusResult = await newStatusResponse.json();
-                          
+
                           if (newStatusResult.success && newStatusResult.data?.trangThai === 'Thành công') {
                             toast.success('💳 Test thành công! Đang tạo hóa đơn...');
                             await handleMomoReturnSuccess(newStatusResult.data, orderDetails);
@@ -390,7 +402,7 @@ function POSPageInner() {
                 </div>,
                 { autoClose: false }
               );
-              
+
               // Khôi phục order và thêm nút kiểm tra lại
               const restoredOrder = {
                 ...orderDetails,
@@ -403,7 +415,7 @@ function POSPageInner() {
             } else {
               // Trạng thái khác
               toast.warning(`⚠️ Trạng thái giao dịch: ${transactionStatus}`);
-              
+
               // Khôi phục order
               const restoredOrder = {
                 ...orderDetails,
@@ -416,7 +428,7 @@ function POSPageInner() {
           } else {
             // Không tìm thấy giao dịch hoặc lỗi API
             toast.error('❌ Không thể kiểm tra trạng thái giao dịch!');
-            
+
             // Khôi phục order
             const restoredOrder = {
               ...orderDetails,
@@ -497,10 +509,10 @@ function POSPageInner() {
     } else {
       // Sử dụng giá sale nếu sản phẩm đang được bật sale
       const giaBan = ((product.trangThaiSale === 'Bật' || product.trangThaiSale === 'ACTIVE') && product.giaSale) ? product.giaSale : product.gia;
-      newCart = [...activeOrder.cart, { 
-        ...product, 
-        gia: giaBan, 
-        qty, 
+      newCart = [...activeOrder.cart, {
+        ...product,
+        gia: giaBan,
+        qty,
         soLuong: product.soLuong,
         phanTramGiamGia: product.phanTramGiamGia,
         trangThaiSale: product.trangThaiSale,
@@ -528,7 +540,7 @@ function POSPageInner() {
     }
     updateActiveOrder({ cart: activeOrder && activeOrder.cart.filter((item: CartItem) => item.idChiTietSanPham !== id) });
   };
-  
+
 
   // Hàm chọn khách hàng
   const handleSelectCustomer = (customer: KhachHangDTO | null) => {
@@ -620,13 +632,26 @@ function POSPageInner() {
 
   // Hàm xử lý thanh toán MoMo trực tiếp (redirect)
   const handleMomoDirectPayment = async () => {
-    if (!activeOrder) return;
-    
+    if (!activeOrder) {
+      toast.error('Vui lòng tạo đơn hàng trước khi thanh toán');
+      return;
+    }
+
+    // Kiểm tra xem có sản phẩm nào trong giỏ hàng không
+    if (!activeOrder.cart || activeOrder.cart.length === 0) {
+      toast.error('Vui lòng chọn ít nhất một sản phẩm để thanh toán');
+      return;
+    }
+
     try {
       setLoading(true);
-      
+
       const amount = activeOrder.cart.reduce((sum: number, item: CartItem) => sum + item.gia * item.qty, 0) - (activeOrder.appliedVoucher?.giaTriToiDa || 0) + (activeOrder.shippingFee || 0);
-      
+
+      // Tạo URL hiện tại với tham số cancel=true
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set('cancel', 'true');
+
       // Tạo giao dịch MoMo
       const response = await fetch('http://localhost:8080/api/momo/create', {
         method: 'POST',
@@ -635,12 +660,13 @@ function POSPageInner() {
         },
         body: JSON.stringify({
           amount: amount,
-          loaiGiaoDich: 'Tại quầy'
+          loaiGiaoDich: 'Tại quầy',
+          cancelUrl: currentUrl.toString() // Thêm URL hủy thanh toán
         })
       });
 
       const result = await response.json();
-      
+
       if (result.success && result.data.payUrl) {
         // Lưu thông tin order và transaction vào localStorage để xử lý khi quay về
         const orderData = {
@@ -649,7 +675,7 @@ function POSPageInner() {
           orderDetails: activeOrder
         };
         localStorage.setItem('pendingMomoPayment', JSON.stringify(orderData));
-        
+
         // Redirect trực tiếp đến trang MoMo
         window.location.href = result.data.payUrl;
       } else {
@@ -667,14 +693,14 @@ function POSPageInner() {
   const handleMomoReturnSuccess = async (transactionData: any, orderDetails: any) => {
     try {
       setLoading(true);
-      
+
       const finalTotal = orderDetails.cart.reduce((sum: any, item: any) => sum + item.gia * item.qty, 0) - (orderDetails.appliedVoucher?.giaTriToiDa || 0) + (orderDetails.shippingFee || 0);
-      
+
       // Chuẩn bị dữ liệu hóa đơn
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const idNhanVien = user?.idNhanVien || '';
       const tenNhanVien = user?.tenNhanVien || '';
-      
+
       const invoiceData = {
         idKhachHang: orderDetails.selectedCustomer?.idKhachHang || null,
         idNhanVien: idNhanVien,
@@ -742,10 +768,10 @@ function POSPageInner() {
       }
 
       toast.success(`🎉 Tạo hóa đơn thành công! Mã: ${result.data?.maHoaDon || result.maHoaDon}`);
-      
+
       // Đợi một chút để đảm bảo database đã commit
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       // Cập nhật lại danh sách sản phẩm để cập nhật tồn kho
       try {
         const productResponse = await fetch("/api/chi-tiet-san-pham/hien-thi");
@@ -756,15 +782,15 @@ function POSPageInner() {
       } catch (error) {
         console.error('Error fetching products:', error);
       }
-      
+
       // Cập nhật danh sách hóa đơn nếu modal đang mở
       if (showCompletedInvoices) {
         await fetchCompletedInvoices();
       }
-      
+
       // Xóa order khỏi danh sách sau khi tạo hóa đơn thành công
       setOrders(prev => prev.filter(o => o.id !== orderDetails.id));
-      
+
       // Reset active order
       const remainingOrders = orders.filter(o => o.id !== orderDetails.id);
       if (remainingOrders.length > 0) {
@@ -788,13 +814,13 @@ function POSPageInner() {
       const response = await fetch("http://localhost:8080/api/hoadon");
       if (!response.ok) throw new Error(await response.text());
       const data = await response.json();
-      
+
       // Lọc chỉ lấy hóa đơn tại quầy
-      const posInvoices = data.filter((invoice: any) => 
-        invoice.loaiDon === 'Tại quầy' || 
+      const posInvoices = data.filter((invoice: any) =>
+        invoice.loaiDon === 'Tại quầy' ||
         (invoice.phuongThucThanhToan && invoice.phuongThucThanhToan.includes('MOMO'))
       );
-      
+
       setCompletedInvoices(posInvoices);
       console.log('Completed POS invoices:', posInvoices);
     } catch (error) {
@@ -950,7 +976,7 @@ function POSPageInner() {
   const handleDone = async (shouldExportPDF: boolean = true) => {
     if (!activeOrder) return;
     if (activeOrder.cart.length === 0) {
-      toast.error("Giỏ hàng trống!");
+      toast.error("Vui lòng chọn ít nhất một sản phẩm để thanh toán!");
       return;
     }
     if (!activeOrder.paymentMethod) {

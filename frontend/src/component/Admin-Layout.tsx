@@ -25,7 +25,7 @@ const allMenuItems = [
         id: "products",
         label: "Quản lý sản phẩm",
         icon: "👟",
-        roles: ["QUAN_TRI_VIEN", "NHAN_VIEN"],
+        roles: ["QUAN_TRI_VIEN"],
         route: "/ChiTietSanPham",
         children: [
             { id: "product-details-list", label: "Chi tiết sản phẩm", route: "/ChiTietSanPham" },

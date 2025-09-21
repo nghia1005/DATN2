@@ -45,7 +45,11 @@ interface ChiTietSanPhamHinhAnh {
   laAnhChinh: boolean;
 }
 
-export default function ProductDetailTable() {
+interface ProductDetailTableProps {
+  userRole?: string;
+}
+
+export default function ProductDetailTable({ userRole = 'NHAN_VIEN' }: ProductDetailTableProps) {
   // State cho filter
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBrand, setFilterBrand] = useState("");

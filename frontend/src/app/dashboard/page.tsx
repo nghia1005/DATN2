@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 // import KhachHang from "../KhachHang/khachHang";
 import AdminLayout from '../../component/Admin-Layout';
-import StaffLayout from '../../component/Staff-Layout';
+// import StaffLayout from '../../component/Staff-Layout';
 import NhanVienPage from "@/app/NhanVien/HienThi/page";
 import dayjs from 'dayjs';
 import styles from './dashboard.module.css';
@@ -583,7 +583,7 @@ export default function Dashboard() {
     const content = renderContent();
     
     if (userRole === 'NHAN_VIEN') {
-        return <StaffLayout {...layoutProps}>{content}</StaffLayout>;
+        // return <StaffLayout {...layoutProps}>{content}</StaffLayout>;
     }
     
     return <AdminLayout {...layoutProps}>{content}</AdminLayout>;

@@ -102,18 +102,36 @@ const parseDate = (dateStr: string | undefined) => {
 };
 
 // Hàm xác định trạng thái hiển thị
-function getVoucherStatus(v: Voucher) {
-  if (v.trangThai === 'Tạm ngưng' || v.trangThai === 'Kết thúc sớm') return 'Kết thúc sớm';
+// Hàm cập nhật trạng thái dựa trên thời gian hiện tại
+function updateVoucherStatus(v: Voucher): Voucher {
+  // Nếu đã kết thúc sớm hoặc tạm ngừng thì giữ nguyên
+  if (v.trangThai === 'Kết thúc sớm' || v.trangThai === 'Tạm ngưng') {
+    return { ...v, trangThai: 'Kết thúc sớm' };
+  }
   
-  // Kiểm tra số lượng trước
-  if (v.soLuong <= 0) return 'Hết voucher';
+  // Kiểm tra số lượng
+  if (v.soLuong <= 0) {
+    return { ...v, trangThai: 'Hết voucher' };
+  }
   
+  // Kiểm tra thời gian
   const now = new Date();
   const start = new Date(v.ngayBatDau);
   const end = new Date(v.ngayKetThuc);
-  if (now < start) return 'Sắp diễn ra';
-  if (now > end) return 'Đã kết thúc';
-  return 'Đang diễn ra';
+  
+  if (now < start) {
+    return { ...v, trangThai: 'Sắp diễn ra' };
+  } else if (now > end) {
+    return { ...v, trangThai: 'Đã kết thúc' };
+  } else {
+    return { ...v, trangThai: 'Đang diễn ra' };
+  }
+}
+
+// Hàm lấy trạng thái hiển thị (chỉ để hiển thị, không thay đổi dữ liệu gốc)
+function getVoucherStatus(v: Voucher) {
+  const updatedVoucher = updateVoucherStatus(v);
+  return updatedVoucher.trangThai;
 }
 
 const HienThiVoucherPage = () => {
@@ -140,6 +158,14 @@ const HienThiVoucherPage = () => {
   const [editSaving, setEditSaving] = useState(false);
   const [editSuccess, setEditSuccess] = useState('');
   const [editError, setEditError] = useState('');
+  
+  // State for confirmation dialogs
+  const [confirmToggleId, setConfirmToggleId] = useState<number | null>(null);
+  const [voucherToToggle, setVoucherToToggle] = useState<Voucher | null>(null);
+  const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
+  const [showAddConfirm, setShowAddConfirm] = useState(false);
+  const [pendingUpdate, setPendingUpdate] = useState<() => Promise<void>>(() => () => Promise.resolve());
+  const [pendingAdd, setPendingAdd] = useState<() => Promise<void>>(() => () => Promise.resolve());
 
   // Modal thêm voucher
   const [addForm, setAddForm] = useState<FormType>({
@@ -168,7 +194,9 @@ const HienThiVoucherPage = () => {
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       if (Array.isArray(data)) {
-        setVouchers(data);
+        // Cập nhật trạng thái cho từng voucher dựa trên thời gian hiện tại
+        const updatedVouchers = data.map(voucher => updateVoucherStatus(voucher));
+        setVouchers(updatedVouchers);
       } else {
         setVouchers([]);
         setError(`Dữ liệu không hợp lệ từ server: ${JSON.stringify(data)}`);
@@ -239,8 +267,8 @@ const HienThiVoucherPage = () => {
       currentPage * itemsPerPage
   );
 
-  // Đổi trạng thái voucher
-  const handleToggleStatus = async (voucher: Voucher) => {
+  // Hàm thực hiện đổi trạng thái voucher
+  const executeToggleStatus = async (voucher: Voucher) => {
     if (actionLoadingId) return;
     setActionLoadingId(voucher.idPhieuGiamGia);
     setActionMsg('');
@@ -262,17 +290,32 @@ const HienThiVoucherPage = () => {
         // Nếu không parse được JSON, fallback
       }
       setVouchers(prev =>
-          prev.map(v =>
-              v.idPhieuGiamGia === voucher.idPhieuGiamGia
-                  ? { ...v, trangThai: newStatus || (v.trangThai === 'Đang diễn ra' ? 'Kết thúc sớm' : 'Đang diễn ra') }
-                  : v
-          )
+        prev.map(v =>
+          v.idPhieuGiamGia === voucher.idPhieuGiamGia
+            ? { ...v, trangThai: newStatus || (v.trangThai === 'Đang diễn ra' ? 'Kết thúc sớm' : 'Đang diễn ra') }
+            : v
+        )
       );
     } catch (e: any) {
       setActionMsg(e.message || 'Lỗi đổi trạng thái');
     } finally {
       setActionLoadingId(null);
       setTimeout(() => setActionMsg(''), 2500);
+    }
+  };
+
+  // Hàm hiển thị xác nhận trước khi đổi trạng thái
+  const handleToggleStatus = (voucher: Voucher) => {
+    setVoucherToToggle(voucher);
+    setConfirmToggleId(voucher.idPhieuGiamGia);
+  };
+
+  // Xác nhận đổi trạng thái
+  const handleConfirmToggle = async () => {
+    if (voucherToToggle) {
+      await executeToggleStatus(voucherToToggle);
+      setConfirmToggleId(null);
+      setVoucherToToggle(null);
     }
   };
 
@@ -479,42 +522,39 @@ const HienThiVoucherPage = () => {
       return;
     }
     
-    // Hiển thị confirm dialog
-    const kieuGiamGiaText = editForm?.kieuGiamGia === 'PERCENT' ? 'Giảm theo phần trăm' : 
-                           editForm?.kieuGiamGia === 'FIXED' ? 'Giảm cố định' : 'Miễn phí ship';
-    
-    const confirmed = window.confirm(
-      `Bạn có chắc chắn muốn cập nhật phiếu giảm giá "${editForm?.tenPhieuGiamGia}"?\n\n` +
-      `Mã: ${editForm?.maPhieuGiamGia}\n` +
-      `Kiểu: ${kieuGiamGiaText}\n` +
-      `Số lượng: ${editForm?.soLuong}\n` +
-      `Thời gian: ${editForm?.ngayBatDau} - ${editForm?.ngayKetThuc}`
-    );
-    
-    if (!confirmed) {
-      return;
-    }
-    
-    setEditSaving(true);
-    try {
-      const selectedVoucherId = selectedVoucher?.idPhieuGiamGia;
-      if (!selectedVoucherId) throw new Error('Không tìm thấy ID voucher');
-      
-      const res = await fetch(`${apiUrl}/${selectedVoucherId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm),
-      });
-      if (!res.ok) throw new Error('Lỗi khi cập nhật phiếu giảm giá');
-      setEditSuccess('Cập nhật phiếu giảm giá thành công');
-      setShowEditModal(false);
-      // Refresh danh sách voucher
-      fetchVouchers();
-    } catch (e: any) {
-      setEditError(e.message || 'Lỗi khi cập nhật phiếu giảm giá');
-    } finally {
-      setEditSaving(false);
-    }
+    setPendingUpdate(() => async () => {
+      // The actual update logic will be executed after confirmation
+      setEditSaving(true);
+      setEditError('');
+      try {
+        const response = await fetch(`${apiUrl}/${selectedVoucher?.idPhieuGiamGia}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...editForm,
+            giaTriToiThieu: parseFloat(editForm?.giaTriToiThieu || '0'),
+            giaTriToiDa: parseFloat(editForm?.giaTriToiDa || '0'),
+            phanTramGiamGia: parseFloat(editForm?.phanTramGiamGia || '0'),
+            soLuong: parseInt(editForm?.soLuong || '0'),
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Lỗi khi cập nhật phiếu giảm giá');
+        }
+
+        setEditSuccess('Cập nhật phiếu giảm giá thành công!');
+        setShowEditModal(false);
+        fetchVouchers();
+      } catch (e: any) {
+        setEditError(e.message || 'Lỗi khi cập nhật phiếu giảm giá');
+      } finally {
+        setEditSaving(false);
+      }
+    });
+    setShowUpdateConfirm(true);
+    return;
   };
 
   // Đóng modal sửa
@@ -742,67 +782,57 @@ const HienThiVoucherPage = () => {
     if (Object.keys(errors).length > 0) {
       return;
     }
-    
-    // Hiển thị confirm dialog
-    const kieuGiamGiaText = addForm.kieuGiamGia === 'PERCENT' ? 'Giảm theo phần trăm' : 
-                           addForm.kieuGiamGia === 'FIXED' ? 'Giảm cố định' : 'Miễn phí ship';
-    
-    const confirmed = window.confirm(
-      `Bạn có chắc chắn muốn tạo phiếu giảm giá "${addForm.tenPhieuGiamGia}"?\n\n` +
-      `Mã: ${addForm.maPhieuGiamGia}\n` +
-      `Kiểu: ${kieuGiamGiaText}\n` +
-      `Số lượng: ${addForm.soLuong}\n` +
-      `Thời gian: ${addForm.ngayBatDau} - ${addForm.ngayKetThuc}`
-    );
-    
-    if (!confirmed) {
-      return;
-    }
-    
-    setAddSaving(true);
-    try {
-      const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(addForm),
-      });
-      if (!res.ok) {
-        let backendError = 'Lỗi khi lưu phiếu giảm giá';
-        try {
-          const data = await res.json();
-          if (data && typeof data === 'object' && data.message) {
-            setAddFormErrors(prev => ({ ...prev, maPhieuGiamGia: data.message }));
-            setAddSaving(false);
-            return;
-          }
-        } catch {}
-        setAddFormErrors(prev => ({ ...prev, maPhieuGiamGia: backendError }));
+
+    // Set up the add function to be called after confirmation
+    setPendingAdd(() => async () => {
+      setAddSaving(true);
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(addForm),
+        });
+        if (!res.ok) {
+          let backendError = 'Lỗi khi lưu phiếu giảm giá';
+          try {
+            const data = await res.json();
+            if (data && typeof data === 'object' && data.message) {
+              setAddFormErrors(prev => ({ ...prev, maPhieuGiamGia: data.message }));
+              setAddSaving(false);
+              return;
+            }
+          } catch {}
+          setAddFormErrors(prev => ({ ...prev, maPhieuGiamGia: backendError }));
+          setAddSaving(false);
+          return;
+        }
+        setAddSuccess('Thêm phiếu giảm giá thành công');
+        setShowAddModal(false);
+        // Reset form
+        setAddForm({
+          maPhieuGiamGia: '',
+          tenPhieuGiamGia: '',
+          kieuGiamGia: '',
+          giaTriToiThieu: '',
+          giaTriToiDa: '',
+          phanTramGiamGia: '',
+          soLuong: '',
+          ngayBatDau: '',
+          ngayKetThuc: '',
+          moTa: '',
+        });
+        setAddFormErrors({});
+        // Refresh danh sách voucher
+        fetchVouchers();
+      } catch (e: any) {
+        setAddError(e.message || 'Lỗi khi lưu phiếu giảm giá');
+      } finally {
         setAddSaving(false);
-        return;
       }
-      setAddSuccess('Thêm phiếu giảm giá thành công');
-      setShowAddModal(false);
-      // Reset form
-      setAddForm({
-        maPhieuGiamGia: '',
-        tenPhieuGiamGia: '',
-        kieuGiamGia: '',
-        giaTriToiThieu: '',
-        giaTriToiDa: '',
-        phanTramGiamGia: '',
-        soLuong: '',
-        ngayBatDau: '',
-        ngayKetThuc: '',
-        moTa: '',
-      });
-      setAddFormErrors({});
-      // Refresh danh sách voucher
-      fetchVouchers();
-    } catch (e: any) {
-      setAddError(e.message || 'Lỗi khi lưu phiếu giảm giá');
-    } finally {
-      setAddSaving(false);
-    }
+    });
+    
+    // Show confirmation dialog
+    setShowAddConfirm(true);
   };
 
   // Mở modal thêm voucher
@@ -846,6 +876,246 @@ const HienThiVoucherPage = () => {
   };
 
   return (
+    <>
+      {/* Add Voucher Confirmation Dialog */}
+      {showAddConfirm && (
+        <div style={{ 
+          position: "fixed", 
+          top: 0, 
+          left: 0, 
+          width: "100vw", 
+          height: "100vh", 
+          background: "rgba(0, 0, 0, 0.5)", 
+          zIndex: 3000, 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "center" 
+        }}>
+          <div style={{ 
+            background: "#fff", 
+            padding: "32px", 
+            borderRadius: 12, 
+            minWidth: 400, 
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.1)", 
+            position: "relative" 
+          }}>
+            <h3 style={{ 
+              color: "#b59d3a", 
+              fontWeight: 700, 
+              fontSize: 20, 
+              marginBottom: 18 
+            }}>
+              Xác nhận thêm voucher
+            </h3>
+            <div style={{ 
+              color: '#333', 
+              fontSize: 16, 
+              marginBottom: 24 
+            }}>
+              Bạn có chắc chắn muốn thêm voucher mới không?
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              gap: 16, 
+              justifyContent: 'flex-end' 
+            }}>
+              <button 
+                onClick={() => setShowAddConfirm(false)} 
+                style={{ 
+                  padding: '8px 18px', 
+                  borderRadius: 7, 
+                  border: 'none', 
+                  background: '#eee', 
+                  color: '#333', 
+                  fontWeight: 600, 
+                  fontSize: 15, 
+                  cursor: 'pointer' 
+                }}
+              >
+                Hủy
+              </button>
+              <button 
+                onClick={async () => {
+                  setShowAddConfirm(false);
+                  await pendingAdd();
+                }} 
+                style={{ 
+                  padding: '8px 18px', 
+                  borderRadius: 7, 
+                  border: 'none', 
+                  background: '#b59d3a', 
+                  color: '#fff', 
+                  fontWeight: 600, 
+                  fontSize: 15, 
+                  cursor: 'pointer' 
+                }}
+              >
+                Thêm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Confirmation Dialog */}
+      {showUpdateConfirm && (
+        <div style={{ 
+          position: "fixed", 
+          top: 0, 
+          left: 0, 
+          width: "100vw", 
+          height: "100vh", 
+          background: "rgba(0, 0, 0, 0.5)", 
+          zIndex: 3000, 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "center" 
+        }}>
+          <div style={{ 
+            background: "#fff", 
+            padding: "32px", 
+            borderRadius: 12, 
+            minWidth: 400, 
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.1)", 
+            position: "relative" 
+          }}>
+            <h3 style={{ 
+              color: "#b59d3a", 
+              fontWeight: 700, 
+              fontSize: 20, 
+              marginBottom: 18 
+            }}>
+              Xác nhận cập nhật voucher
+            </h3>
+            <div style={{ 
+              color: '#333', 
+              fontSize: 16, 
+              marginBottom: 24 
+            }}>
+              Bạn có chắc chắn muốn cập nhật voucher này không?
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              gap: 16, 
+              justifyContent: 'flex-end' 
+            }}>
+              <button 
+                onClick={() => setShowUpdateConfirm(false)} 
+                style={{ 
+                  padding: '8px 18px', 
+                  borderRadius: 7, 
+                  border: 'none', 
+                  background: '#eee', 
+                  color: '#333', 
+                  fontWeight: 600, 
+                  fontSize: 15, 
+                  cursor: 'pointer' 
+                }}
+              >
+                Hủy
+              </button>
+              <button 
+                onClick={async () => {
+                  setShowUpdateConfirm(false);
+                  await pendingUpdate();
+                }} 
+                style={{ 
+                  padding: '8px 18px', 
+                  borderRadius: 7, 
+                  border: 'none', 
+                  background: '#b59d3a', 
+                  color: '#fff', 
+                  fontWeight: 600, 
+                  fontSize: 15, 
+                  cursor: 'pointer' 
+                }}
+              >
+                Cập nhật
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal xác nhận đổi trạng thái */}
+      {confirmToggleId !== null && (
+        <div style={{ 
+          position: "fixed", 
+          top: 0, 
+          left: 0, 
+          width: "100vw", 
+          height: "100vh", 
+          background: "rgba(0, 0, 0, 0.5)", 
+          zIndex: 3000, 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "center" 
+        }}>
+          <div style={{ 
+            background: "#fff", 
+            padding: "32px", 
+            borderRadius: 12, 
+            minWidth: 400, 
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.1)", 
+            position: "relative" 
+          }}>
+            <h3 style={{ 
+              color: "#b59d3a", 
+              fontWeight: 700, 
+              fontSize: 20, 
+              marginBottom: 18 
+            }}>
+              Xác nhận
+            </h3>
+            <div style={{ 
+              color: '#333', 
+              fontSize: 16, 
+              marginBottom: 24 
+            }}>
+              {voucherToToggle?.trangThai === 'Đang diễn ra' 
+                ? 'Bạn có muốn kết thúc sớm voucher này không?' 
+                : 'Bạn có muốn kích hoạt lại voucher này không?'}
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              gap: 16, 
+              justifyContent: 'flex-end' 
+            }}>
+              <button 
+                onClick={() => setConfirmToggleId(null)} 
+                style={{ 
+                  padding: '8px 18px', 
+                  borderRadius: 7, 
+                  border: 'none', 
+                  background: '#eee', 
+                  color: '#333', 
+                  fontWeight: 600, 
+                  fontSize: 15, 
+                  cursor: 'pointer' 
+                }}
+              >
+                Hủy
+              </button>
+              <button 
+                onClick={handleConfirmToggle} 
+                style={{ 
+                  padding: '8px 18px', 
+                  borderRadius: 7, 
+                  border: 'none', 
+                  background: '#b59d3a', 
+                  color: '#fff', 
+                  fontWeight: 600, 
+                  fontSize: 15, 
+                  cursor: 'pointer' 
+                }}
+              >
+                {voucherToToggle?.trangThai === 'Đang diễn ra' ? 'Kết thúc' : 'Kích hoạt'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <AdminLayout activeMenu="promotions" onMenuChangeAction={() => {}} pageTitle="Quản lý phiếu giảm giá">
         <div style={{ padding: 20, background: '#fffbe6', minHeight: '100vh' }}>
           {error && <div style={{ color: 'red', marginBottom: 16, padding: '12px 16px', background: '#ffebee', borderRadius: 8, border: '1px solid #f44336' }}>{error}</div>}
@@ -2897,6 +3167,7 @@ const HienThiVoucherPage = () => {
           )}
         </div>
       </AdminLayout>
+    </>
   );
 };
 

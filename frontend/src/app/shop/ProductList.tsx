@@ -51,9 +51,20 @@ export default function ProductList({ loading, uniqueProductVariants, setSelecte
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 4,
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
+              xl: 'repeat(5, 1fr)'
+            },
+            gap: 3,
             justifyItems: "center",
+            padding: { xs: 1, sm: 2 },
+            '& > *': {
+              width: '100%',
+              maxWidth: '300px'
+            }
           }}
         >
           {uniqueProductVariants.map((product) => (

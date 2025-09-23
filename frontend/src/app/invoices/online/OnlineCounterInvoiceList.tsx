@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import CartList from "../../pos/CartList";
-import ProductSelector from "../../pos/ProductSelector";
 import { ProductDetail } from '../../pos/types';
-import { v4 as uuidv4 } from "uuid";
 import MuiDateTimeInput from '../../../component/MuiDateTimeInput';
 import { toast } from 'react-toastify';
 
@@ -51,11 +48,7 @@ const getFilterButtonColor = (status: string) => {
     // Mapping trạng thái hiện tại sang trạng thái tiếp theo và label nút
     const statusTransitions: Record<string, { next: string, label: string, color: string }> = {
         "Đã xác nhận": { next: "Đang vận chuyển", label: "🚚", color: "#1976d2" },
-        "Đang vận chuyển": { next: "Giao hàng thành công", label: "✓", color: "#10b981" },
-        // Nếu muốn cho phép chuyển sang thất bại, có thể thêm nút riêng hoặc thêm dòng dưới:
-        // "Đang vận chuyển": { next: "Giao hàng thất bại", label: "✗", color: "#ef4444" },
-        // "Giao hàng thành công": { next: "", label: "", color: "#4caf50" },
-        // "Giao hàng thất bại": { next: "", label: "", color: "#e74c3c" },
+        "Đang vận chuyển": { next: "Giao hàng thành công", label: "✓", color: "#10b981" }
     };
 
 const OnlineCounterInvoiceList = () => {

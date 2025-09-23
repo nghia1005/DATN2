@@ -3,33 +3,9 @@ import React, {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
-import Divider from "@mui/material/Divider";
-import Button from "@mui/material/Button";
-import {useRouter} from "next/navigation";
-import SearchIcon from '@mui/icons-material/Search';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {Paper, List, ListItem, ListItemIcon, ListItemText} from '@mui/material';
 import Link from '@mui/material/Link';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import {SelectChangeEvent} from '@mui/material/Select';
-import Badge from '@mui/material/Badge';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormLabel from '@mui/material/FormLabel';
-import LogoutIcon from '@mui/icons-material/Logout';
 import Header from './Header';
 import SidebarFilter from './SidebarFilter';
 import ProductList from './ProductList';
@@ -140,17 +116,6 @@ export default function ShopPage() {
                 onClose={() => showNotification('', 'info')}
             />
 
-            {/* Nút Đăng xuất ở góc trên bên phải */}
-            {/* <Box sx={{ position: 'fixed', top: 16, right: 24, zIndex: 9999 }}>
-                <Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<LogoutIcon />}
-                    onClick={handleLogout}
-                >
-                    Đăng xuất
-                </Button>
-            </Box> */}
             {/* Phần còn lại của trang */}
             <Box sx={{ background: "#f8f6ed", minHeight: "100vh", py: 0 }}>
                 {/* Header mới đẹp hơn */}

@@ -191,7 +191,7 @@ export default function NhanVienPage() {
                             <div style={{ position: 'relative', flex: '1 1 350px', minWidth: 250 }}>
                             <input
                                 type="text"
-                                    placeholder="🔍 Tìm kiếm nhân viên theo tên, mã, email..."
+                                    placeholder="Tìm kiếm nhân viên theo tên, mã, email..."
                                 value={searchValue}
                                 onChange={e => setSearchValue(e.target.value)}
                                     style={{

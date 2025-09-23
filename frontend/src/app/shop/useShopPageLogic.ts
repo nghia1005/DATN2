@@ -850,7 +850,7 @@ export function useShopPageLogic() {
                                         body: JSON.stringify({
                                             ...orderData,
                                             phuongThucThanhToan: 'MOMO',
-                                            trangThai: 'Chờ xác nhận'
+                                            trangThai: 'Đã xác nhận' // Updated to 'Đã xác nhận' for Momo payments
                                         }),
                                     });
                                     
@@ -1004,7 +1004,7 @@ export function useShopPageLogic() {
                         console.log('📝 Creating invoice with data:', {
                             ...orderData,
                             phuongThucThanhToan: 'MOMO',
-                            trangThai: 'Chờ xác nhận'
+                            trangThai: 'Đã '
                         });
                         
                         // Tạo hóa đơn
@@ -1016,7 +1016,7 @@ export function useShopPageLogic() {
                             body: JSON.stringify({
                                 ...orderData,
                                 phuongThucThanhToan: 'MOMO',
-                                trangThai: 'Chờ xác nhận'
+                                trangThai: 'Đã xác nhận'
                             }),
                         });
                         

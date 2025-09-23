@@ -1,8 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale } from "react-datepicker";
+import { vi } from "date-fns/locale";
+import { parseISO, isValid, format } from 'date-fns';
 import addressDataRaw from './vn-address.json';
 const addressData = addressDataRaw.results;
 import AdminLayout from "@/component/Admin-Layout";
+
+
+// Đăng ký ngôn ngữ tiếng Việt cho DatePicker
+registerLocale('vi', vi);
 import { FaSearch, FaSyncAlt, FaEye, FaEdit, FaPowerOff, FaMapMarkerAlt, FaSave, FaTimes } from "react-icons/fa";
 
 export default function KhachHangPage() {
@@ -363,6 +372,24 @@ export default function KhachHangPage() {
         setShowConfirmDialog(false);
         let errors: any = {};
 
+        // Validate date of birth
+        if (!currentKhachHang.ngaySinh) {
+            errors.ngaySinh = 'Vui lòng chọn ngày sinh';
+        } else {
+            const birthDate = new Date(currentKhachHang.ngaySinh);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (age < 18) {
+                errors.ngaySinh = 'Khách hàng phải từ đủ 18 tuổi trở lên';
+            }
+        }
+
         // 1. Kiểm tra mã khách hàng
         if (!currentKhachHang.maKhachHang.trim()) {
             errors.maKhachHang = 'Vui lòng nhập mã khách hàng';
@@ -381,7 +408,12 @@ export default function KhachHangPage() {
             }
         }
 
-        // 2. Kiểm tra tên khách hàng
+        // 2. Kiểm tra ngày sinh
+        if (!errors.ngaySinh && !currentKhachHang.ngaySinh) {
+            errors.ngaySinh = 'Vui lòng chọn ngày sinh';
+        }
+
+        // 3. Kiểm tra tên khách hàng
         if (!currentKhachHang.tenKhachHang.trim()) {
             errors.tenKhachHang = 'Vui lòng nhập tên khách hàng';
         } else if (currentKhachHang.tenKhachHang.startsWith(' ')) {
@@ -2447,33 +2479,94 @@ export default function KhachHangPage() {
                                     }}>
                                         📅 Ngày sinh
                                     </label>
-                                    <input
-                                        type="date"
-                                        name="ngaySinh"
-                                        value={currentKhachHang.ngaySinh}
-                                        onChange={handleInputChange}
-                                        style={{
-                                            width: "100%",
-                                            padding: "14px 16px",
-                                            border: "2px solid rgba(181, 157, 58, 0.2)",
-                                            borderRadius: "12px",
-                                            fontSize: "0.95rem",
-                                            boxSizing: "border-box",
-                                            background: "linear-gradient(135deg, #fff 0%, #fffbe6 100%)",
-                                            color: "#6b4f1d",
-                                            fontWeight: "500",
-                                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                            boxShadow: "0 2px 8px rgba(181, 157, 58, 0.05)"
-                                        }}
-                                        onFocus={(e) => {
-                                            e.target.style.border = "2px solid #b59d3a";
-                                            e.target.style.boxShadow = "0 4px 16px rgba(181, 157, 58, 0.15)";
-                                        }}
-                                        onBlur={(e) => {
-                                            e.target.style.border = "2px solid rgba(181, 157, 58, 0.2)";
-                                            e.target.style.boxShadow = "0 2px 8px rgba(181, 157, 58, 0.05)";
-                                        }}
-                                    />
+                                    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                        <DatePicker
+                                            selected={currentKhachHang.ngaySinh && isValid(new Date(currentKhachHang.ngaySinh))
+                                                ? new Date(currentKhachHang.ngaySinh)
+                                                : null}
+                                            onChange={(date: Date | null) => {
+                                                let formattedDate = "";
+                                                if (date && isValid(date)) {
+                                                    // Format as YYYY-MM-DD
+                                                    formattedDate = format(date, 'yyyy-MM-dd');
+                                                }
+                                                
+                                                setCurrentKhachHang(prev => ({
+                                                    ...prev,
+                                                    ngaySinh: formattedDate
+                                                }));
+
+                                                // Validate age
+                                                if (date) {
+                                                    const today = new Date();
+                                                    let age = today.getFullYear() - date.getFullYear();
+                                                    const monthDiff = today.getMonth() - date.getMonth();
+                                                    
+                                                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+                                                        age--;
+                                                    }
+                                                    
+                                                    if (age < 18) {
+                                                        setValidationErrors(prev => ({
+                                                            ...prev,
+                                                            ngaySinh: "Khách hàng phải từ đủ 18 tuổi trở lên"
+                                                        }));
+                                                    } else {
+                                                        setValidationErrors(prev => ({
+                                                            ...prev,
+                                                            ngaySinh: ""
+                                                        }));
+                                                    }
+                                                } else {
+                                                    setValidationErrors(prev => ({
+                                                        ...prev,
+                                                        ngaySinh: "Vui lòng nhập ngày sinh"
+                                                    }));
+                                                }
+                                            }}
+                                            dateFormat="dd/MM/yyyy"
+                                            placeholderText="Chọn ngày sinh"
+                                            className={`custom-datepicker-input ${validationErrors.ngaySinh ? 'error' : ''}`}
+                                            showMonthDropdown
+                                            showYearDropdown
+                                            scrollableYearDropdown
+                                            yearDropdownItemNumber={new Date().getFullYear() - 1965 + 1}
+                                            minDate={new Date(1965, 0, 1)}
+                                            maxDate={new Date()}
+                                            wrapperClassName="custom-datepicker-wrapper"
+                                            locale="vi"
+                                            style={{
+                                                width: "100%",
+                                                padding: "14px 16px",
+                                                border: validationErrors.ngaySinh 
+                                                    ? "2px solid #ff4d4f" 
+                                                    : "2px solid rgba(181, 157, 58, 0.2)",
+                                                borderRadius: "12px",
+                                                fontSize: "0.95rem",
+                                                boxSizing: "border-box",
+                                                background: "linear-gradient(135deg, #fff 0%, #fffbe6 100%)",
+                                                color: "#6b4f1d",
+                                                fontWeight: "500",
+                                                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                                boxShadow: validationErrors.ngaySinh 
+                                                    ? "0 0 0 2px rgba(255, 77, 79, 0.2)" 
+                                                    : "0 2px 8px rgba(181, 157, 58, 0.05)"
+                                            }}
+                                        />
+                                        {validationErrors.ngaySinh && (
+                                            <div style={{ 
+                                                color: '#ff4d4f', 
+                                                fontSize: '0.85rem', 
+                                                marginTop: '4px',
+                                                padding: '4px 8px',
+                                                backgroundColor: '#fff1f0',
+                                                borderRadius: '4px',
+                                                border: '1px solid #ffccc7'
+                                            }}>
+                                                ⚠️ {validationErrors.ngaySinh}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px"}}>
                                     <div>
@@ -3484,7 +3577,7 @@ export default function KhachHangPage() {
                                 lineHeight: 1.5,
                                 textAlign: 'center'
                             }}>
-                                {isEditing 
+                                {isEditing
                                     ? 'Bạn có chắc chắn muốn cập nhật thông tin khách hàng này không?'
                                     : 'Bạn có chắc chắn muốn thêm khách hàng mới không?'
                                 }
@@ -3526,8 +3619,8 @@ export default function KhachHangPage() {
                                         minWidth: 100
                                     }}
                                 >
-                                    {loadingSubmit 
-                                        ? isEditing ? 'Đang cập nhật...' : 'Đang thêm...' 
+                                    {loadingSubmit
+                                        ? isEditing ? 'Đang cập nhật...' : 'Đang thêm...'
                                         : 'Xác nhận'
                                     }
                                 </button>

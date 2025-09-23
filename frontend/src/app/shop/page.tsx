@@ -583,12 +583,19 @@ export default function ShopPage() {
                                     // Nếu vẫn không tìm thấy, tạo khách hàng mới
                                     if (!idKhachHang) {
                                         try {
+                                            // Tạo mã khách hàng tự động dựa trên thời gian hiện tại
+                                            const timestamp = new Date().getTime();
+                                            const randomNum = Math.floor(Math.random() * 1000);
+                                            const maKhachHang = `KH${timestamp}${randomNum}`.slice(0, 20); // Giới hạn độ dài mã
+                                            
                                             const newCustomerData = {
+                                                maKhachHang: maKhachHang,
                                                 tenKhachHang: customerInfo.name,
                                                 soDienThoai: customerInfo.phone,
-                                                email: customerInfo.email,
+                                                email: customerInfo.email || `${maKhachHang}@default.com`,
                                                 diaChi: `${customerInfo.address}, ${customerInfo.ward}, ${customerInfo.district}, ${customerInfo.city}`,
-                                                trangThai: true
+                                                trangThai: 'Hoạt động',
+                                                gioiTinh: true  // Mặc định là Nam (true: Nam, false: Nữ)
                                             };
 
                                             const createCustomerResponse = await fetch('http://localhost:8080/khach-hang/them', {
@@ -604,8 +611,11 @@ export default function ShopPage() {
                                                 idKhachHang = newCustomer.data?.idKhachHang || newCustomer.idKhachHang;
                                                 console.log('Đã tạo khách hàng mới với ID:', idKhachHang);
                                             } else {
-                                                console.error('Không thể tạo khách hàng mới');
-                                                setCustomerFormError('Không thể tạo thông tin khách hàng. Vui lòng thử lại!');
+                                                const errorResponse = await createCustomerResponse.text();
+                                                console.error('Không thể tạo khách hàng mới. Lỗi từ server:', errorResponse);
+                                                console.error('Status code:', createCustomerResponse.status);
+                                                console.error('Request data:', JSON.stringify(newCustomerData, null, 2));
+                                                setCustomerFormError(`Không thể tạo thông tin khách hàng. Lý do: ${errorResponse || 'Không xác định'}`);
                                                 return;
                                             }
                                         } catch (error) {

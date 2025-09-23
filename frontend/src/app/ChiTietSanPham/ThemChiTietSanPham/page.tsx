@@ -972,11 +972,17 @@ export default function ThemChiTietSanPhamPage() {
               {/* Selection Controls */}
               <Box sx={{
                 mb: 4,
-                display: 'flex', 
-                gap: 3, 
-                alignItems: 'flex-start', 
-                flexWrap: 'wrap', 
-                justifyContent: 'flex-start'
+                display: 'flex',
+                alignItems: 'flex-end',
+                gap: 2,
+                flexWrap: 'nowrap',
+                '& > *': {
+                  flex: '0 0 auto',
+                  marginBottom: 0
+                },
+                '& .MuiFormControl-root': {
+                  marginBottom: 0
+                }
               }}>
                 {/* Màu sắc */}
                 <FormControl size="medium" sx={{ minWidth: 200 }} error={!!mauSacError}>
@@ -1081,36 +1087,38 @@ export default function ThemChiTietSanPhamPage() {
                 </FormControl>
 
                 {/* Nút Thêm thuộc tính chung */}
-                <Button
-                    variant="contained"
-                    sx={{
-                      background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
-                      color: '#fff',
-                      fontWeight: 700,
-                      fontSize: '0.9rem',
-                      borderRadius: 12,
-                      px: 3,
-                      py: 1.5,
-                      boxShadow: '0 4px 15px rgba(181, 157, 58, 0.3)',
-                      '&:hover': { 
-                        background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
-                        transform: 'translateY(-1px)',
-                        boxShadow: '0 6px 20px rgba(181, 157, 58, 0.4)'
-                      },
-                      textTransform: 'none',
-                      transition: 'all 0.3s ease',
-                      alignSelf: 'flex-end',
-                      mt: 3
-                    }}
-                    onClick={() => {
-                      setCommonSoLuong('');
-                      setCommonGia('');
-                      setCommonError('');
-                      setOpenCommonAttrModal(true);
-                    }}
-                >
-                   Thêm thuộc tính chung
-                </Button>
+                <Box sx={{ display: 'flex', alignItems: 'center', height: '100%', ml: 1 }}>
+                  <Button
+                      variant="contained"
+                      sx={{
+                        background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: '0.9rem',
+                        borderRadius: 12,
+                        px: 3,
+                        py: 1.5,
+                        height: '56px',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 4px 15px rgba(181, 157, 58, 0.3)',
+                        '&:hover': { 
+                          background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
+                          transform: 'translateY(-1px)',
+                          boxShadow: '0 6px 20px rgba(181, 157, 58, 0.4)'
+                        },
+                        textTransform: 'none',
+                        transition: 'all 0.3s ease',
+                      }}
+                      onClick={() => {
+                        setCommonSoLuong('');
+                        setCommonGia('');
+                        setCommonError('');
+                        setOpenCommonAttrModal(true);
+                      }}
+                  >
+                    Thêm thuộc tính chung
+                  </Button>
+                </Box>
               </Box>
               {isCheckingVariants && (
                 <Typography color="info" sx={{mb:1, fontStyle: 'italic'}}>
@@ -1541,17 +1549,32 @@ export default function ThemChiTietSanPhamPage() {
           onClose={() => setOpenConfirmModal(false)}
           maxWidth="xs"
           fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              maxWidth: 400,
+              mx: 'auto',
+              my: 0,
+              position: 'absolute',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: 600,
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }
+          }}
         >
           <DialogTitle sx={{ 
             textAlign: 'center', 
             fontWeight: 700, 
-            fontSize: 20,
+            fontSize: 18,
             color: '#b59d3a',
-            pb: 1
+            py: 1.5,
+            px: 3
           }}>
             Xác nhận
           </DialogTitle>
-          <DialogContent sx={{ textAlign: 'center', py: 2 }}>
+          <DialogContent sx={{ textAlign: 'center', px: 3, py: 1 }}>
             <Typography>
               Bạn có muốn thêm sản phẩm và biến thể này không?
             </Typography>
@@ -1559,7 +1582,7 @@ export default function ThemChiTietSanPhamPage() {
               Sẽ tạo {variants.length} biến thể cho sản phẩm "{addTenSanPham}"
             </Typography>
           </DialogContent>
-          <DialogActions sx={{ justifyContent: 'center', pb: 3, px: 3 }}>
+          <DialogActions sx={{ justifyContent: 'center', py: 2, px: 3 }}>
             <Button
               onClick={() => setOpenConfirmModal(false)}
               sx={{

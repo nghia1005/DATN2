@@ -192,8 +192,29 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ order, maHoaDon }) => {
           {thanhToan?.toLocaleString() || '0'}đ
         </div>
       </div>
+      {/* Phương thức thanh toán */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        margin: '24px 0 12px 0',
+        padding: '12px',
+        background: '#f8f9fa',
+        borderRadius: '8px',
+        border: '1px solid #e9ecef'
+      }}>
+        <div style={{ fontWeight: 600, color: '#495057' }}>Phương thức thanh toán:</div>
+        <div style={{ 
+          fontWeight: 700, 
+          color: order.phuongThucThanhToan === 'MOMO' ? '#c2185b' : '#2e7d32',
+          textTransform: 'uppercase'
+        }}>
+          {order.phuongThucThanhToan === 'MOMO' ? 'MOMO' : 'Tiền mặt'}
+        </div>
+      </div>
+
       {/* Ngày tháng, chữ ký, cảm ơn */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 36 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 24 }}>
         {/* Đã xóa dòng ngày tháng năm ở đây */}
         <div style={{ textAlign: 'center', width: '100%' }}>
           <div style={{ fontStyle: 'italic', color: '#b8860b', fontWeight: 800, fontSize: 22, margin: '18px 0 2px 0', letterSpacing: 1 }}>

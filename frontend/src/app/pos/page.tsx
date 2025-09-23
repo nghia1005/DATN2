@@ -496,7 +496,7 @@ function POSPageInner() {
     const exist = activeOrder.cart.find((item: CartItem) => item.idChiTietSanPham === product.idChiTietSanPham);
     const currentQty = exist ? exist.qty : 0;
     if (currentQty + qty > product.soLuong) {
-      toast.error('Tổng số lượng vượt quá tồn kho!');
+      toast.error('Tổng số lượng vượt quá số lượng của cửa !');
       return;
     }
     let newCart;
@@ -696,30 +696,37 @@ function POSPageInner() {
 
       const finalTotal = orderDetails.cart.reduce((sum: any, item: any) => sum + item.gia * item.qty, 0) - (orderDetails.appliedVoucher?.giaTriToiDa || 0) + (orderDetails.shippingFee || 0);
 
+      // Cập nhật paymentMethod trong order state
+      const updatedOrder = {
+        ...orderDetails,
+        paymentMethod: 'MOMO' // Đảm bảo paymentMethod được đặt là 'MOMO'
+      };
+      updateActiveOrder(updatedOrder);
+
       // Chuẩn bị dữ liệu hóa đơn
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const idNhanVien = user?.idNhanVien || '';
       const tenNhanVien = user?.tenNhanVien || '';
 
       const invoiceData = {
-        idKhachHang: orderDetails.selectedCustomer?.idKhachHang || null,
+        idKhachHang: updatedOrder.selectedCustomer?.idKhachHang || null,
         idNhanVien: idNhanVien,
-        tongTien: orderDetails.cart.reduce((sum: any, item: any) => sum + item.gia * item.qty, 0),
-        giamGia: orderDetails.appliedVoucher?.giaTriToiDa || 0,
-        phiShip: orderDetails.shippingFee || 0,
+        tongTien: updatedOrder.cart.reduce((sum: any, item: any) => sum + item.gia * item.qty, 0),
+        giamGia: updatedOrder.appliedVoucher?.giaTriToiDa || 0,
+        phiShip: updatedOrder.shippingFee || 0,
         thanhTien: finalTotal,
-        tenNguoiNhan: orderDetails.isShipping ? orderDetails.shippingInfo.name : "Khách lẻ",
-        soDienThoai: orderDetails.isShipping ? orderDetails.shippingInfo.phone : "",
-        email: orderDetails.isShipping ? orderDetails.shippingInfo.email : "",
-        diaChiNhanHang: orderDetails.isShipping ? `${orderDetails.shippingInfo.address}, ${orderDetails.shippingInfo.ward}, ${orderDetails.shippingInfo.district}, ${orderDetails.shippingInfo.city}` : "",
-        ghiChu: orderDetails.isShipping ? orderDetails.shippingInfo.note : '',
+        tenNguoiNhan: updatedOrder.isShipping ? updatedOrder.shippingInfo.name : "Khách lẻ",
+        soDienThoai: updatedOrder.isShipping ? updatedOrder.shippingInfo.phone : "",
+        email: updatedOrder.isShipping ? updatedOrder.shippingInfo.email : "",
+        diaChiNhanHang: updatedOrder.isShipping ? `${updatedOrder.shippingInfo.address}, ${updatedOrder.shippingInfo.ward}, ${updatedOrder.shippingInfo.district}, ${updatedOrder.shippingInfo.city}` : "",
+        ghiChu: updatedOrder.isShipping ? updatedOrder.shippingInfo.note : '',
         trangThai: "Giao hàng thành công",
-        idPhieuGiamGia: orderDetails.appliedVoucher?.idPhieuGiamGia || null,
-        loaiDon: orderDetails.isShipping ? "Giao hàng" : "Tại quầy",
+        idPhieuGiamGia: updatedOrder.appliedVoucher?.idPhieuGiamGia || null,
+        loaiDon: updatedOrder.isShipping ? "Giao hàng" : "Tại quầy",
         phuongThucThanhToan: 'MOMO',
         chiTiet: (() => {
-          console.log('🛒 MoMo cart before mapping:', orderDetails.cart);
-          const mapped = orderDetails.cart.map((item: any) => ({
+          console.log('🛒 MoMo cart before mapping:', updatedOrder.cart);
+          const mapped = updatedOrder.cart.map((item: any) => ({
             idChiTietSanPham: item.idChiTietSanPham,
             soLuong: item.qty,
             donGia: item.gia,
@@ -731,7 +738,7 @@ function POSPageInner() {
         thanhToan: {
           soTienThanhToan: finalTotal,
           phuongThucThanhToan: 'MOMO',
-          ghiChu: `MoMo Transaction ID: ${transactionData.transId || transactionData.idMomoTransaction}`,
+          ghiChu: `MoMo Transaction ID: ${transactionData.transId || transactionData.idMomoTransaction || 'N/A'}`,
           trangThai: 'Đã thanh toán'
         }
       };
@@ -1981,7 +1988,7 @@ function POSPageInner() {
                       let validQty = qty;
                       if (qty > prod.soLuong + cartItem.qty) {
                         validQty = prod.soLuong + cartItem.qty;
-                        toast.error('Số lượng vượt quá tồn kho!');
+                        toast.error('Số lượng vượt quá cửa àng!');
                       }
                       setProductDetails(prev => prev.map(p =>
                         p.idChiTietSanPham === id

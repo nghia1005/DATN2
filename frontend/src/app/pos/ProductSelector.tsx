@@ -47,7 +47,7 @@ export default function ProductSelector({ onSelectAction, onCloseAction, product
       return;
     }
     if (qty > product.soLuong) {
-      toast.error('Vượt quá số lượng tồn kho!');
+      toast.error('Vượt quá số lượng cửa hàng!');
       return;
     }
     if (product.soLuong === 0) {
@@ -343,7 +343,7 @@ export default function ProductSelector({ onSelectAction, onCloseAction, product
                     <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: 600, color: '#6b4f1d', fontSize: 14 }}>Màu sắc</th>
                     <th style={{ padding: '16px 12px', textAlign: 'left', fontWeight: 600, color: '#6b4f1d', fontSize: 14 }}>Kích thước</th>
                     <th style={{ padding: '16px 12px', textAlign: 'right', fontWeight: 600, color: '#6b4f1d', fontSize: 14 }}>Giá bán</th>
-                    <th style={{ padding: '16px 12px', textAlign: 'center', fontWeight: 600, color: '#6b4f1d', fontSize: 14 }}>Tồn kho</th>
+                    <th style={{ padding: '16px 12px', textAlign: 'center', fontWeight: 600, color: '#6b4f1d', fontSize: 14 }}>Số lượng</th>
                     <th style={{ padding: '16px 12px', textAlign: 'center', fontWeight: 600, color: '#6b4f1d', fontSize: 14 }}>Thao tác</th>
                   </tr>
                 </thead>

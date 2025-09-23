@@ -294,9 +294,6 @@ export default function Dashboard() {
                                 <div className={styles.statContent}>
                                     <div className={styles.statTitle}>Tổng Doanh Thu</div>
                                     <div className={styles.statValue}>{totalRevenueAll.toLocaleString()} đ</div>
-                                    <div className={styles.statChange}>
-                                        {totalRevenueAll > 0 ? '+12.5% so với tháng trước' : 'Chưa có doanh thu'}
-                                    </div>
                                 </div>
                             </div>
 
@@ -305,9 +302,6 @@ export default function Dashboard() {
                                 <div className={styles.statContent}>
                                     <div className={styles.statTitle}>Đơn Hàng Hôm Nay</div>
                                     <div className={styles.statValue}>{todayOrders}</div>
-                                    <div className={styles.statChange}>
-                                        {todayOrders > 0 ? '+8.2% so với hôm qua' : 'Chưa có đơn hàng hôm nay'}
-                                    </div>
                                 </div>
                             </div>
 
@@ -316,16 +310,13 @@ export default function Dashboard() {
                                 <div className={styles.statContent}>
                                     <div className={styles.statTitle}>Sản Phẩm Đã Bán</div>
                                     <div className={styles.statValue}>{totalProductsSold}</div>
-                                    <div className={styles.statChange}>
-                                        {totalProductsSold > 0 ? '+15.3% so với tuần trước' : 'Chưa có sản phẩm bán'}
-                                    </div>
                                 </div>
                             </div>
 
                             <div className={`${styles.statCard} ${styles.bestsellerCard}`}>
                                 <div className={styles.statIcon}>🏆</div>
                                 <div className={styles.statContent}>
-                                    <div className={styles.statTitle}>Bán Chạy Nhất</div>
+                                    <div className={styles.statTitle}>Bán Nhiều Nhất</div>
                                     <div className={styles.statValue}>{bestSeller.name}</div>
                                     <div className={styles.statChange}>
                                         {bestSeller.sold > 0 ? `Đã bán: ${bestSeller.sold} đôi` : 'Chưa có dữ liệu'}

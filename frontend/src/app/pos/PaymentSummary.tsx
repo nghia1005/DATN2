@@ -99,21 +99,52 @@ export default function PaymentSummary({ cart, voucher, shipping, originalShippi
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          padding: '12px 0 0 0',
+          padding: '12px 0',
           marginTop: 8,
           borderTop: '2px solid rgba(181, 157, 58, 0.2)',
           background: 'linear-gradient(135deg, rgba(181, 157, 58, 0.05) 0%, transparent 100%)',
           borderRadius: 8,
           paddingLeft: 12,
-          paddingRight: 12
+          paddingRight: 12,
+          flexDirection: 'column',
+          gap: 8
         }}>
-          <span style={{ color: '#6b4f1d', fontWeight: 700, fontSize: 18 }}>Thanh toán:</span>
-          <span style={{ 
-            color: '#8a7a2a', 
-            fontWeight: 800, 
-            fontSize: 20,
-            textShadow: '0 1px 2px rgba(181, 157, 58, 0.1)'
-          }}>{(final || 0).toLocaleString()}đ</span>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            width: '100%',
+            paddingBottom: 4,
+            borderBottom: '1px dashed rgba(107, 79, 29, 0.2)'
+          }}>
+            <span style={{ color: '#6b4f1d', fontWeight: 600 }}>Phương thức:</span>
+            <span style={{ 
+              color: paymentMethod === 'MOMO' ? '#c2185b' : '#2e7d32',
+              fontWeight: 700,
+              fontSize: 15,
+              textTransform: 'uppercase',
+              padding: '4px 8px',
+              borderRadius: 4,
+              background: paymentMethod === 'MOMO' ? 'rgba(194, 24, 91, 0.1)' : 'rgba(46, 125, 50, 0.1)'
+            }}>
+              {paymentMethod === 'MOMO' ? 'MOMO' : 'Tiền mặt'}
+            </span>
+          </div>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            width: '100%',
+            paddingTop: 4
+          }}>
+            <span style={{ color: '#6b4f1d', fontWeight: 700, fontSize: 18 }}>Thanh toán:</span>
+            <span style={{ 
+              color: '#8a7a2a', 
+              fontWeight: 800, 
+              fontSize: 20,
+              textShadow: '0 1px 2px rgba(181, 157, 58, 0.1)'
+            }}>{(final || 0).toLocaleString()}đ</span>
+          </div>
         </div>
       </div>
     </div>

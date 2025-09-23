@@ -722,7 +722,7 @@ function POSPageInner() {
         ghiChu: updatedOrder.isShipping ? updatedOrder.shippingInfo.note : '',
         trangThai: "Giao hàng thành công",
         idPhieuGiamGia: updatedOrder.appliedVoucher?.idPhieuGiamGia || null,
-        loaiDon: updatedOrder.isShipping ? "Giao hàng" : "Tại quầy",
+        loaiDon: updatedOrder.isShipping ? "Tại quầy" : "Online",
         phuongThucThanhToan: 'MOMO',
         chiTiet: (() => {
           console.log('🛒 MoMo cart before mapping:', updatedOrder.cart);
@@ -875,7 +875,7 @@ function POSPageInner() {
         ghiChu: updatedOrder.isShipping ? updatedOrder.shippingInfo.note : '',
         trangThai: "Giao hàng thành công", // Đã thanh toán MoMo thành công
         idPhieuGiamGia: updatedOrder.appliedVoucher?.idPhieuGiamGia || null,
-        loaiDon: updatedOrder.isShipping ? "Giao hàng" : "Tại quầy",
+        loaiDon: updatedOrder.isShipping ? "Tại quầy" : "Online",
         phuongThucThanhToan: 'MOMO', // Thêm field chính
         chiTiet: (() => {
           console.log('🛒 MoMo success cart before mapping:', updatedOrder.cart);

@@ -12,7 +12,7 @@ export default function ChiTietSanPhamPage() {
     // Lấy thông tin người dùng từ localStorage
     const user = localStorage.getItem('user');
     if (!user) {
-      router.push('/dang-nhap');
+      router.push('/login');
       return;
     }
 

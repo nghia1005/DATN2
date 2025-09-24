@@ -3199,7 +3199,7 @@ export default function ProductDetailTable({ userRole = 'NHAN_VIEN' }: ProductDe
                             color: '#8a7a2a',
                             fontWeight: 500
                           }}>
-                            {editVariantImages.length}/10 ảnh đã sử dụng
+                            {editVariantImages.length}ảnh đã sử dụng
                           </Typography>
                         </Box>
                       </Box>
@@ -3213,10 +3213,6 @@ export default function ProductDetailTable({ userRole = 'NHAN_VIEN' }: ProductDe
                         }}>
                           📸 Ảnh hiện tại ({editVariantImages.length})
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 2, display: 'block' }}>
-                          Debug: {editVariantImages.length} ảnh được load
-                        </Typography>
-
                         {editVariantImages.length === 0 ? (
                             <Box sx={{
                               p: 4,
@@ -3233,9 +3229,6 @@ export default function ProductDetailTable({ userRole = 'NHAN_VIEN' }: ProductDe
                               </Typography>
                               <Typography variant="body2" sx={{ color: '#9ca3af', mt: 1 }}>
                                 Hãy thêm ảnh đầu tiên cho sản phẩm này
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: '#9ca3af', mt: 1, display: 'block' }}>
-                                Debug: editVariantImages.length = {editVariantImages.length}
                               </Typography>
                             </Box>
                         ) : (

@@ -1582,105 +1582,48 @@ export default function KhachHangPage() {
                         </div>
 
                         {/* Phân trang */}
+                        {/* Phân trang */}
                         {filteredKhachHangs.length > 0 && (
                             <div style={{
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 padding: '20px 0',
-                                background: "linear-gradient(135deg, #fff 0%, #fffbe6 100%)",
-                                borderRadius: "12px",
-                                marginTop: "20px",
-                                boxShadow: "0 4px 16px rgba(181, 157, 58, 0.08)",
-                                border: "1px solid rgba(181, 157, 58, 0.1)"
+                                marginTop: '20px'
                             }}>
-                                {/* Điều hướng phân trang */}
                                 <div style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '8px'
+                                    gap: '8px',
+                                    background: '#fff',
+                                    padding: '8px 16px',
+                                    borderRadius: '20px',
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                                 }}>
-                                    {/* Nút trang đầu */}
-                                    <button
-                                        onClick={goToFirstPage}
-                                        disabled={currentPage === 1}
-                                        style={{
-                                            padding: "8px 12px",
-                                            background: currentPage === 1 ? "rgba(181, 157, 58, 0.1)" : "linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)",
-                                            color: currentPage === 1 ? "#8a7a2a" : "#fff",
-                                            border: "none",
-                                            borderRadius: "8px",
-                                            cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                                            fontWeight: 600,
-                                            fontSize: "1.2rem",
-                                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                            boxShadow: currentPage === 1 ? "none" : "0 2px 8px rgba(181, 157, 58, 0.3)",
-                                            width: "40px",
-                                            height: "40px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center"
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (currentPage !== 1) {
-                                                e.currentTarget.style.transform = "translateY(-1px)";
-                                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(181, 157, 58, 0.4)";
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (currentPage !== 1) {
-                                                e.currentTarget.style.transform = "translateY(0)";
-                                                e.currentTarget.style.boxShadow = "0 2px 8px rgba(181, 157, 58, 0.3)";
-                                            }
-                                        }}
-                                        title="Trang đầu"
-                                    >
-                                        ⏮️
-                                    </button>
-
-                                    {/* Nút trang trước */}
+                                    {/* Nút Trang trước */}
                                     <button
                                         onClick={goToPreviousPage}
                                         disabled={currentPage === 1}
                                         style={{
-                                            padding: "8px 12px",
-                                            background: currentPage === 1 ? "rgba(181, 157, 58, 0.1)" : "linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)",
-                                            color: currentPage === 1 ? "#8a7a2a" : "#fff",
-                                            border: "none",
-                                            borderRadius: "8px",
+                                            padding: "6px 12px",
+                                            background: "#fff",
+                                            color: currentPage === 1 ? "#ccc" : "#666",
+                                            border: "1px solid #e0e0e0",
+                                            borderRadius: "20px",
                                             cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                                            fontWeight: 600,
-                                            fontSize: "1.2rem",
-                                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                            boxShadow: currentPage === 1 ? "none" : "0 2px 8px rgba(181, 157, 58, 0.3)",
-                                            width: "40px",
-                                            height: "40px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center"
+                                            fontWeight: 500,
+                                            fontSize: "0.875rem",
+                                            transition: "all 0.2s",
+                                            minWidth: "80px"
                                         }}
-                                        onMouseEnter={(e) => {
-                                            if (currentPage !== 1) {
-                                                e.currentTarget.style.transform = "translateY(-1px)";
-                                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(181, 157, 58, 0.4)";
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (currentPage !== 1) {
-                                                e.currentTarget.style.transform = "translateY(0)";
-                                                e.currentTarget.style.boxShadow = "0 2px 8px rgba(181, 157, 58, 0.3)";
-                                            }
-                                        }}
-                                        title="Trang trước"
                                     >
-                                        ◀️
+                                        Trước
                                     </button>
 
                                     {/* Các nút số trang */}
                                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNumber => {
-                                        // Hiển thị tối đa 5 trang xung quanh trang hiện tại
-                                        const startPage = Math.max(1, currentPage - 2);
-                                        const endPage = Math.min(totalPages, currentPage + 2);
+                                        const startPage = Math.max(1, currentPage - 1);
+                                        const endPage = Math.min(totalPages, currentPage + 1);
 
                                         if (pageNumber >= startPage && pageNumber <= endPage) {
                                             return (
@@ -1688,28 +1631,20 @@ export default function KhachHangPage() {
                                                     key={pageNumber}
                                                     onClick={() => handlePageChange(pageNumber)}
                                                     style={{
-                                                        padding: "8px 12px",
-                                                        background: pageNumber === currentPage ? "linear-gradient(135deg, #8a7a2a 0%, #6b4f1d 100%)" : "linear-gradient(135deg, #fff 0%, #fffbe6 100%)",
-                                                        color: pageNumber === currentPage ? "#fff" : "#6b4f1d",
-                                                        border: pageNumber === currentPage ? "none" : "2px solid rgba(181, 157, 58, 0.3)",
-                                                        borderRadius: "8px",
+                                                        width: "32px",
+                                                        height: "32px",
+                                                        padding: 0,
+                                                        background: pageNumber === currentPage ? "#f5f5dc" : "#fff",
+                                                        color: pageNumber === currentPage ? "#000" : "#333",
+                                                        border: pageNumber === currentPage ? "none" : "1px solid #e0e0e0",
+                                                        borderRadius: "50%",
                                                         cursor: "pointer",
-                                                        fontWeight: pageNumber === currentPage ? 700 : 600,
-                                                        fontSize: "0.85rem",
-                                                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                                        boxShadow: pageNumber === currentPage ? "0 2px 8px rgba(181, 157, 58, 0.4)" : "0 2px 8px rgba(181, 157, 58, 0.1)"
-                                                    }}
-                                                    onMouseEnter={(e) => {
-                                                        if (pageNumber !== currentPage) {
-                                                            e.currentTarget.style.transform = "translateY(-1px)";
-                                                            e.currentTarget.style.boxShadow = "0 4px 12px rgba(181, 157, 58, 0.2)";
-                                                        }
-                                                    }}
-                                                    onMouseLeave={(e) => {
-                                                        if (pageNumber !== currentPage) {
-                                                            e.currentTarget.style.transform = "translateY(0)";
-                                                            e.currentTarget.style.boxShadow = "0 2px 8px rgba(181, 157, 58, 0.1)";
-                                                        }
+                                                        fontWeight: pageNumber === currentPage ? 600 : 400,
+                                                        fontSize: "0.875rem",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        transition: "all 0.2s"
                                                     }}
                                                 >
                                                     {pageNumber}
@@ -1719,80 +1654,24 @@ export default function KhachHangPage() {
                                         return null;
                                     })}
 
-                                    {/* Nút trang sau */}
+                                    {/* Nút Trang sau */}
                                     <button
                                         onClick={goToNextPage}
                                         disabled={currentPage === totalPages}
                                         style={{
-                                            padding: "8px 12px",
-                                            background: currentPage === totalPages ? "rgba(181, 157, 58, 0.1)" : "linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)",
-                                            color: currentPage === totalPages ? "#8a7a2a" : "#fff",
-                                            border: "none",
-                                            borderRadius: "8px",
+                                            padding: "6px 12px",
+                                            background: "#fff",
+                                            color: currentPage === totalPages ? "#ccc" : "#666",
+                                            border: "1px solid #e0e0e0",
+                                            borderRadius: "20px",
                                             cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                                            fontWeight: 600,
-                                            fontSize: "1.2rem",
-                                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                            boxShadow: currentPage === totalPages ? "none" : "0 2px 8px rgba(181, 157, 58, 0.3)",
-                                            width: "40px",
-                                            height: "40px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center"
+                                            fontWeight: 500,
+                                            fontSize: "0.875rem",
+                                            transition: "all 0.2s",
+                                            minWidth: "60px"
                                         }}
-                                        onMouseEnter={(e) => {
-                                            if (currentPage !== totalPages) {
-                                                e.currentTarget.style.transform = "translateY(-1px)";
-                                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(181, 157, 58, 0.4)";
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (currentPage !== totalPages) {
-                                                e.currentTarget.style.transform = "translateY(0)";
-                                                e.currentTarget.style.boxShadow = "0 2px 8px rgba(181, 157, 58, 0.3)";
-                                            }
-                                        }}
-                                        title="Trang sau"
                                     >
-                                        ▶️
-                                    </button>
-
-                                    {/* Nút trang cuối */}
-                                    <button
-                                        onClick={goToLastPage}
-                                        disabled={currentPage === totalPages}
-                                        style={{
-                                            padding: "8px 12px",
-                                            background: currentPage === totalPages ? "rgba(181, 157, 58, 0.1)" : "linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)",
-                                            color: currentPage === totalPages ? "#8a7a2a" : "#fff",
-                                            border: "none",
-                                            borderRadius: "8px",
-                                            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                                            fontWeight: 600,
-                                            fontSize: "1.2rem",
-                                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                            boxShadow: currentPage === totalPages ? "none" : "0 2px 8px rgba(181, 157, 58, 0.3)",
-                                            width: "40px",
-                                            height: "40px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center"
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (currentPage !== totalPages) {
-                                                e.currentTarget.style.transform = "translateY(-1px)";
-                                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(181, 157, 58, 0.4)";
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (currentPage !== totalPages) {
-                                                e.currentTarget.style.transform = "translateY(0)";
-                                                e.currentTarget.style.boxShadow = "0 2px 8px rgba(181, 157, 58, 0.3)";
-                                            }
-                                        }}
-                                        title="Trang cuối"
-                                    >
-                                        ⏭️
+                                        Sau
                                     </button>
                                 </div>
                             </div>

@@ -132,16 +132,16 @@
 }
 
 .pendingOrdersButton {
-  border: 1.5px solid #b59d3a;
-  background: #fff;
-  color: #b59d3a;
-  font-size: 18px;
-  width: 40px;
-  height: 40px;
+  border: 2px solid #ff9800;
+  background: #fffbe6;
+  color: #ff9800;
+  font-size: 24px;
+  width: 60px;
+  height: 60px;
 }
 
 .pendingOrdersButton:hover {
-  background: #b59d3a;
+  background: #ff9800;
   color: #fff;
 }
 

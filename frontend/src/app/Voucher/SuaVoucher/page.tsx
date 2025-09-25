@@ -41,17 +41,17 @@ const parseDate = (dateStr: string | undefined) => {
 };
 
 // Modal Component
-const EditVoucherModal = ({ 
-  isOpen, 
-  onClose, 
-  form, 
-  setForm, 
-  formErrors, 
-  handleInputChange, 
-  handleSelectChange, 
-  handleSubmit, 
-  saving, 
-  parseDate 
+const EditVoucherModal = ({
+  isOpen,
+  onClose,
+  form,
+  setForm,
+  formErrors,
+  handleInputChange,
+  handleSelectChange,
+  handleSubmit,
+  saving,
+  parseDate
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -106,9 +106,9 @@ const EditVoucherModal = ({
             alignItems: 'center',
             marginBottom: '16px'
           }}>
-            <h2 style={{ 
-              color: '#6b4f1d', 
-              fontWeight: 700, 
+            <h2 style={{
+              color: '#6b4f1d',
+              fontWeight: 700,
               fontSize: '24px',
               margin: 0
             }}>
@@ -148,47 +148,45 @@ const EditVoucherModal = ({
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* Thông tin cơ bản */}
-              <div style={{ 
-                background: '#f9f9f9', 
-                borderRadius: 12, 
+              <div style={{
+                background: '#f9f9f9',
+                borderRadius: 12,
                 padding: 24,
                 border: '1px solid #e0e0e0'
               }}>
-                <h3 style={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 600, 
-                  marginBottom: 20, 
+                <h3 style={{
+                  color: '#6b4f1d',
+                  fontWeight: 600,
+                  marginBottom: 20,
                   fontSize: '18px'
                 }}>Thông tin cơ bản</h3>
                 <div style={{ display: 'flex', gap: 20 }}>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
                     }}>
                       Mã giảm giá:
                     </label>
-                    <input 
-                      name="maPhieuGiamGia" 
-                      value={form.maPhieuGiamGia} 
-                      onChange={handleInputChange} 
-                      required 
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px 16px', 
-                        borderRadius: 8, 
-                        border: '2px solid #e6d8b4', 
+                    <div
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: '2px solid #e6d8b4',
                         fontSize: '14px',
-                        background: '#fff',
-                        transition: 'border-color 0.2s',
-                        outline: 'none'
+                        background: '#f5f5f5',
+                        color: '#666',
+                        minHeight: '44px',
+                        display: 'flex',
+                        alignItems: 'center'
                       }}
-                      onFocus={(e) => e.target.style.borderColor = '#b59d3a'}
-                      onBlur={(e) => e.target.style.borderColor = '#e6d8b4'}
-                    />
+                    >
+                      {form.maPhieuGiamGia}
+                    </div>
                     {formErrors.maPhieuGiamGia && (
                       <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
                         {formErrors.maPhieuGiamGia}
@@ -196,25 +194,25 @@ const EditVoucherModal = ({
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
                     }}>
                       Tên giảm giá:
                     </label>
-                    <input 
-                      name="tenPhieuGiamGia" 
-                      value={form.tenPhieuGiamGia} 
-                      onChange={handleInputChange} 
-                      required 
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px 16px', 
-                        borderRadius: 8, 
-                        border: '2px solid #e6d8b4', 
+                    <input
+                      name="tenPhieuGiamGia"
+                      value={form.tenPhieuGiamGia}
+                      onChange={handleInputChange}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: '2px solid #e6d8b4',
                         fontSize: '14px',
                         background: '#fff',
                         transition: 'border-color 0.2s',
@@ -230,9 +228,9 @@ const EditVoucherModal = ({
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
@@ -244,11 +242,11 @@ const EditVoucherModal = ({
                       value={form.kieuGiamGia}
                       onChange={handleSelectChange}
                       required
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px 16px', 
-                        borderRadius: 8, 
-                        border: '2px solid #e6d8b4', 
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: '2px solid #e6d8b4',
                         fontSize: '14px',
                         background: '#fff',
                         cursor: 'pointer',
@@ -270,40 +268,40 @@ const EditVoucherModal = ({
               </div>
 
               {/* Thông tin giá trị */}
-              <div style={{ 
-                background: '#f9f9f9', 
-                borderRadius: 12, 
+              <div style={{
+                background: '#f9f9f9',
+                borderRadius: 12,
                 padding: 24,
                 border: '1px solid #e0e0e0'
               }}>
-                <h3 style={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 600, 
-                  marginBottom: 20, 
+                <h3 style={{
+                  color: '#6b4f1d',
+                  fontWeight: 600,
+                  marginBottom: 20,
                   fontSize: '18px'
                 }}>Thông tin giá trị</h3>
                 <div style={{ display: 'flex', gap: 20 }}>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
                     }}>
                       Giá trị tối thiểu của đơn hàng:
                     </label>
-                    <input 
-                      name="giaTriToiThieu" 
-                      type="number" 
-                      value={form.giaTriToiThieu} 
-                      onChange={handleInputChange} 
-                      required 
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px 16px', 
-                        borderRadius: 8, 
-                        border: '2px solid #e6d8b4', 
+                    <input
+                      name="giaTriToiThieu"
+                      type="number"
+                      value={form.giaTriToiThieu}
+                      onChange={handleInputChange}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: '2px solid #e6d8b4',
                         fontSize: '14px',
                         background: '#fff',
                         transition: 'border-color 0.2s',
@@ -319,26 +317,26 @@ const EditVoucherModal = ({
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
                     }}>
                       Giá trị giảm tối đa của đơn hàng:
                     </label>
-                    <input 
-                      name="giaTriToiDa" 
-                      type="number" 
-                      value={form.giaTriToiDa} 
-                      onChange={handleInputChange} 
-                      required 
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px 16px', 
-                        borderRadius: 8, 
-                        border: '2px solid #e6d8b4', 
+                    <input
+                      name="giaTriToiDa"
+                      type="number"
+                      value={form.giaTriToiDa}
+                      onChange={handleInputChange}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: '2px solid #e6d8b4',
                         fontSize: '14px',
                         background: '#fff',
                         transition: 'border-color 0.2s',
@@ -354,26 +352,26 @@ const EditVoucherModal = ({
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
                     }}>
                       Phần trăm giảm:
                     </label>
-                    <input 
-                      name="phanTramGiamGia" 
-                      type="number" 
-                      value={form.phanTramGiamGia} 
-                      onChange={handleInputChange} 
-                      required 
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px 16px', 
-                        borderRadius: 8, 
-                        border: '2px solid #e6d8b4', 
+                    <input
+                      name="phanTramGiamGia"
+                      type="number"
+                      value={form.phanTramGiamGia}
+                      onChange={handleInputChange}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: '2px solid #e6d8b4',
                         fontSize: '14px',
                         background: '#fff',
                         transition: 'border-color 0.2s',
@@ -392,40 +390,40 @@ const EditVoucherModal = ({
               </div>
 
               {/* Thông tin thời gian và số lượng */}
-              <div style={{ 
-                background: '#f9f9f9', 
-                borderRadius: 12, 
+              <div style={{
+                background: '#f9f9f9',
+                borderRadius: 12,
                 padding: 24,
                 border: '1px solid #e0e0e0'
               }}>
-                <h3 style={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 600, 
-                  marginBottom: 20, 
+                <h3 style={{
+                  color: '#6b4f1d',
+                  fontWeight: 600,
+                  marginBottom: 20,
                   fontSize: '18px'
                 }}>Thông tin thời gian và số lượng</h3>
                 <div style={{ display: 'flex', gap: 20 }}>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
                     }}>
                       Số lượng:
                     </label>
-                    <input 
-                      name="soLuong" 
-                      type="number" 
-                      value={form.soLuong} 
-                      onChange={handleInputChange} 
-                      required 
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px 16px', 
-                        borderRadius: 8, 
-                        border: '2px solid #e6d8b4', 
+                    <input
+                      name="soLuong"
+                      type="number"
+                      value={form.soLuong}
+                      onChange={handleInputChange}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: '2px solid #e6d8b4',
                         fontSize: '14px',
                         background: '#fff',
                         transition: 'border-color 0.2s',
@@ -441,9 +439,9 @@ const EditVoucherModal = ({
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
@@ -461,9 +459,9 @@ const EditVoucherModal = ({
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={{ 
-                      fontWeight: 600, 
-                      color: '#6b4f1d', 
+                    <label style={{
+                      fontWeight: 600,
+                      color: '#6b4f1d',
                       fontSize: '14px',
                       marginBottom: '8px',
                       display: 'block'
@@ -484,37 +482,37 @@ const EditVoucherModal = ({
               </div>
 
               {/* Mô tả */}
-              <div style={{ 
-                background: '#f9f9f9', 
-                borderRadius: 12, 
+              <div style={{
+                background: '#f9f9f9',
+                borderRadius: 12,
                 padding: 24,
                 border: '1px solid #e0e0e0'
               }}>
-                <h3 style={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 600, 
-                  marginBottom: 20, 
+                <h3 style={{
+                  color: '#6b4f1d',
+                  fontWeight: 600,
+                  marginBottom: 20,
                   fontSize: '18px'
                 }}>Mô tả</h3>
                 <div>
-                  <label style={{ 
-                    fontWeight: 600, 
-                    color: '#6b4f1d', 
+                  <label style={{
+                    fontWeight: 600,
+                    color: '#6b4f1d',
                     fontSize: '14px',
                     marginBottom: '8px',
                     display: 'block'
                   }}>
                     Mô tả:
                   </label>
-                  <textarea 
-                    name="moTa" 
-                    value={form.moTa} 
-                    onChange={handleInputChange} 
-                    style={{ 
-                      width: '100%', 
-                      padding: '12px 16px', 
-                      borderRadius: 8, 
-                      border: '2px solid #e6d8b4', 
+                  <textarea
+                    name="moTa"
+                    value={form.moTa}
+                    onChange={handleInputChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: 8,
+                      border: '2px solid #e6d8b4',
                       fontSize: '14px',
                       background: '#fff',
                       transition: 'border-color 0.2s',
@@ -530,10 +528,10 @@ const EditVoucherModal = ({
             </div>
 
             {/* Buttons */}
-            <div style={{ 
-              display: 'flex', 
-              gap: 16, 
-              marginTop: 32, 
+            <div style={{
+              display: 'flex',
+              gap: 16,
+              marginTop: 32,
               justifyContent: 'center',
               paddingTop: 24,
               borderTop: '2px solid #e6d8b4'
@@ -787,7 +785,7 @@ const SuaVoucherPage = () => {
             {error}
           </div>
         )}
-        
+
         {/* Modal */}
         <EditVoucherModal
           isOpen={isModalOpen}
@@ -806,4 +804,4 @@ const SuaVoucherPage = () => {
   );
 };
 
-export default SuaVoucherPage; 
+export default SuaVoucherPage;

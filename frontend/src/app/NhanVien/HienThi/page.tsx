@@ -443,7 +443,7 @@ export default function NhanVienPage() {
                                     fontSize: "0.8rem", 
                                     borderBottom: "2px solid rgba(255, 255, 255, 0.1)",
                                     color: '#fff'
-                                }}>#</th>
+                                }}>STT</th>
                                 <th style={{
                                     padding: "8px 4px", 
                                     fontWeight: 700, 

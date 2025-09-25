@@ -1553,12 +1553,6 @@ function POSPageInner() {
                 </div>
                 {/* Nút xem hóa đơn tại quầy */}
                 <div style={{ position: 'relative' }}>
-                  <button className={`${styles.actionButton} ${styles.completedInvoicesButton}`} title="Xem hóa đơn tại quầy" onClick={() => {
-                    setShowCompletedInvoices(true);
-                    fetchCompletedInvoices();
-                  }}>
-                    🧾
-                  </button>
                   {/* Modal danh sách hóa đơn chờ */}
                   {showPendingOrders && (
                     <>

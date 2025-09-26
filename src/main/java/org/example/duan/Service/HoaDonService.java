@@ -139,7 +139,7 @@ public class HoaDonService {
             }
         }
 
-        // Trừ tồn kho theo danh sách đã merge để tránh trừ trùng
+        // Kiểm tra và xử lý tồn kho
         if (!mergedItems.isEmpty()) {
             for (HoaDonChiTietDTO ct : mergedItems.values()) {
                 ChiTietSanPham chiTiet = chiTietSanPhamRepository.findById(ct.getIdChiTietSanPham().intValue())
@@ -148,24 +148,30 @@ public class HoaDonService {
                 int soLuongHienTai = chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0;
                 int soLuongDat = ct.getSoLuong() != null ? ct.getSoLuong() : 0;
                 
-                // Kiểm tra tồn kho trước khi trừ
+                // Kiểm tra tồn kho trước khi tạo đơn hàng
                 if (soLuongHienTai < soLuongDat) {
                     throw new RuntimeException("Số lượng tồn kho không đủ cho sản phẩm: " + chiTiet.getIdChiTietSanPham() + 
                         " (Có: " + soLuongHienTai + ", Cần: " + soLuongDat + ")");
                 }
                 
-                // Trừ tồn kho
-                int soLuongConLai = soLuongHienTai - soLuongDat;
-                chiTiet.setSoLuong(soLuongConLai);
-                
-                // Nếu số lượng = 0 thì cập nhật trạng thái thành "Ngừng bán"
-                if (soLuongConLai == 0) {
-                    chiTiet.setTrangThai("Ngừng bán");
+                // Đối với đơn thanh toán online (MOMO), trừ tồn kho ngay lập tức
+                // Đối với đơn COD, chỉ kiểm tra tồn kho, sẽ trừ khi xác nhận đơn hàng
+                if ("MOMO".equalsIgnoreCase(req.getPhuongThucThanhToan())) {
+                    int soLuongConLai = soLuongHienTai - soLuongDat;
+                    chiTiet.setSoLuong(soLuongConLai);
+                    
+                    // Nếu số lượng = 0 thì cập nhật trạng thái thành "Ngừng bán"
+                    if (soLuongConLai == 0) {
+                        chiTiet.setTrangThai("Ngừng bán");
+                    }
+                    
+                    chiTietSanPhamRepository.save(chiTiet);
+                    logger.info("Đã trừ {} sản phẩm (ID: {}) khỏi kho khi tạo hóa đơn thanh toán online {}",
+                        soLuongDat, ct.getIdChiTietSanPham(), hd.getMaHoaDon());
+                } else {
+                    logger.info("Đã tạo đơn COD {}. Số lượng tồn kho đã được kiểm tra. Sẽ trừ khi xác nhận đơn hàng.", 
+                        hd.getMaHoaDon());
                 }
-                
-                chiTietSanPhamRepository.save(chiTiet);
-                logger.info("Đã trừ {} sản phẩm (ID: {}) khỏi kho khi tạo hóa đơn {} - Loại: {} - Phương thức: {}",
-                    soLuongDat, ct.getIdChiTietSanPham(), hd.getMaHoaDon(), req.getLoaiDon(), req.getPhuongThucThanhToan());
             }
         }
 

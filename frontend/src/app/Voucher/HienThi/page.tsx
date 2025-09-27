@@ -1,13 +1,14 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import AdminLayout from '../../../component/Admin-Layout';
-import { FaEye, FaEdit, FaPowerOff, FaTimes, FaSave, FaPlus } from 'react-icons/fa';
+import {FaEye, FaEdit, FaPowerOff, FaTimes, FaSave, FaPlus} from 'react-icons/fa';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import MuiDateTimeInput from '../../../component/MuiDateTimeInput';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
@@ -106,12 +107,12 @@ const parseDate = (dateStr: string | undefined) => {
 function updateVoucherStatus(v: Voucher): Voucher {
     // Nếu đã kết thúc sớm hoặc tạm ngừng thì giữ nguyên
     if (v.trangThai === 'Kết thúc sớm' || v.trangThai === 'Tạm ngưng') {
-        return { ...v, trangThai: 'Kết thúc sớm' };
+        return {...v, trangThai: 'Kết thúc sớm'};
     }
 
     // Kiểm tra số lượng
     if (v.soLuong <= 0) {
-        return { ...v, trangThai: 'Hết voucher' };
+        return {...v, trangThai: 'Hết voucher'};
     }
 
     // Kiểm tra thời gian
@@ -120,11 +121,11 @@ function updateVoucherStatus(v: Voucher): Voucher {
     const end = new Date(v.ngayKetThuc);
 
     if (now < start) {
-        return { ...v, trangThai: 'Sắp diễn ra' };
+        return {...v, trangThai: 'Sắp diễn ra'};
     } else if (now > end) {
-        return { ...v, trangThai: 'Đã kết thúc' };
+        return {...v, trangThai: 'Đã kết thúc'};
     } else {
-        return { ...v, trangThai: 'Đang diễn ra' };
+        return {...v, trangThai: 'Đang diễn ra'};
     }
 }
 
@@ -273,7 +274,7 @@ const HienThiVoucherPage = () => {
         setActionLoadingId(voucher.idPhieuGiamGia);
         setActionMsg('');
         try {
-            const res = await fetch(`${apiUrl}/doi-trang-thai/${voucher.idPhieuGiamGia}`, { method: 'PUT' });
+            const res = await fetch(`${apiUrl}/doi-trang-thai/${voucher.idPhieuGiamGia}`, {method: 'PUT'});
             if (!res.ok) {
                 const err = await res.text();
                 throw new Error(err || 'Lỗi đổi trạng thái');
@@ -292,7 +293,10 @@ const HienThiVoucherPage = () => {
             setVouchers(prev =>
                 prev.map(v =>
                     v.idPhieuGiamGia === voucher.idPhieuGiamGia
-                        ? { ...v, trangThai: newStatus || (v.trangThai === 'Đang diễn ra' ? 'Kết thúc sớm' : 'Đang diễn ra') }
+                        ? {
+                            ...v,
+                            trangThai: newStatus || (v.trangThai === 'Đang diễn ra' ? 'Kết thúc sớm' : 'Đang diễn ra')
+                        }
                         : v
                 )
             );
@@ -349,7 +353,7 @@ const HienThiVoucherPage = () => {
 
     // Xử lý input change cho form sửa
     const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
 
         // Ngăn nhập số âm cho các trường số
         if (name === 'soLuong' || name === 'giaTriToiThieu' || name === 'giaTriToiDa' || name === 'phanTramGiamGia') {
@@ -359,21 +363,21 @@ const HienThiVoucherPage = () => {
             }
         }
 
-        setEditForm((prev) => prev ? { ...prev, [name]: value } : prev);
+        setEditForm((prev) => prev ? {...prev, [name]: value} : prev);
 
         // Clear error khi user bắt đầu nhập
         if (editFormErrors[name as keyof FormType]) {
-            setEditFormErrors(prev => ({ ...prev, [name]: '' }));
+            setEditFormErrors(prev => ({...prev, [name]: ''}));
         }
     };
 
     const handleEditSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setEditForm((prev) => prev ? { ...prev, [name]: value } : prev);
+        const {name, value} = e.target;
+        setEditForm((prev) => prev ? {...prev, [name]: value} : prev);
 
         // Clear error khi user chọn
         if (editFormErrors[name as keyof FormType]) {
-            setEditFormErrors(prev => ({ ...prev, [name]: '' }));
+            setEditFormErrors(prev => ({...prev, [name]: ''}));
         }
     };
 
@@ -467,9 +471,9 @@ const HienThiVoucherPage = () => {
 
     // Handle blur để validate cho form sửa
     const handleEditBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         const error = validateEditField(name as keyof FormType, value);
-        setEditFormErrors(prev => ({ ...prev, [name]: error }));
+        setEditFormErrors(prev => ({...prev, [name]: error}));
     };
 
     // Validate form sửa
@@ -529,7 +533,7 @@ const HienThiVoucherPage = () => {
             try {
                 const response = await fetch(`${apiUrl}/${selectedVoucher?.idPhieuGiamGia}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         ...editForm,
                         giaTriToiThieu: parseFloat(editForm?.giaTriToiThieu || '0'),
@@ -568,7 +572,7 @@ const HienThiVoucherPage = () => {
 
     // Xử lý input change cho form thêm
     const handleAddInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
 
         // Ngăn nhập số âm cho các trường số
         if (name === 'soLuong' || name === 'giaTriToiThieu' || name === 'giaTriToiDa' || name === 'phanTramGiamGia') {
@@ -578,21 +582,21 @@ const HienThiVoucherPage = () => {
             }
         }
 
-        setAddForm((prev) => ({ ...prev, [name]: value }));
+        setAddForm((prev) => ({...prev, [name]: value}));
 
         // Clear error khi user bắt đầu nhập
         if (addFormErrors[name as keyof FormType]) {
-            setAddFormErrors(prev => ({ ...prev, [name]: '' }));
+            setAddFormErrors(prev => ({...prev, [name]: ''}));
         }
     };
 
     const handleAddSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setAddForm((prev) => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setAddForm((prev) => ({...prev, [name]: value}));
 
         // Clear error khi user chọn
         if (addFormErrors[name as keyof FormType]) {
-            setAddFormErrors(prev => ({ ...prev, [name]: '' }));
+            setAddFormErrors(prev => ({...prev, [name]: ''}));
         }
     };
 
@@ -686,9 +690,9 @@ const HienThiVoucherPage = () => {
 
     // Handle blur để validate
     const handleAddBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         const error = validateField(name as keyof FormType, value);
-        setAddFormErrors(prev => ({ ...prev, [name]: error }));
+        setAddFormErrors(prev => ({...prev, [name]: error}));
     };
 
     // Validate form thêm
@@ -789,7 +793,7 @@ const HienThiVoucherPage = () => {
             try {
                 const res = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(addForm),
                 });
                 if (!res.ok) {
@@ -797,12 +801,13 @@ const HienThiVoucherPage = () => {
                     try {
                         const data = await res.json();
                         if (data && typeof data === 'object' && data.message) {
-                            setAddFormErrors(prev => ({ ...prev, maPhieuGiamGia: data.message }));
+                            setAddFormErrors(prev => ({...prev, maPhieuGiamGia: data.message}));
                             setAddSaving(false);
                             return;
                         }
-                    } catch {}
-                    setAddFormErrors(prev => ({ ...prev, maPhieuGiamGia: backendError }));
+                    } catch {
+                    }
+                    setAddFormErrors(prev => ({...prev, maPhieuGiamGia: backendError}));
                     setAddSaving(false);
                     return;
                 }
@@ -1116,11 +1121,37 @@ const HienThiVoucherPage = () => {
                 </div>
             )}
 
-            <AdminLayout activeMenu="promotions" onMenuChangeAction={() => {}} pageTitle="Quản lý phiếu giảm giá">
-                <div style={{ padding: 20, background: '#fffbe6', minHeight: '100vh' }}>
-                    {error && <div style={{ color: 'red', marginBottom: 16, padding: '12px 16px', background: '#ffebee', borderRadius: 8, border: '1px solid #f44336' }}>{error}</div>}
-                    {loading && <div style={{ color: '#2980b9', marginBottom: 16, padding: '12px 16px', background: '#e3f2fd', borderRadius: 8, border: '1px solid #2196f3' }}>Đang tải dữ liệu...</div>}
-                    {actionMsg && <div style={{ position: 'fixed', top: 24, right: 24, background: '#2ecc40', color: '#fff', padding: '12px 24px', borderRadius: 8, zIndex: 2000, fontWeight: 600, boxShadow: '0 4px 12px rgba(46, 204, 64, 0.3)' }}>{actionMsg}</div>}
+            <AdminLayout activeMenu="promotions" onMenuChangeAction={() => {
+            }} pageTitle="Quản lý phiếu giảm giá">
+                <div style={{padding: 20, background: '#fffbe6', minHeight: '100vh'}}>
+                    {error && <div style={{
+                        color: 'red',
+                        marginBottom: 16,
+                        padding: '12px 16px',
+                        background: '#ffebee',
+                        borderRadius: 8,
+                        border: '1px solid #f44336'
+                    }}>{error}</div>}
+                    {loading && <div style={{
+                        color: '#2980b9',
+                        marginBottom: 16,
+                        padding: '12px 16px',
+                        background: '#e3f2fd',
+                        borderRadius: 8,
+                        border: '1px solid #2196f3'
+                    }}>Đang tải dữ liệu...</div>}
+                    {actionMsg && <div style={{
+                        position: 'fixed',
+                        top: 24,
+                        right: 24,
+                        background: '#2ecc40',
+                        color: '#fff',
+                        padding: '12px 24px',
+                        borderRadius: 8,
+                        zIndex: 2000,
+                        fontWeight: 600,
+                        boxShadow: '0 4px 12px rgba(46, 204, 64, 0.3)'
+                    }}>{actionMsg}</div>}
 
                     {/* Bộ lọc và tìm kiếm */}
                     <div style={{
@@ -1131,9 +1162,10 @@ const HienThiVoucherPage = () => {
                         boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)',
                         border: '1px solid rgba(181, 157, 58, 0.1)'
                     }}>
-                        <h3 style={{ color: '#6b4f1d', fontWeight: 700, marginBottom: 20, fontSize: '18px' }}>Bộ lọc và tìm kiếm</h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-                            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', flex: 1 }}>
+                        <h3 style={{color: '#6b4f1d', fontWeight: 700, marginBottom: 20, fontSize: '18px'}}>Bộ lọc và
+                            tìm kiếm</h3>
+                        <div style={{display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap'}}>
+                            <div style={{display: 'flex', gap: 16, flexWrap: 'wrap', flex: 1}}>
                                 <div>
                                     <input
                                         type="text"
@@ -1155,7 +1187,9 @@ const HienThiVoucherPage = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ fontWeight: 600, marginRight: 8, color: '#6b4f1d', fontSize: '14px' }}>Trạng thái:</label>
+                                    <label
+                                        style={{fontWeight: 600, marginRight: 8, color: '#6b4f1d', fontSize: '14px'}}>Trạng
+                                        thái:</label>
                                     <select
                                         value={filterStatus}
                                         onChange={e => setFilterStatus(e.target.value)}
@@ -1176,7 +1210,12 @@ const HienThiVoucherPage = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label style={{ fontWeight: 600, marginRight: 8, color: '#6b4f1d', fontSize: '14px' }}>Kiểu:</label>
+                                    <label style={{
+                                        fontWeight: 600,
+                                        marginRight: 8,
+                                        color: '#6b4f1d',
+                                        fontSize: '14px'
+                                    }}>Kiểu:</label>
                                     <select
                                         value={filterType}
                                         onChange={e => setFilterType(e.target.value)}
@@ -1198,7 +1237,11 @@ const HienThiVoucherPage = () => {
                                 </div>
                                 {(filterStatus || filterType || search) && (
                                     <button
-                                        onClick={() => { setFilterStatus(''); setFilterType(''); setSearch(''); }}
+                                        onClick={() => {
+                                            setFilterStatus('');
+                                            setFilterType('');
+                                            setSearch('');
+                                        }}
                                         style={{
                                             background: '#e74c3c',
                                             color: '#fff',
@@ -1218,7 +1261,7 @@ const HienThiVoucherPage = () => {
                                         title="Xóa lọc và tìm kiếm"
                                         type="button"
                                     >
-                                        <span style={{ fontSize: '16px' }}>×</span>
+                                        <span style={{fontSize: '16px'}}>×</span>
                                         Xóa lọc
                                     </button>
                                 )}
@@ -1250,7 +1293,7 @@ const HienThiVoucherPage = () => {
                                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(181, 157, 58, 0.3)';
                                 }}
                             >
-                                <span style={{ fontSize: '18px' }}>+</span>
+                                <span style={{fontSize: '18px'}}>+</span>
                                 Thêm phiếu giảm giá
                             </button>
                         </div>
@@ -1265,7 +1308,7 @@ const HienThiVoucherPage = () => {
                             borderRadius: 16,
                             boxShadow: '0 2px 8px rgba(181, 157, 58, 0.1)'
                         }}>
-                            <div style={{ color: '#b59d3a', fontSize: '16px', fontWeight: 600 }}>Đang tải dữ liệu...</div>
+                            <div style={{color: '#b59d3a', fontSize: '16px', fontWeight: 600}}>Đang tải dữ liệu...</div>
                         </div>
                     ) : (
                         <div style={{
@@ -1277,7 +1320,7 @@ const HienThiVoucherPage = () => {
                             overflowX: 'auto',
                             overflowY: 'hidden'
                         }}>
-                            <h3 style={{ color: '#6b4f1d', fontWeight: 700, marginBottom: 20, fontSize: '18px' }}>
+                            <h3 style={{color: '#6b4f1d', fontWeight: 700, marginBottom: 20, fontSize: '18px'}}>
                                 Danh sách phiếu giảm giá ({paginatedVouchers.length} / {sortedVouchers.length})
                             </h3>
                             <table
@@ -1295,7 +1338,7 @@ const HienThiVoucherPage = () => {
                                 }}
                             >
                                 <thead>
-                                <tr style={{ background: 'linear-gradient(135deg, #f9e7b4 0%, #e6d8b4 100%)' }}>
+                                <tr style={{background: 'linear-gradient(135deg, #f9e7b4 0%, #e6d8b4 100%)'}}>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1304,7 +1347,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '45px'
-                                    }}>STT</th>
+                                    }}>STT
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1313,7 +1357,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '80px'
-                                    }}>Mã</th>
+                                    }}>Mã
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1322,7 +1367,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '100px'
-                                    }}>Tên</th>
+                                    }}>Tên
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1331,7 +1377,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '90px'
-                                    }}>Kiểu</th>
+                                    }}>Kiểu
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1340,7 +1387,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '100px'
-                                    }}>Giá trị tối thiểu</th>
+                                    }}>Giá trị tối thiểu
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1349,7 +1397,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '100px'
-                                    }}>Giá trị tối đa</th>
+                                    }}>Giá trị tối đa
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1358,7 +1407,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '80px'
-                                    }}>Phần trăm giảm</th>
+                                    }}>Phần trăm giảm
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1367,7 +1417,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '60px'
-                                    }}>Số lượng</th>
+                                    }}>Số lượng
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1376,7 +1427,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '110px'
-                                    }}>Ngày bắt đầu</th>
+                                    }}>Ngày bắt đầu
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1385,7 +1437,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '110px'
-                                    }}>Ngày kết thúc</th>
+                                    }}>Ngày kết thúc
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1394,7 +1447,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '80px'
-                                    }}>Trạng thái</th>
+                                    }}>Trạng thái
+                                    </th>
                                     <th style={{
                                         textAlign: 'center',
                                         fontWeight: 700,
@@ -1403,7 +1457,8 @@ const HienThiVoucherPage = () => {
                                         color: '#6b4f1d',
                                         fontSize: '14px',
                                         width: '95px'
-                                    }}>Hành động</th>
+                                    }}>Hành động
+                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -1416,10 +1471,24 @@ const HienThiVoucherPage = () => {
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                                     >
-                                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#6b4f1d' }}>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
-                                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#b59d3a' }}>{v.maPhieuGiamGia}</td>
-                                        <td style={{ textAlign: 'center', wordBreak: 'break-word', whiteSpace: 'normal', maxWidth: 180, fontWeight: 500 }}>{v.tenPhieuGiamGia}</td>
-                                        <td style={{ textAlign: 'center', padding: '8px 4px' }}>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            color: '#6b4f1d'
+                                        }}>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            color: '#b59d3a'
+                                        }}>{v.maPhieuGiamGia}</td>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            wordBreak: 'break-word',
+                                            whiteSpace: 'normal',
+                                            maxWidth: 180,
+                                            fontWeight: 500
+                                        }}>{v.tenPhieuGiamGia}</td>
+                                        <td style={{textAlign: 'center', padding: '8px 4px'}}>
                                             <div style={{
                                                 display: 'inline-block',
                                                 padding: '4px 6px',
@@ -1436,13 +1505,41 @@ const HienThiVoucherPage = () => {
                                                 {kieuGiamGiaHienThi(v.kieuGiamGia)}
                                             </div>
                                         </td>
-                                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#2e7d32' }}>{v.giaTriToiThieu?.toLocaleString('vi-VN')} đ</td>
-                                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#d32f2f' }}>{v.giaTriToiDa?.toLocaleString('vi-VN')} đ</td>
-                                        <td style={{ textAlign: 'center', fontWeight: 700, color: '#b59d3a', fontSize: '16px' }}>{v.phanTramGiamGia}%</td>
-                                        <td style={{ textAlign: 'center', fontWeight: 600, color: '#6b4f1d' }}>{v.soLuong}</td>
-                                        <td style={{ textAlign: 'center', fontSize: '13px', color: '#666' }}>{formatDateTime(v.ngayBatDau)}</td>
-                                        <td style={{ textAlign: 'center', fontSize: '13px', color: '#666' }}>{formatDateTime(v.ngayKetThuc)}</td>
-                                        <td style={{ textAlign: 'center', padding: '8px 4px' }}>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            color: '#2e7d32'
+                                        }}>{v.giaTriToiThieu?.toLocaleString('vi-VN')} đ
+                                        </td>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            color: '#d32f2f'
+                                        }}>{v.giaTriToiDa?.toLocaleString('vi-VN')} đ
+                                        </td>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            fontWeight: 700,
+                                            color: '#b59d3a',
+                                            fontSize: '16px'
+                                        }}>{v.phanTramGiamGia}%
+                                        </td>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            fontWeight: 600,
+                                            color: '#6b4f1d'
+                                        }}>{v.soLuong}</td>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            fontSize: '13px',
+                                            color: '#666'
+                                        }}>{formatDateTime(v.ngayBatDau)}</td>
+                                        <td style={{
+                                            textAlign: 'center',
+                                            fontSize: '13px',
+                                            color: '#666'
+                                        }}>{formatDateTime(v.ngayKetThuc)}</td>
+                                        <td style={{textAlign: 'center', padding: '8px 4px'}}>
                                             <div style={{
                                                 display: 'inline-block',
                                                 padding: '6px 12px',
@@ -1468,8 +1565,14 @@ const HienThiVoucherPage = () => {
                                                 {getVoucherStatus(v)}
                                             </div>
                                         </td>
-                                        <td style={{ textAlign: 'center' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                                        <td style={{textAlign: 'center'}}>
+                                            <div style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: 8
+                                            }}>
                                                 <button
                                                     style={{
                                                         background: "linear-gradient(135deg, #3498db 0%, #2980b9 100%)",
@@ -1487,7 +1590,11 @@ const HienThiVoucherPage = () => {
                                                         boxShadow: '0 2px 4px rgba(52, 152, 219, 0.2)'
                                                     }}
                                                     title="Xem chi tiết"
-                                                    onClick={e => { e.stopPropagation(); setSelectedVoucher(v); setShowDetailModal(true); }}
+                                                    onClick={e => {
+                                                        e.stopPropagation();
+                                                        setSelectedVoucher(v);
+                                                        setShowDetailModal(true);
+                                                    }}
                                                     onMouseEnter={(e) => {
                                                         e.currentTarget.style.transform = 'scale(1.1)';
                                                         e.currentTarget.style.boxShadow = '0 4px 8px rgba(52, 152, 219, 0.3)';
@@ -1497,7 +1604,7 @@ const HienThiVoucherPage = () => {
                                                         e.currentTarget.style.boxShadow = '0 2px 4px rgba(52, 152, 219, 0.2)';
                                                     }}
                                                 >
-                                                    <FaEye style={{ fontSize: 14 }} />
+                                                    <FaEye style={{fontSize: 14}}/>
                                                 </button>
                                                 <button
                                                     style={{
@@ -1530,7 +1637,7 @@ const HienThiVoucherPage = () => {
                                                         e.currentTarget.style.boxShadow = '0 2px 4px rgba(243, 156, 18, 0.2)';
                                                     }}
                                                 >
-                                                    <FaEdit style={{ fontSize: 14 }} />
+                                                    <FaEdit style={{fontSize: 14}}/>
                                                 </button>
                                                 <button
                                                     style={{
@@ -1551,7 +1658,10 @@ const HienThiVoucherPage = () => {
                                                     }}
                                                     title={v.trangThai === 'Đang diễn ra' ? 'Kết thúc sớm' : 'Bật lại nếu còn hạn'}
                                                     disabled={actionLoadingId === v.idPhieuGiamGia || v.trangThai === 'Đã kết thúc'}
-                                                    onClick={e => { e.stopPropagation(); handleToggleStatus(v); }}
+                                                    onClick={e => {
+                                                        e.stopPropagation();
+                                                        handleToggleStatus(v);
+                                                    }}
                                                     onMouseEnter={(e) => {
                                                         if (actionLoadingId !== v.idPhieuGiamGia) {
                                                             e.currentTarget.style.transform = 'scale(1.1)';
@@ -1565,7 +1675,9 @@ const HienThiVoucherPage = () => {
                                                         }
                                                     }}
                                                 >
-                                                    {actionLoadingId === v.idPhieuGiamGia ? <span style={{ fontSize: 12 }}>...</span> : <FaPowerOff style={{ fontSize: 14 }} />}
+                                                    {actionLoadingId === v.idPhieuGiamGia ?
+                                                        <span style={{fontSize: 12}}>...</span> :
+                                                        <FaPowerOff style={{fontSize: 14}}/>}
                                                 </button>
                                             </div>
                                         </td>
@@ -1618,40 +1730,41 @@ const HienThiVoucherPage = () => {
                                         e.currentTarget.style.background = '#fff';
                                     }
                                 }}
-                            >Trước</button>
-                            {Array.from({length: totalPages}, (_,i)=>(
+                            >Trước
+                            </button>
+                            {Array.from({length: totalPages}, (_, i) => (
                                 <button
                                     key={i}
-                                    onClick={()=>setCurrentPage(i+1)}
-                                    disabled={i+1===currentPage}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    disabled={i + 1 === currentPage}
                                     style={{
                                         borderRadius: 12,
                                         minWidth: 50,
-                                        color: i+1===currentPage ? '#fff' : '#6b4f1d',
+                                        color: i + 1 === currentPage ? '#fff' : '#6b4f1d',
                                         border: '2px solid #e6d8b4',
-                                        background: i+1===currentPage ? 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)' : '#fff',
-                                        fontWeight: i+1===currentPage ? 700 : 600,
+                                        background: i + 1 === currentPage ? 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)' : '#fff',
+                                        fontWeight: i + 1 === currentPage ? 700 : 600,
                                         fontSize: 14,
                                         margin: '0 4px',
-                                        cursor: i+1===currentPage ? 'default' : 'pointer',
+                                        cursor: i + 1 === currentPage ? 'default' : 'pointer',
                                         opacity: 1,
                                         padding: '10px 16px',
                                         transition: 'all 0.2s',
-                                        boxShadow: i+1===currentPage ? '0 2px 8px rgba(181, 157, 58, 0.3)' : 'none'
+                                        boxShadow: i + 1 === currentPage ? '0 2px 8px rgba(181, 157, 58, 0.3)' : 'none'
                                     }}
                                     onMouseEnter={(e) => {
-                                        if (i+1 !== currentPage) {
+                                        if (i + 1 !== currentPage) {
                                             e.currentTarget.style.borderColor = '#b59d3a';
                                             e.currentTarget.style.background = '#f9f9f9';
                                         }
                                     }}
                                     onMouseLeave={(e) => {
-                                        if (i+1 !== currentPage) {
+                                        if (i + 1 !== currentPage) {
                                             e.currentTarget.style.borderColor = '#e6d8b4';
                                             e.currentTarget.style.background = '#fff';
                                         }
                                     }}
-                                >{i+1}</button>
+                                >{i + 1}</button>
                             ))}
                             <button
                                 onClick={() => setCurrentPage(currentPage + 1)}
@@ -1682,14 +1795,23 @@ const HienThiVoucherPage = () => {
                                         e.currentTarget.style.background = '#fff';
                                     }
                                 }}
-                            >Sau</button>
+                            >Sau
+                            </button>
                         </div>
                     )}
                     {/* Modal xem chi tiết voucher */}
                     {showDetailModal && selectedVoucher && (
                         <div style={{
-                            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0, 0, 0, 0.5)', zIndex: 2000,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            width: '100vw',
+                            height: '100vh',
+                            background: 'rgba(0, 0, 0, 0.5)',
+                            zIndex: 2000,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             backdropFilter: 'blur(4px)'
                         }}>
                             <div style={{
@@ -1727,7 +1849,7 @@ const HienThiVoucherPage = () => {
                                          e.currentTarget.style.transform = 'scale(1)';
                                      }}
                                 >
-                                    <span style={{ fontSize: '16px', color: '#666', fontWeight: 'bold' }}>×</span>
+                                    <span style={{fontSize: '16px', color: '#666', fontWeight: 'bold'}}>×</span>
                                 </div>
 
                                 <h2 style={{
@@ -1740,7 +1862,7 @@ const HienThiVoucherPage = () => {
                                     paddingBottom: '10px'
                                 }}>Chi tiết phiếu giảm giá</h2>
 
-                                <div style={{ display: 'grid', gap: '12px' }}>
+                                <div style={{display: 'grid', gap: '12px'}}>
                                     <div style={{
                                         display: 'flex',
                                         justifyContent: 'space-between',
@@ -1750,8 +1872,12 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Mã:</span>
-                                        <span style={{ fontWeight: 700, color: '#b59d3a', fontSize: '14px' }}>{selectedVoucher.maPhieuGiamGia}</span>
+                                        <span style={{fontWeight: 600, color: '#6b4f1d', fontSize: '13px'}}>Mã:</span>
+                                        <span style={{
+                                            fontWeight: 700,
+                                            color: '#b59d3a',
+                                            fontSize: '14px'
+                                        }}>{selectedVoucher.maPhieuGiamGia}</span>
                                     </div>
 
                                     <div style={{
@@ -1763,8 +1889,14 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Tên:</span>
-                                        <span style={{ fontWeight: 500, color: '#333', maxWidth: '250px', textAlign: 'right', fontSize: '13px' }}>{selectedVoucher.tenPhieuGiamGia}</span>
+                                        <span style={{fontWeight: 600, color: '#6b4f1d', fontSize: '13px'}}>Tên:</span>
+                                        <span style={{
+                                            fontWeight: 500,
+                                            color: '#333',
+                                            maxWidth: '250px',
+                                            textAlign: 'right',
+                                            fontSize: '13px'
+                                        }}>{selectedVoucher.tenPhieuGiamGia}</span>
                                     </div>
 
                                     <div style={{
@@ -1776,7 +1908,7 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Kiểu:</span>
+                                        <span style={{fontWeight: 600, color: '#6b4f1d', fontSize: '13px'}}>Kiểu:</span>
                                         <span style={{
                                             padding: '4px 8px',
                                             borderRadius: 12,
@@ -1798,8 +1930,12 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Giá trị tối thiểu:</span>
-                                        <span style={{ fontWeight: 700, color: '#2e7d32', fontSize: '14px' }}>{selectedVoucher.giaTriToiThieu?.toLocaleString('vi-VN')} đ</span>
+                                        <span style={{fontWeight: 600, color: '#6b4f1d', fontSize: '13px'}}>Giá trị tối thiểu:</span>
+                                        <span style={{
+                                            fontWeight: 700,
+                                            color: '#2e7d32',
+                                            fontSize: '14px'
+                                        }}>{selectedVoucher.giaTriToiThieu?.toLocaleString('vi-VN')} đ</span>
                                     </div>
 
                                     <div style={{
@@ -1811,8 +1947,12 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Giá trị tối đa:</span>
-                                        <span style={{ fontWeight: 700, color: '#d32f2f', fontSize: '14px' }}>{selectedVoucher.giaTriToiDa?.toLocaleString('vi-VN')} đ</span>
+                                        <span style={{fontWeight: 600, color: '#6b4f1d', fontSize: '13px'}}>Giá trị tối đa:</span>
+                                        <span style={{
+                                            fontWeight: 700,
+                                            color: '#d32f2f',
+                                            fontSize: '14px'
+                                        }}>{selectedVoucher.giaTriToiDa?.toLocaleString('vi-VN')} đ</span>
                                     </div>
 
                                     <div style={{
@@ -1824,8 +1964,12 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Phần trăm giảm:</span>
-                                        <span style={{ fontWeight: 700, color: '#b59d3a', fontSize: '16px' }}>{selectedVoucher.phanTramGiamGia}%</span>
+                                        <span style={{fontWeight: 600, color: '#6b4f1d', fontSize: '13px'}}>Phần trăm giảm:</span>
+                                        <span style={{
+                                            fontWeight: 700,
+                                            color: '#b59d3a',
+                                            fontSize: '16px'
+                                        }}>{selectedVoucher.phanTramGiamGia}%</span>
                                     </div>
 
                                     <div style={{
@@ -1837,8 +1981,16 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Số lượng:</span>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '14px' }}>{selectedVoucher.soLuong}</span>
+                                        <span style={{
+                                            fontWeight: 600,
+                                            color: '#6b4f1d',
+                                            fontSize: '13px'
+                                        }}>Số lượng:</span>
+                                        <span style={{
+                                            fontWeight: 600,
+                                            color: '#6b4f1d',
+                                            fontSize: '14px'
+                                        }}>{selectedVoucher.soLuong}</span>
                                     </div>
 
                                     <div style={{
@@ -1850,8 +2002,12 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Ngày bắt đầu:</span>
-                                        <span style={{ fontWeight: 500, color: '#666', fontSize: '12px' }}>{formatDateTime(selectedVoucher.ngayBatDau)}</span>
+                                        <span style={{fontWeight: 600, color: '#6b4f1d', fontSize: '13px'}}>Ngày bắt đầu:</span>
+                                        <span style={{
+                                            fontWeight: 500,
+                                            color: '#666',
+                                            fontSize: '12px'
+                                        }}>{formatDateTime(selectedVoucher.ngayBatDau)}</span>
                                     </div>
 
                                     <div style={{
@@ -1863,8 +2019,12 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Ngày kết thúc:</span>
-                                        <span style={{ fontWeight: 500, color: '#666', fontSize: '12px' }}>{formatDateTime(selectedVoucher.ngayKetThuc)}</span>
+                                        <span style={{fontWeight: 600, color: '#6b4f1d', fontSize: '13px'}}>Ngày kết thúc:</span>
+                                        <span style={{
+                                            fontWeight: 500,
+                                            color: '#666',
+                                            fontSize: '12px'
+                                        }}>{formatDateTime(selectedVoucher.ngayKetThuc)}</span>
                                     </div>
 
                                     <div style={{
@@ -1876,7 +2036,11 @@ const HienThiVoucherPage = () => {
                                         borderRadius: 6,
                                         border: '1px solid #e0e0e0'
                                     }}>
-                                        <span style={{ fontWeight: 600, color: '#6b4f1d', fontSize: '13px' }}>Trạng thái:</span>
+                                        <span style={{
+                                            fontWeight: 600,
+                                            color: '#6b4f1d',
+                                            fontSize: '13px'
+                                        }}>Trạng thái:</span>
                                         <span style={{
                                             padding: '4px 8px',
                                             borderRadius: 12,
@@ -1902,8 +2066,18 @@ const HienThiVoucherPage = () => {
                                             borderRadius: 6,
                                             border: '1px solid #e0e0e0'
                                         }}>
-                                            <div style={{ fontWeight: 600, color: '#6b4f1d', marginBottom: '6px', fontSize: '13px' }}>Mô tả:</div>
-                                            <div style={{ color: '#666', lineHeight: '1.4', fontSize: '12px' }}>{selectedVoucher.moTa}</div>
+                                            <div style={{
+                                                fontWeight: 600,
+                                                color: '#6b4f1d',
+                                                marginBottom: '6px',
+                                                fontSize: '13px'
+                                            }}>Mô tả:
+                                            </div>
+                                            <div style={{
+                                                color: '#666',
+                                                lineHeight: '1.4',
+                                                fontSize: '12px'
+                                            }}>{selectedVoucher.moTa}</div>
                                         </div>
                                     )}
                                 </div>
@@ -2092,20 +2266,26 @@ const HienThiVoucherPage = () => {
                                                 e.currentTarget.style.color = '#666';
                                             }}
                                         >
-                                            <FaTimes />
+                                            <FaTimes/>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Content */}
-                                <div style={{ padding: '32px' }}>
+                                <div style={{padding: '32px'}}>
                                     {editLoading ? (
-                                        <div style={{ textAlign: 'center', padding: '40px', color: '#b59d3a', fontSize: '16px', fontWeight: 600 }}>
+                                        <div style={{
+                                            textAlign: 'center',
+                                            padding: '40px',
+                                            color: '#b59d3a',
+                                            fontSize: '16px',
+                                            fontWeight: 600
+                                        }}>
                                             Đang tải dữ liệu...
                                         </div>
                                     ) : (
                                         <form onSubmit={handleEditSubmit}>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                            <div style={{display: 'flex', flexDirection: 'column', gap: 24}}>
                                                 {/* Thông tin cơ bản */}
                                                 <div style={{
                                                     background: '#f9f9f9',
@@ -2119,8 +2299,8 @@ const HienThiVoucherPage = () => {
                                                         marginBottom: 20,
                                                         fontSize: '18px'
                                                     }}>Thông tin cơ bản</h3>
-                                                    <div style={{ display: 'flex', gap: 20 }}>
-                                                        <div style={{ flex: 1 }}>
+                                                    <div style={{display: 'flex', gap: 20}}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2135,7 +2315,7 @@ const HienThiVoucherPage = () => {
                                                                 value={editForm.maPhieuGiamGia}
                                                                 onChange={handleEditInputChange}
                                                                 onBlur={handleEditBlur}
-                                                                required
+                                                                disabled
                                                                 style={{
                                                                     width: '100%',
                                                                     padding: '12px 16px',
@@ -2149,12 +2329,16 @@ const HienThiVoucherPage = () => {
                                                                 onFocus={(e) => e.target.style.borderColor = editFormErrors.maPhieuGiamGia ? '#e74c3c' : '#b59d3a'}
                                                             />
                                                             {editFormErrors.maPhieuGiamGia && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.maPhieuGiamGia}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div style={{ flex: 1 }}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2183,12 +2367,16 @@ const HienThiVoucherPage = () => {
                                                                 onFocus={(e) => e.target.style.borderColor = editFormErrors.tenPhieuGiamGia ? '#e74c3c' : '#b59d3a'}
                                                             />
                                                             {editFormErrors.tenPhieuGiamGia && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.tenPhieuGiamGia}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div style={{ flex: 1 }}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2221,7 +2409,11 @@ const HienThiVoucherPage = () => {
                                                                 <option value="FREE_SHIP">Free ship</option>
                                                             </select>
                                                             {editFormErrors.kieuGiamGia && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.kieuGiamGia}
                                                                 </div>
                                                             )}
@@ -2242,8 +2434,8 @@ const HienThiVoucherPage = () => {
                                                         marginBottom: 20,
                                                         fontSize: '18px'
                                                     }}>Thông tin giá trị</h3>
-                                                    <div style={{ display: 'flex', gap: 20 }}>
-                                                        <div style={{ flex: 1 }}>
+                                                    <div style={{display: 'flex', gap: 20}}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2275,12 +2467,16 @@ const HienThiVoucherPage = () => {
                                                                 onBlur={(e) => e.target.style.borderColor = '#e6d8b4'}
                                                             />
                                                             {editFormErrors.giaTriToiThieu && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.giaTriToiThieu}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div style={{ flex: 1 }}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2312,12 +2508,16 @@ const HienThiVoucherPage = () => {
                                                                 onBlur={(e) => e.target.style.borderColor = '#e6d8b4'}
                                                             />
                                                             {editFormErrors.giaTriToiDa && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.giaTriToiDa}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div style={{ flex: 1 }}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2350,7 +2550,11 @@ const HienThiVoucherPage = () => {
                                                                 onBlur={(e) => e.target.style.borderColor = '#e6d8b4'}
                                                             />
                                                             {editFormErrors.phanTramGiamGia && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.phanTramGiamGia}
                                                                 </div>
                                                             )}
@@ -2371,8 +2575,8 @@ const HienThiVoucherPage = () => {
                                                         marginBottom: 20,
                                                         fontSize: '18px'
                                                     }}>Thông tin thời gian và số lượng</h3>
-                                                    <div style={{ display: 'flex', gap: 20 }}>
-                                                        <div style={{ flex: 1 }}>
+                                                    <div style={{display: 'flex', gap: 20}}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2404,12 +2608,16 @@ const HienThiVoucherPage = () => {
                                                                 onFocus={(e) => e.target.style.borderColor = editFormErrors.soLuong ? '#e74c3c' : '#b59d3a'}
                                                             />
                                                             {editFormErrors.soLuong && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.soLuong}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div style={{ flex: 1 }}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2423,21 +2631,31 @@ const HienThiVoucherPage = () => {
                                                                 value={parseDate(editForm.ngayBatDau)}
                                                                 onChange={date => {
                                                                     const newValue = date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss') : '';
-                                                                    setEditForm(prev => prev ? { ...prev, ngayBatDau: newValue } : prev);
+                                                                    setEditForm(prev => prev ? {
+                                                                        ...prev,
+                                                                        ngayBatDau: newValue
+                                                                    } : prev);
                                                                     // Validate sau khi thay đổi
                                                                     setTimeout(() => {
                                                                         const error = validateEditField('ngayBatDau', newValue);
-                                                                        setEditFormErrors(prev => ({ ...prev, ngayBatDau: error }));
+                                                                        setEditFormErrors(prev => ({
+                                                                            ...prev,
+                                                                            ngayBatDau: error
+                                                                        }));
                                                                     }, 100);
                                                                 }}
                                                             />
                                                             {editFormErrors.ngayBatDau && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.ngayBatDau}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div style={{ flex: 1 }}>
+                                                        <div style={{flex: 1}}>
                                                             <label style={{
                                                                 fontWeight: 600,
                                                                 color: '#6b4f1d',
@@ -2451,16 +2669,26 @@ const HienThiVoucherPage = () => {
                                                                 value={parseDate(editForm.ngayKetThuc)}
                                                                 onChange={date => {
                                                                     const newValue = date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss') : '';
-                                                                    setEditForm(prev => prev ? { ...prev, ngayKetThuc: newValue } : prev);
+                                                                    setEditForm(prev => prev ? {
+                                                                        ...prev,
+                                                                        ngayKetThuc: newValue
+                                                                    } : prev);
                                                                     // Validate sau khi thay đổi
                                                                     setTimeout(() => {
                                                                         const error = validateEditField('ngayKetThuc', newValue);
-                                                                        setEditFormErrors(prev => ({ ...prev, ngayKetThuc: error }));
+                                                                        setEditFormErrors(prev => ({
+                                                                            ...prev,
+                                                                            ngayKetThuc: error
+                                                                        }));
                                                                     }, 100);
                                                                 }}
                                                             />
                                                             {editFormErrors.ngayKetThuc && (
-                                                                <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                                <div style={{
+                                                                    color: '#e74c3c',
+                                                                    fontSize: '12px',
+                                                                    marginTop: '4px'
+                                                                }}>
                                                                     {editFormErrors.ngayKetThuc}
                                                                 </div>
                                                             )}
@@ -2549,7 +2777,7 @@ const HienThiVoucherPage = () => {
                                                         e.currentTarget.style.color = '#666';
                                                     }}
                                                 >
-                                                    <FaTimes style={{ fontSize: 14 }} />
+                                                    <FaTimes style={{fontSize: 14}}/>
                                                     Hủy
                                                 </button>
                                                 <button
@@ -2584,7 +2812,7 @@ const HienThiVoucherPage = () => {
                                                         }
                                                     }}
                                                 >
-                                                    <FaSave style={{ fontSize: 14 }} />
+                                                    <FaSave style={{fontSize: 14}}/>
                                                     {editSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
                                                 </button>
                                             </div>
@@ -2668,15 +2896,15 @@ const HienThiVoucherPage = () => {
                                                 e.currentTarget.style.color = '#666';
                                             }}
                                         >
-                                            <FaTimes />
+                                            <FaTimes/>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Content */}
-                                <div style={{ padding: '32px' }}>
+                                <div style={{padding: '32px'}}>
                                     <form onSubmit={handleAddSubmit}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                        <div style={{display: 'flex', flexDirection: 'column', gap: 24}}>
                                             {/* Thông tin cơ bản */}
                                             <div style={{
                                                 background: '#f9f9f9',
@@ -2690,8 +2918,8 @@ const HienThiVoucherPage = () => {
                                                     marginBottom: 20,
                                                     fontSize: '18px'
                                                 }}>Thông tin cơ bản</h3>
-                                                <div style={{ display: 'flex', gap: 20 }}>
-                                                    <div style={{ flex: 1 }}>
+                                                <div style={{display: 'flex', gap: 20}}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -2720,12 +2948,16 @@ const HienThiVoucherPage = () => {
                                                             onFocus={(e) => e.target.style.borderColor = addFormErrors.maPhieuGiamGia ? '#e74c3c' : '#b59d3a'}
                                                         />
                                                         {addFormErrors.maPhieuGiamGia && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.maPhieuGiamGia}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div style={{ flex: 1 }}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -2754,12 +2986,16 @@ const HienThiVoucherPage = () => {
                                                             onFocus={(e) => e.target.style.borderColor = addFormErrors.tenPhieuGiamGia ? '#e74c3c' : '#b59d3a'}
                                                         />
                                                         {addFormErrors.tenPhieuGiamGia && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.tenPhieuGiamGia}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div style={{ flex: 1 }}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -2792,7 +3028,11 @@ const HienThiVoucherPage = () => {
                                                             <option value="FREE_SHIP">Free ship</option>
                                                         </select>
                                                         {addFormErrors.kieuGiamGia && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.kieuGiamGia}
                                                             </div>
                                                         )}
@@ -2813,8 +3053,8 @@ const HienThiVoucherPage = () => {
                                                     marginBottom: 20,
                                                     fontSize: '18px'
                                                 }}>Thông tin giá trị</h3>
-                                                <div style={{ display: 'flex', gap: 20 }}>
-                                                    <div style={{ flex: 1 }}>
+                                                <div style={{display: 'flex', gap: 20}}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -2846,12 +3086,16 @@ const HienThiVoucherPage = () => {
                                                             onBlur={(e) => e.target.style.borderColor = '#e6d8b4'}
                                                         />
                                                         {addFormErrors.giaTriToiThieu && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.giaTriToiThieu}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div style={{ flex: 1 }}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -2883,12 +3127,16 @@ const HienThiVoucherPage = () => {
                                                             onBlur={(e) => e.target.style.borderColor = '#e6d8b4'}
                                                         />
                                                         {addFormErrors.giaTriToiDa && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.giaTriToiDa}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div style={{ flex: 1 }}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -2921,7 +3169,11 @@ const HienThiVoucherPage = () => {
                                                             onBlur={(e) => e.target.style.borderColor = '#e6d8b4'}
                                                         />
                                                         {addFormErrors.phanTramGiamGia && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.phanTramGiamGia}
                                                             </div>
                                                         )}
@@ -2942,8 +3194,8 @@ const HienThiVoucherPage = () => {
                                                     marginBottom: 20,
                                                     fontSize: '18px'
                                                 }}>Thông tin thời gian và số lượng</h3>
-                                                <div style={{ display: 'flex', gap: 20 }}>
-                                                    <div style={{ flex: 1 }}>
+                                                <div style={{display: 'flex', gap: 20}}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -2975,12 +3227,16 @@ const HienThiVoucherPage = () => {
                                                             onFocus={(e) => e.target.style.borderColor = addFormErrors.soLuong ? '#e74c3c' : '#b59d3a'}
                                                         />
                                                         {addFormErrors.soLuong && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.soLuong}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div style={{ flex: 1 }}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -2994,21 +3250,28 @@ const HienThiVoucherPage = () => {
                                                             value={parseDate(addForm.ngayBatDau)}
                                                             onChange={date => {
                                                                 const newValue = date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss') : '';
-                                                                setAddForm(prev => ({ ...prev, ngayBatDau: newValue }));
+                                                                setAddForm(prev => ({...prev, ngayBatDau: newValue}));
                                                                 // Validate sau khi thay đổi
                                                                 setTimeout(() => {
                                                                     const error = validateField('ngayBatDau', newValue);
-                                                                    setAddFormErrors(prev => ({ ...prev, ngayBatDau: error }));
+                                                                    setAddFormErrors(prev => ({
+                                                                        ...prev,
+                                                                        ngayBatDau: error
+                                                                    }));
                                                                 }, 100);
                                                             }}
                                                         />
                                                         {addFormErrors.ngayBatDau && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.ngayBatDau}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div style={{ flex: 1 }}>
+                                                    <div style={{flex: 1}}>
                                                         <label style={{
                                                             fontWeight: 600,
                                                             color: '#6b4f1d',
@@ -3022,17 +3285,24 @@ const HienThiVoucherPage = () => {
                                                             value={parseDate(addForm.ngayKetThuc)}
                                                             onChange={date => {
                                                                 const newValue = date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss') : '';
-                                                                setAddForm(prev => ({ ...prev, ngayKetThuc: newValue }));
+                                                                setAddForm(prev => ({...prev, ngayKetThuc: newValue}));
                                                                 // Validate sau khi thay đổi
                                                                 setTimeout(() => {
                                                                     const error = validateField('ngayKetThuc', newValue);
-                                                                    setAddFormErrors(prev => ({ ...prev, ngayKetThuc: error }));
+                                                                    setAddFormErrors(prev => ({
+                                                                        ...prev,
+                                                                        ngayKetThuc: error
+                                                                    }));
                                                                 }, 100);
                                                             }}
                                                             minDateTime={parseDate(addForm.ngayBatDau) || undefined}
                                                         />
                                                         {addFormErrors.ngayKetThuc && (
-                                                            <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>
+                                                            <div style={{
+                                                                color: '#e74c3c',
+                                                                fontSize: '12px',
+                                                                marginTop: '4px'
+                                                            }}>
                                                                 {addFormErrors.ngayKetThuc}
                                                             </div>
                                                         )}
@@ -3121,7 +3391,7 @@ const HienThiVoucherPage = () => {
                                                     e.currentTarget.style.color = '#666';
                                                 }}
                                             >
-                                                <FaTimes style={{ fontSize: 14 }} />
+                                                <FaTimes style={{fontSize: 14}}/>
                                                 Hủy
                                             </button>
                                             <button
@@ -3156,7 +3426,7 @@ const HienThiVoucherPage = () => {
                                                     }
                                                 }}
                                             >
-                                                <FaPlus style={{ fontSize: 14 }} />
+                                                <FaPlus style={{fontSize: 14}}/>
                                                 {addSaving ? 'Đang thêm...' : 'Thêm phiếu giảm giá'}
                                             </button>
                                         </div>

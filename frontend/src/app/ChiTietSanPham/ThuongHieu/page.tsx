@@ -298,16 +298,38 @@ export default function ThuongHieuPage() {
                 <input
                   type="text"
                   value={addThuongHieuValue}
-                  onChange={e => setAddThuongHieuValue(e.target.value)}
-                  style={{ padding: 8, minWidth: 180, borderRadius: 8, border: '1.5px solid #e0e0e0', background: '#fff', fontSize: 16, color: '#222', outline: 'none', boxShadow: '0 2px 8px #eee' }}
+                  onChange={e => {
+                    // Only allow letters, numbers, spaces, and Vietnamese characters
+                    const regex = /^[a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]*$/;
+                    if (e.target.value === '' || regex.test(e.target.value)) {
+                      setAddThuongHieuValue(e.target.value);
+                    }
+                  }}
+                  style={{ 
+                    padding: 8, 
+                    minWidth: 250, 
+                    borderRadius: 8, 
+                    border: '1.5px solid #e0e0e0', 
+                    background: '#fff', 
+                    fontSize: 16, 
+                    color: '#222', 
+                    outline: 'none', 
+                    boxShadow: '0 2px 8px #eee' 
+                  }}
+                  placeholder="Nhập tên thương hiệu"
                   maxLength={40}
                 />
-                {/* Lỗi: rỗng hoặc trùng tên */}
-                {addThuongHieuValue && thuongHieuList.some(th => th.tenThuongHieu.trim().toLowerCase() === addThuongHieuValue.trim().toLowerCase()) && (
+                {/* Error messages */}
+                {addThuongHieuValue && addThuongHieuValue.trim().length === 0 && (
+                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Vui lòng nhập tên thương hiệu!</div>
+                )}
+                {addThuongHieuValue && thuongHieuList.some(th => 
+                  th.tenThuongHieu.trim().toLowerCase() === addThuongHieuValue.trim().toLowerCase()
+                ) && (
                   <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Tên thương hiệu đã tồn tại!</div>
                 )}
-                {addThuongHieuValue && addThuongHieuValue.trim().length === 0 && (
-                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Không được để trống tên thương hiệu!</div>
+                {addThuongHieuValue && !/^[a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]*$/.test(addThuongHieuValue) && (
+                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Không được chứa ký tự đặc biệt!</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
@@ -318,7 +340,8 @@ export default function ThuongHieuPage() {
                   disabled={
                     adding ||
                     !addThuongHieuValue.trim() ||
-                    thuongHieuList.some(th => th.tenThuongHieu.trim().toLowerCase() === addThuongHieuValue.trim().toLowerCase())
+                    thuongHieuList.some(th => th.tenThuongHieu.trim().toLowerCase() === addThuongHieuValue.trim().toLowerCase()) ||
+                    !/^[a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]*$/.test(addThuongHieuValue)
                   }
                   onClick={async () => {
                     if (!addThuongHieuValue.trim() || thuongHieuList.some(th => th.tenThuongHieu.trim().toLowerCase() === addThuongHieuValue.trim().toLowerCase())) return;

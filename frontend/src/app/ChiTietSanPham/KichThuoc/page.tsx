@@ -288,17 +288,22 @@ export default function KichThuocPage() {
                     boxShadow: '0 2px 8px #eee',
                     MozAppearance: 'textfield',
                   }}
-                  // Ẩn spinner trên Chrome, Safari, Edge
                   inputMode="numeric"
                   pattern="[0-9]*"
                   className="no-spinner"
+                  placeholder="Nhập kích thước"
                 />
-                {/* Hiển thị lỗi nếu nhập số lẻ, số âm, hoặc 0 */}
+                {/* Hiển thị lỗi */}
                 {addKichCoValue && (!/^\d+$/.test(addKichCoValue) || Number(addKichCoValue) <= 0) && (
                   <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Chỉ nhập số nguyên dương!</div>
                 )}
                 {addKichCoValue && Number(addKichCoValue) > 0 && !Number.isInteger(Number(addKichCoValue)) && (
-                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Không cho phép số lẻ!</div>
+                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Không cho phép số thập phân!</div>
+                )}
+                {addKichCoValue && kichCoList.some(kc => 
+                  kc.kichCo === addKichCoValue.trim()
+                ) && (
+                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Kích thước đã tồn tại!</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
@@ -311,7 +316,8 @@ export default function KichThuocPage() {
                     !addKichCoValue.trim() ||
                     !/^\d+$/.test(addKichCoValue) ||
                     Number(addKichCoValue) <= 0 ||
-                    !Number.isInteger(Number(addKichCoValue))
+                    !Number.isInteger(Number(addKichCoValue)) ||
+                    kichCoList.some(kc => kc.kichCo === addKichCoValue.trim())
                   }
                   onClick={async () => {
                     if (!/^\d+$/.test(addKichCoValue) || Number(addKichCoValue) <= 0 || !Number.isInteger(Number(addKichCoValue))) return;

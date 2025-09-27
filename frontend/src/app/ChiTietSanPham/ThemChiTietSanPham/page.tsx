@@ -74,17 +74,17 @@ export default function ThemChiTietSanPhamPage() {
         thuTu: 1,
         laAnhChinh: true
       };
-      
+
       console.log('Testing add image with payload:', testPayload);
-      
+
       const response = await fetch('http://localhost:8080/chi-tiet-san-pham-hinh-anh/them', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(testPayload)
       });
-      
+
       console.log('Test response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Test success:', data);
@@ -139,7 +139,7 @@ export default function ThemChiTietSanPhamPage() {
     });
     setVariantErrors(errors);
     if (Object.keys(errors).length > 0) return;
-    
+
     setOpenConfirmModal(true);
   };
 
@@ -182,7 +182,7 @@ export default function ThemChiTietSanPhamPage() {
           trangThai: Number(v.soLuong) === 0 ? 'Ngừng bán' : 'Đang bán'
         })
       });
-      
+
       let chiTietData;
       if (!res.ok) {
         try {
@@ -195,32 +195,32 @@ export default function ThemChiTietSanPhamPage() {
       } else {
         chiTietData = await res.json();
       }
-      
+
       // Lưu tất cả ảnh (chính + phụ) vào bảng ChiTietSanPhamHinhAnh
       const variantKey = `${v.idMauSac}-${v.idKichCo}`;
       const additionalImages = multipleImages[variantKey] || [];
       const idChiTietSanPham = chiTietData.idChiTietSanPham;
-      
+
       console.log('Lưu ảnh cho biến thể:', idChiTietSanPham);
       console.log('Ảnh chính:', v.hinhAnh ? 'Có' : 'Không');
       console.log('Ảnh phụ:', additionalImages.length);
-      
+
       // Tạo danh sách tất cả ảnh cần lưu
       const allImages = [];
-      
+
       // Upload và thêm ảnh chính (nếu có)
       if (v.hinhAnh) {
         const formData = new FormData();
         formData.append('file', v.hinhAnh);
-        const uploadRes = await fetch('http://localhost:8080/hinh-anh/upload', { 
-          method: 'POST', 
-          body: formData 
+        const uploadRes = await fetch('http://localhost:8080/hinh-anh/upload', {
+          method: 'POST',
+          body: formData
         });
-        
+
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
           const idHinhAnhChinh = uploadData.idHinhAnh;
-          
+
           allImages.push({
             idHinhAnh: parseInt(idHinhAnhChinh),
             thuTu: 1,
@@ -230,24 +230,24 @@ export default function ThemChiTietSanPhamPage() {
           console.warn('Không thể upload ảnh chính:', v.hinhAnh.name);
         }
       }
-      
+
       // Thêm ảnh phụ
       for (let i = 0; i < additionalImages.length; i++) {
         const imageFile = additionalImages[i];
-        
+
         // Upload ảnh phụ
         const uploadFormData = new FormData();
         uploadFormData.append('file', imageFile);
-        
+
         const uploadRes = await fetch('http://localhost:8080/hinh-anh/upload', {
           method: 'POST',
           body: uploadFormData
         });
-        
+
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
           const idHinhAnhPhu = uploadData.idHinhAnh;
-          
+
           allImages.push({
             idHinhAnh: parseInt(idHinhAnhPhu),
             thuTu: allImages.length + 1,
@@ -257,7 +257,7 @@ export default function ThemChiTietSanPhamPage() {
           console.warn('Không thể upload ảnh phụ:', imageFile.name);
         }
       }
-      
+
       // Lưu tất cả ảnh vào database
       for (const imageInfo of allImages) {
         const imagePayload = {
@@ -266,15 +266,15 @@ export default function ThemChiTietSanPhamPage() {
           thuTu: imageInfo.thuTu,
           laAnhChinh: imageInfo.laAnhChinh
         };
-        
+
         console.log('Gửi payload lưu ảnh:', imagePayload);
-        
+
         const imageRes = await fetch('http://localhost:8080/chi-tiet-san-pham-hinh-anh/them', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(imagePayload)
         });
-        
+
         if (imageRes.ok) {
           const imageResData = await imageRes.json();
           console.log('Lưu ảnh thành công:', imageInfo.laAnhChinh ? 'Ảnh chính' : 'Ảnh phụ', imageResData);
@@ -297,7 +297,7 @@ export default function ThemChiTietSanPhamPage() {
     setTimeout(() => {
       router.push('/ChiTietSanPham?reload=' + Date.now());
     }, 1000);
-    
+
     setOpenConfirmModal(false);
   };
 
@@ -385,12 +385,12 @@ export default function ThemChiTietSanPhamPage() {
     try {
       // Thử endpoint chính
       let res = await fetch(`http://localhost:8080/chi-tiet-san-pham/hien-thi-theo-san-pham?idSanPham=${idSanPham}`);
-      
+
       // Nếu endpoint không tồn tại, thử endpoint khác
       if (!res.ok) {
         res = await fetch(`http://localhost:8080/chi-tiet-san-pham/hien-thi`);
       }
-      
+
       if (res.ok) {
         const data = await res.json();
         // Lọc theo idSanPham nếu cần
@@ -415,48 +415,106 @@ export default function ThemChiTietSanPhamPage() {
     }
   };
 
+  // Hàm kiểm tra trùng lặp
+  const checkDuplicate = (type: string, value: string): boolean => {
+    const normalizedValue = value.trim().toLowerCase();
+    
+    console.log('Checking duplicate for type:', type, 'value:', normalizedValue);
+    
+    if (type === 'danhmuc') {
+      console.log('Current danhMucs:', danhMucs);
+      const isDuplicate = danhMucs.some(dm => {
+        const isDup = dm.tenDanhMuc && dm.tenDanhMuc.toLowerCase() === normalizedValue;
+        console.log(`Comparing "${dm.tenDanhMuc}" with "${normalizedValue}": ${isDup}`);
+        return isDup;
+      });
+      console.log('Is duplicate danh muc:', isDuplicate);
+      return isDuplicate;
+    } else if (type === 'thuonghieu') {
+      console.log('Current thuongHieus:', thuongHieus);
+      const isDuplicate = thuongHieus.some(th => {
+        const isDup = th.tenThuongHieu && th.tenThuongHieu.toLowerCase() === normalizedValue;
+        console.log(`Comparing "${th.tenThuongHieu}" with "${normalizedValue}": ${isDup}`);
+        return isDup;
+      });
+      console.log('Is duplicate thuong hieu:', isDuplicate);
+      return isDuplicate;
+    } else if (type === 'mausac') {
+      return mauSacs.some(ms => ms.mauSac && ms.mauSac.toLowerCase() === normalizedValue);
+    } else if (type === 'kichco' || type === 'trangthai') {
+      return kichCos.some(kc => kc.kichCo && kc.kichCo.toLowerCase() === normalizedValue);
+    }
+    return false;
+  };
+
   // Hàm mở dialog
   const handleOpenAddDialog = (type: string) => {
     setOpenAddDialog({type, open: true});
     setNewValue('');
     setAddError('');
   };
+
+  // Hàm đóng dialog
   const handleCloseAddDialog = () => {
     setOpenAddDialog({type: '', open: false});
     setNewValue('');
     setAddError('');
   };
-  // Hàm thêm mới
+
+  // Hàm thêm mới danh mục, thương hiệu, màu sắc, kích cỡ
   const handleAddNew = async () => {
-    if (!newValue.trim()) {
-      setAddError('Vui lòng nhập tên!');
+    console.log('handleAddNew called with type:', openAddDialog.type, 'value:', newValue);
+    
+    const value = newValue.trim();
+    if (!value) {
+      setAddError('Vui lòng nhập giá trị');
       return;
     }
-    setAddLoading(true);
-    let url = '', body = {};
-    if (openAddDialog.type === 'danhmuc') {
-      url = 'http://localhost:8080/danh-muc/them';
-      body = { tenDanhMuc: newValue };
-    } else if (openAddDialog.type === 'thuonghieu') {
-      url = 'http://localhost:8080/thuong-hieu/them';
-      body = { tenThuongHieu: newValue };
-    } else if (openAddDialog.type === 'mausac') {
-      url = 'http://localhost:8080/mau-sac/them';
-      body = { mauSac: newValue };
-    } else if (openAddDialog.type === 'kichco') {
-      url = 'http://localhost:8080/kich-co/them';
-      body = { kichCo: newValue };
-    } else if (openAddDialog.type === 'trangthai') {
-      url = 'http://localhost:8080/trang-thai/them'; // Thêm trạng thái
-      body = { tenTrangThai: newValue };
+
+    // Kiểm tra trùng lặp
+    const isDup = checkDuplicate(openAddDialog.type, value);
+    console.log('Duplicate check result:', isDup);
+    
+    if (isDup) {
+      const typeName = 
+        openAddDialog.type === 'danhmuc' ? 'Danh mục' :
+        openAddDialog.type === 'thuonghieu' ? 'Thương hiệu' :
+        openAddDialog.type === 'mausac' ? 'Màu sắc' : 'Kích cỡ';
+      
+      const errorMsg = `${typeName} "${value}" đã tồn tại`;
+      console.log('Duplicate found:', errorMsg);
+      setAddError(errorMsg);
+      return;
     }
+
+    setAddLoading(true);
     try {
+      let url = '', body = {};
+      if (openAddDialog.type === 'danhmuc') {
+        url = 'http://localhost:8080/danh-muc/them';
+        body = { tenDanhMuc: value };
+      } else if (openAddDialog.type === 'thuonghieu') {
+        url = 'http://localhost:8080/thuong-hieu/them';
+        body = { tenThuongHieu: value };
+      } else if (openAddDialog.type === 'mausac') {
+        url = 'http://localhost:8080/mau-sac/them';
+        body = { mauSac: value };
+      } else if (openAddDialog.type === 'kichco') {
+        url = 'http://localhost:8080/kich-co/them';
+        body = { kichCo: value };
+      } else if (openAddDialog.type === 'trangthai') {
+        url = 'http://localhost:8080/trang-thai/them';
+        body = { tenTrangThai: value };
+      }
+
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
+
       if (!res.ok) throw new Error('Lỗi khi thêm mới!');
+
       // Reload lại danh sách
       if (openAddDialog.type === 'danhmuc') {
         const res = await fetch('http://localhost:8080/danh-muc/hien-thi');
@@ -472,7 +530,7 @@ export default function ThemChiTietSanPhamPage() {
         setKichCos(await res.json());
       } else if (openAddDialog.type === 'trangthai') {
         const res = await fetch('http://localhost:8080/trang-thai/hien-thi');
-        setDanhMucs(await res.json()); // Danh mục cũng là trạng thái
+        setDanhMucs(await res.json());
       }
       setSnackbar({ open: true, message: 'Thêm mới thành công!', severity: 'success' });
       handleCloseAddDialog();
@@ -501,17 +559,17 @@ export default function ThemChiTietSanPhamPage() {
       // Kiểm tra trùng lặp với biến thể hiện có
       const newVariants = [];
       const duplicateVariants = [];
-      
+
       for (const mauSacId of addMultiMauSac) {
         for (const kichCoId of addMultiKichCo) {
           // Kiểm tra xem biến thể này đã tồn tại chưa
-          const isDuplicate = Array.isArray(existingVariants) && existingVariants.some(existing => 
-            String(existing.idMauSac) === String(mauSacId) && 
-            String(existing.idKichCo) === String(kichCoId)
+          const isDuplicate = Array.isArray(existingVariants) && existingVariants.some(existing =>
+              String(existing.idMauSac) === String(mauSacId) &&
+              String(existing.idKichCo) === String(kichCoId)
           );
-          
+
           console.log(`Kiểm tra biến thể: ${mauSacId}-${kichCoId}, isDuplicate:`, isDuplicate);
-          
+
           if (isDuplicate) {
             const mauSacName = mauSacs.find(ms => String(ms.idMauSac) === String(mauSacId))?.mauSac || mauSacId;
             const kichCoName = kichCos.find(kc => String(kc.idKichCo) === String(kichCoId))?.kichCo || kichCoId;
@@ -531,7 +589,7 @@ export default function ThemChiTietSanPhamPage() {
           }
         }
       }
-      
+
       if (duplicateVariants.length > 0) {
         setVariantError(`Biến thể đã tồn tại: ${duplicateVariants.join(', ')}`);
         // Vẫn tạo những biến thể mới (không trùng lặp)
@@ -621,76 +679,69 @@ export default function ThemChiTietSanPhamPage() {
     },
   };
   return (
-    <AdminLayout pageTitle="Thêm chi tiết sản phẩm">
-      <Box sx={{
-        maxWidth: 100,
-        mx: 'auto',
-        background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.3) 0%, rgba(249, 231, 180, 0.3) 100%)',
-        minHeight: '100vh',
-        p: 3
-      }}>
-        {/* Header Section */}
+      <AdminLayout pageTitle="Thêm chi tiết sản phẩm">
         <Box sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', lg: 'row' },
-          gap: 4,
-          alignItems: 'stretch',
-          justifyContent: 'center',
-          mb: 3
+          maxWidth: 100,
+          mx: 'auto',
+          background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.3) 0%, rgba(249, 231, 180, 0.3) 100%)',
+          minHeight: '100vh',
+          pt: 0.5,  // Reduced from p: 3 (which was 24px) to pt: 1 (8px) for top padding only
+          px: 0.5,  // Keep horizontal padding
+          pb: 0.5    // Keep bottom padding
         }}>
-          {/* Cột trái: Thông tin sản phẩm cha */}
-          <Paper sx={{
-            flex: '0 0 420px',
-            minWidth: 320,
-            maxWidth: 450,
-            p: 4,
-            borderRadius: 20,
-            boxShadow: '0 8px 32px rgba(181, 157, 58, 0.15)',
-            bgcolor: 'white',
-            mb: { xs: 3, lg: 0 },
-            alignSelf: 'stretch',
-            minHeight: 580,
-            border: '1px solid rgba(181, 157, 58, 0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '4px',
-              background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)'
-            }
-          }} elevation={0}>
+          {/* Header Section */}
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', lg: 'row' },
+            gap: 4,
+            alignItems: 'stretch',
+            justifyContent: 'center',
+            mb: 3
+          }}>
+            {/* Cột trái: Thông tin sản phẩm cha */}
+            <Paper sx={{
+              flex: '0 0 420px',
+              minWidth: 320,
+              maxWidth: 450,
+              p: 4,
+              borderRadius: 20,
+              boxShadow: '0 8px 32px rgba(181, 157, 58, 0.15)',
+              bgcolor: 'white',
+              mb: { xs: 3, lg: 0 },
+              alignSelf: 'stretch',
+              minHeight: 580,
+              border: '1px solid rgba(181, 157, 58, 0.1)'
+            }} elevation={0}>
               {/* Header Section */}
               <Box sx={{
-                mb: 4,
-                p: 3,
-                background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-                borderRadius: 16,
-                border: '1px solid rgba(181, 157, 58, 0.2)',
-                textAlign: 'center'
+                mb: 3,
+                p: 1.5,
+                background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.9) 0%, rgba(249, 231, 180, 0.9) 100%)',
+                borderRadius: 12,
+                border: '1px solid rgba(181, 157, 58, 0.3)',
+                textAlign: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
               }}>
-                <Typography variant="h5" sx={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 700, 
-                  mb: 0.1,
+                <Typography variant="h6" sx={{
+                  color: '#5a4a1a',
+                  fontWeight: 700,
+                  fontSize: '1rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 1
+                  gap: 1,
+                  m: 0,
+                  p: 0.5
                 }}>
                   Thông tin sản phẩm
                 </Typography>
-
               </Box>
 
               {/* Mode Selection Buttons */}
               <Box sx={{
-                display: 'flex', 
-                flexDirection: { xs: 'column', sm: 'row' }, 
-                gap: 2, 
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
                 mb: 4
               }}>
                 <Button
@@ -762,7 +813,7 @@ export default function ThemChiTietSanPhamPage() {
                       }
                     }}
                 >
-                   Chọn sản phẩm có sẵn
+                  Chọn sản phẩm có sẵn
                 </Button>
               </Box>
               {addMode === 'select' && (
@@ -834,9 +885,9 @@ export default function ThemChiTietSanPhamPage() {
                     ))}
                   </Select>
                   {addMode !== 'select' && (
-                    <IconButton size="small" sx={{ml:1}} onClick={()=>handleOpenAddDialog('danhmuc')}>
-                      <AddIcon fontSize="small" />
-                    </IconButton>
+                      <IconButton size="small" sx={{ml:1}} onClick={()=>handleOpenAddDialog('danhmuc')}>
+                        <AddIcon fontSize="small" />
+                      </IconButton>
                   )}
                 </Box>
                 {danhMucError && <Typography color="error" fontSize={13} mt={0.5}>{danhMucError}</Typography>}
@@ -869,9 +920,9 @@ export default function ThemChiTietSanPhamPage() {
                     ))}
                   </Select>
                   {addMode !== 'select' && (
-                    <IconButton size="small" sx={{ml:1}} onClick={()=>handleOpenAddDialog('thuonghieu')}>
-                      <AddIcon fontSize="small" />
-                    </IconButton>
+                      <IconButton size="small" sx={{ml:1}} onClick={()=>handleOpenAddDialog('thuonghieu')}>
+                        <AddIcon fontSize="small" />
+                      </IconButton>
                   )}
                 </Box>
                 {thuongHieuError && <Typography color="error" fontSize={13} mt={0.5}>{thuongHieuError}</Typography>}
@@ -935,36 +986,28 @@ export default function ThemChiTietSanPhamPage() {
               bgcolor: 'white',
               alignSelf: 'stretch',
               minHeight: 580,
-              border: '1px solid rgba(181, 157, 58, 0.1)',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '4px',
-                background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)'
-              }
+              border: '1px solid rgba(181, 157, 58, 0.1)'
             }} elevation={0}>
               {/* Header Section */}
               <Box sx={{
-                mb: 4,
-                p: 3,
-                background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.8) 0%, rgba(249, 231, 180, 0.8) 100%)',
-                borderRadius: 16,
-                border: '1px solid rgba(181, 157, 58, 0.2)',
-                textAlign: 'center'
+                mb: 3,
+                p: 1.5,
+                background: 'linear-gradient(135deg, rgba(255, 251, 230, 0.9) 0%, rgba(249, 231, 180, 0.9) 100%)',
+                borderRadius: 12,
+                border: '1px solid rgba(181, 157, 58, 0.3)',
+                textAlign: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
               }}>
-                <Typography variant="h5" sx={{ 
-                  color: '#6b4f1d', 
-                  fontWeight: 700, 
-                  mb: 0.1,
+                <Typography variant="h6" sx={{
+                  color: '#5a4a1a',
+                  fontWeight: 700,
+                  fontSize: '1rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 1
+                  gap: 1,
+                  m: 0,
+                  p: 0.5
                 }}>
                   Tạo biến thể sản phẩm
                 </Typography>
@@ -986,9 +1029,9 @@ export default function ThemChiTietSanPhamPage() {
               }}>
                 {/* Màu sắc */}
                 <FormControl size="medium" sx={{ minWidth: 200 }} error={!!mauSacError}>
-                  <Typography variant="subtitle2" sx={{ 
-                    color: '#6b4f1d', 
-                    fontWeight: 600, 
+                  <Typography variant="subtitle2" sx={{
+                    color: '#6b4f1d',
+                    fontWeight: 600,
                     mb: 1,
                     display: 'flex',
                     alignItems: 'center',
@@ -1017,17 +1060,17 @@ export default function ThemChiTietSanPhamPage() {
                     >
                       {mauSacs.map(ms=>(<MenuItem key={ms.idMauSac} value={String(ms.idMauSac)}>{ms.mauSac}</MenuItem>))}
                     </Select>
-                    <IconButton 
-                      size="small" 
-                      sx={{ 
-                        ml: 1,
-                        background: 'rgba(181, 157, 58, 0.1)',
-                        borderRadius: 8,
-                        '&:hover': {
-                          background: 'rgba(181, 157, 58, 0.2)'
-                        }
-                      }} 
-                      onClick={()=>handleOpenAddDialog('mausac')}
+                    <IconButton
+                        size="small"
+                        sx={{
+                          ml: 1,
+                          background: 'rgba(181, 157, 58, 0.1)',
+                          borderRadius: 8,
+                          '&:hover': {
+                            background: 'rgba(181, 157, 58, 0.2)'
+                          }
+                        }}
+                        onClick={()=>handleOpenAddDialog('mausac')}
                     >
                       <AddIcon fontSize="small" />
                     </IconButton>
@@ -1037,9 +1080,9 @@ export default function ThemChiTietSanPhamPage() {
 
                 {/* Kích cỡ */}
                 <FormControl size="medium" sx={{ minWidth: 200 }} error={!!kichCoError}>
-                  <Typography variant="subtitle2" sx={{ 
-                    color: '#6b4f1d', 
-                    fontWeight: 600, 
+                  <Typography variant="subtitle2" sx={{
+                    color: '#6b4f1d',
+                    fontWeight: 600,
                     mb: 1,
                     display: 'flex',
                     alignItems: 'center',
@@ -1068,17 +1111,17 @@ export default function ThemChiTietSanPhamPage() {
                     >
                       {kichCos.map(kc=>(<MenuItem key={kc.idKichCo} value={String(kc.idKichCo)}>{kc.kichCo}</MenuItem>))}
                     </Select>
-                    <IconButton 
-                      size="small" 
-                      sx={{ 
-                        ml: 1,
-                        background: 'rgba(181, 157, 58, 0.1)',
-                        borderRadius: 8,
-                        '&:hover': {
-                          background: 'rgba(181, 157, 58, 0.2)'
-                        }
-                      }} 
-                      onClick={()=>handleOpenAddDialog('kichco')}
+                    <IconButton
+                        size="small"
+                        sx={{
+                          ml: 1,
+                          background: 'rgba(181, 157, 58, 0.1)',
+                          borderRadius: 8,
+                          '&:hover': {
+                            background: 'rgba(181, 157, 58, 0.2)'
+                          }
+                        }}
+                        onClick={()=>handleOpenAddDialog('kichco')}
                     >
                       <AddIcon fontSize="small" />
                     </IconButton>
@@ -1101,7 +1144,7 @@ export default function ThemChiTietSanPhamPage() {
                         height: '56px',
                         whiteSpace: 'nowrap',
                         boxShadow: '0 4px 15px rgba(181, 157, 58, 0.3)',
-                        '&:hover': { 
+                        '&:hover': {
                           background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
                           transform: 'translateY(-1px)',
                           boxShadow: '0 6px 20px rgba(181, 157, 58, 0.4)'
@@ -1121,31 +1164,31 @@ export default function ThemChiTietSanPhamPage() {
                 </Box>
               </Box>
               {isCheckingVariants && (
-                <Typography color="info" sx={{mb:1, fontStyle: 'italic'}}>
-                  Đang kiểm tra biến thể hiện có...
-                </Typography>
+                  <Typography color="info" sx={{mb:1, fontStyle: 'italic'}}>
+                    Đang kiểm tra biến thể hiện có...
+                  </Typography>
               )}
               {Array.isArray(existingVariants) && existingVariants.length > 0 && (
-                <Box sx={{mb:2, p:2, bgcolor: '#f5f5f5', borderRadius: 1, border: '1px solid #ddd'}}>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{mb:1}}>
-                    Biến thể hiện có của sản phẩm này:
-                  </Typography>
-                  <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1}}>
-                    {existingVariants.map((variant, idx) => {
-                      const mauSacName = mauSacs.find(ms => String(ms.idMauSac) === String(variant.idMauSac))?.mauSac || variant.idMauSac;
-                      const kichCoName = kichCos.find(kc => String(kc.idKichCo) === String(variant.idKichCo))?.kichCo || variant.idKichCo;
-                      return (
-                        <Chip 
-                          key={idx}
-                          label={`${mauSacName} - ${kichCoName}`}
-                          size="small"
-                          color="primary"
-                          variant="outlined"
-                        />
-                      );
-                    })}
+                  <Box sx={{mb:2, p:2, bgcolor: '#f5f5f5', borderRadius: 1, border: '1px solid #ddd'}}>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{mb:1}}>
+                      Biến thể hiện có của sản phẩm này:
+                    </Typography>
+                    <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1}}>
+                      {existingVariants.map((variant, idx) => {
+                        const mauSacName = mauSacs.find(ms => String(ms.idMauSac) === String(variant.idMauSac))?.mauSac || variant.idMauSac;
+                        const kichCoName = kichCos.find(kc => String(kc.idKichCo) === String(variant.idKichCo))?.kichCo || variant.idKichCo;
+                        return (
+                            <Chip
+                                key={idx}
+                                label={`${mauSacName} - ${kichCoName}`}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                            />
+                        );
+                      })}
+                    </Box>
                   </Box>
-                </Box>
               )}
               {variantError && <Typography color="error" sx={{mb:1}}>{variantError}</Typography>}
               {/* Bảng nhập từng biến thể */}
@@ -1247,7 +1290,7 @@ export default function ThemChiTietSanPhamPage() {
                                           />
                                           {v.previewImg && <img src={v.previewImg} alt="preview" style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', marginTop: 4 }} />}
                                         </div>
-                                        
+
                                         {/* Ảnh phụ */}
                                         <div>
                                           <Typography variant="caption" sx={{ color: '#666', fontWeight: 600, mb: 1, display: 'block' }}>
@@ -1257,8 +1300,8 @@ export default function ThemChiTietSanPhamPage() {
                                               type="file"
                                               accept="image/*"
                                               multiple
-                                              style={{ 
-                                                color: 'transparent', 
+                                              style={{
+                                                color: 'transparent',
                                                 width: 110,
                                                 cursor: 'pointer'
                                               }}
@@ -1281,67 +1324,67 @@ export default function ThemChiTietSanPhamPage() {
                                             const variantKey = `${v.idMauSac}-${v.idKichCo}`;
                                             const additionalImages = multipleImages[variantKey] || [];
                                             return (
-                                              <div>
-                                                {additionalImages.length > 0 && (
-                                                  <Typography variant="caption" sx={{ color: '#4caf50', fontWeight: 600, display: 'block', mb: 1 }}>
-                                                    Đã chọn {additionalImages.length} ảnh phụ
-                                                  </Typography>
-                                                )}
-                                                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
-                                                  {additionalImages.map((file, imgIdx) => (
-                                                    <div key={imgIdx} style={{ position: 'relative' }}>
-                                                      <img 
-                                                        src={URL.createObjectURL(file)} 
-                                                        alt={`preview-${imgIdx}`} 
-                                                        style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover' }} 
-                                                      />
+                                                <div>
+                                                  {additionalImages.length > 0 && (
+                                                      <Typography variant="caption" sx={{ color: '#4caf50', fontWeight: 600, display: 'block', mb: 1 }}>
+                                                        Đã chọn {additionalImages.length} ảnh phụ
+                                                      </Typography>
+                                                  )}
+                                                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
+                                                    {additionalImages.map((file, imgIdx) => (
+                                                        <div key={imgIdx} style={{ position: 'relative' }}>
+                                                          <img
+                                                              src={URL.createObjectURL(file)}
+                                                              alt={`preview-${imgIdx}`}
+                                                              style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover' }}
+                                                          />
+                                                          <button
+                                                              onClick={() => {
+                                                                const newImages = additionalImages.filter((_, i) => i !== imgIdx);
+                                                                setMultipleImages(prev => ({...prev, [variantKey]: newImages}));
+                                                              }}
+                                                              style={{
+                                                                position: 'absolute',
+                                                                top: -5,
+                                                                right: -5,
+                                                                background: '#e74c3c',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '50%',
+                                                                width: 16,
+                                                                height: 16,
+                                                                fontSize: 10,
+                                                                cursor: 'pointer',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center'
+                                                              }}
+                                                          >
+                                                            ×
+                                                          </button>
+                                                        </div>
+                                                    ))}
+                                                  </div>
+                                                  {additionalImages.length > 0 && (
                                                       <button
-                                                        onClick={() => {
-                                                          const newImages = additionalImages.filter((_, i) => i !== imgIdx);
-                                                          setMultipleImages(prev => ({...prev, [variantKey]: newImages}));
-                                                        }}
-                                                        style={{
-                                                          position: 'absolute',
-                                                          top: -5,
-                                                          right: -5,
-                                                          background: '#e74c3c',
-                                                          color: 'white',
-                                                          border: 'none',
-                                                          borderRadius: '50%',
-                                                          width: 16,
-                                                          height: 16,
-                                                          fontSize: 10,
-                                                          cursor: 'pointer',
-                                                          display: 'flex',
-                                                          alignItems: 'center',
-                                                          justifyContent: 'center'
-                                                        }}
+                                                          onClick={() => {
+                                                            setMultipleImages(prev => ({...prev, [variantKey]: []}));
+                                                          }}
+                                                          style={{
+                                                            background: '#ff9800',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: 4,
+                                                            padding: '4px 8px',
+                                                            fontSize: 10,
+                                                            cursor: 'pointer',
+                                                            marginTop: 4
+                                                          }}
                                                       >
-                                                        ×
+                                                        Xóa tất cả ảnh phụ
                                                       </button>
-                                                    </div>
-                                                  ))}
+                                                  )}
                                                 </div>
-                                                {additionalImages.length > 0 && (
-                                                  <button
-                                                    onClick={() => {
-                                                      setMultipleImages(prev => ({...prev, [variantKey]: []}));
-                                                    }}
-                                                    style={{
-                                                      background: '#ff9800',
-                                                      color: 'white',
-                                                      border: 'none',
-                                                      borderRadius: 4,
-                                                      padding: '4px 8px',
-                                                      fontSize: 10,
-                                                      cursor: 'pointer',
-                                                      marginTop: 4
-                                                    }}
-                                                  >
-                                                    Xóa tất cả ảnh phụ
-                                                  </button>
-                                                )}
-                                              </div>
                                             );
                                           })()}
                                         </div>
@@ -1368,11 +1411,11 @@ export default function ThemChiTietSanPhamPage() {
           </Box>
           {/* Action Buttons */}
           <Box sx={{
-            display: 'flex', 
-            justifyContent: 'center', 
-            mt: 4, 
-            gap: 3, 
-            maxWidth: 1120, 
+            display: 'flex',
+            justifyContent: 'center',
+            mt: 4,
+            gap: 3,
+            maxWidth: 1120,
             mx: 'auto',
             p: 3,
             background: 'white',
@@ -1395,8 +1438,8 @@ export default function ThemChiTietSanPhamPage() {
                   borderColor: 'rgba(181, 157, 58, 0.4)',
                   borderWidth: 2,
                   background: 'white',
-                  '&:hover': { 
-                    borderColor: '#b59d3a', 
+                  '&:hover': {
+                    borderColor: '#b59d3a',
                     background: 'rgba(181, 157, 58, 0.05)',
                     transform: 'translateY(-1px)',
                     boxShadow: '0 4px 12px rgba(181, 157, 58, 0.2)'
@@ -1426,7 +1469,7 @@ export default function ThemChiTietSanPhamPage() {
                   background: 'linear-gradient(135deg, #b59d3a 0%, #8a7a2a 100%)',
                   color: '#fff',
                   boxShadow: '0 4px 15px rgba(181, 157, 58, 0.3)',
-                  '&:hover': { 
+                  '&:hover': {
                     background: 'linear-gradient(135deg, #a88c2a 0%, #7a6a1a 100%)',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 8px 25px rgba(181, 157, 58, 0.4)'
@@ -1542,31 +1585,31 @@ export default function ThemChiTietSanPhamPage() {
             </Button>
           </DialogActions>
         </Dialog>
-        
+
         {/* Modal confirm thêm sản phẩm */}
-        <Dialog 
-          open={openConfirmModal} 
-          onClose={() => setOpenConfirmModal(false)}
-          maxWidth="xs"
-          fullWidth
-          PaperProps={{
-            sx: {
-              borderRadius: 2,
-              maxWidth: 400,
-              mx: 'auto',
-              my: 0,
-              position: 'absolute',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: 600,
-              maxHeight: '90vh',
-              overflowY: 'auto'
-            }
-          }}
+        <Dialog
+            open={openConfirmModal}
+            onClose={() => setOpenConfirmModal(false)}
+            maxWidth="xs"
+            fullWidth
+            PaperProps={{
+              sx: {
+                borderRadius: 2,
+                maxWidth: 400,
+                mx: 'auto',
+                my: 0,
+                position: 'absolute',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: 600,
+                maxHeight: '90vh',
+                overflowY: 'auto'
+              }
+            }}
         >
-          <DialogTitle sx={{ 
-            textAlign: 'center', 
-            fontWeight: 700, 
+          <DialogTitle sx={{
+            textAlign: 'center',
+            fontWeight: 700,
             fontSize: 18,
             color: '#b59d3a',
             py: 1.5,
@@ -1584,41 +1627,41 @@ export default function ThemChiTietSanPhamPage() {
           </DialogContent>
           <DialogActions sx={{ justifyContent: 'center', py: 2, px: 3 }}>
             <Button
-              onClick={() => setOpenConfirmModal(false)}
-              sx={{
-                color: '#666',
-                fontWeight: 600,
-                px: 3,
-                py: 1,
-                borderRadius: 2,
-                border: '1px solid #ddd',
-                '&:hover': {
-                  borderColor: '#999',
-                  backgroundColor: '#f5f5f5'
-                }
-              }}
+                onClick={() => setOpenConfirmModal(false)}
+                sx={{
+                  color: '#666',
+                  fontWeight: 600,
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
+                  border: '1px solid #ddd',
+                  '&:hover': {
+                    borderColor: '#999',
+                    backgroundColor: '#f5f5f5'
+                  }
+                }}
             >
               Hủy
             </Button>
             <Button
-              onClick={handleAddAll}
-              variant="contained"
-              sx={{
-                background: '#b59d3a',
-                color: '#fff',
-                fontWeight: 700,
-                px: 3,
-                py: 1,
-                borderRadius: 2,
-                '&:hover': {
-                  background: '#a88c2a'
-                }
-              }}
+                onClick={handleAddAll}
+                variant="contained"
+                sx={{
+                  background: '#b59d3a',
+                  color: '#fff',
+                  fontWeight: 700,
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
+                  '&:hover': {
+                    background: '#a88c2a'
+                  }
+                }}
             >
               Đồng ý
             </Button>
           </DialogActions>
         </Dialog>
-     </AdminLayout>
+      </AdminLayout>
   );
 }

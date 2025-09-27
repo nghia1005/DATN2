@@ -303,16 +303,38 @@ export default function DanhMucPage() {
                 <input
                   type="text"
                   value={addDanhMucValue}
-                  onChange={e => setAddDanhMucValue(e.target.value)}
-                  style={{ padding: 8, minWidth: 180, borderRadius: 8, border: '1.5px solid #e0e0e0', background: '#fff', fontSize: 16, color: '#222', outline: 'none', boxShadow: '0 2px 8px #eee' }}
+                  onChange={e => {
+                    // Only allow letters, numbers, spaces, and Vietnamese characters
+                    const regex = /^[a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]*$/;
+                    if (e.target.value === '' || regex.test(e.target.value)) {
+                      setAddDanhMucValue(e.target.value);
+                    }
+                  }}
+                  style={{ 
+                    padding: 8, 
+                    minWidth: 250, 
+                    borderRadius: 8, 
+                    border: '1.5px solid #e0e0e0', 
+                    background: '#fff', 
+                    fontSize: 16, 
+                    color: '#222', 
+                    outline: 'none', 
+                    boxShadow: '0 2px 8px #eee' 
+                  }}
+                  placeholder="Nhập tên danh mục"
                   maxLength={40}
                 />
-                {/* Lỗi: rỗng hoặc trùng tên */}
-                {addDanhMucValue && danhMucList.some(dm => dm.tenDanhMuc.trim().toLowerCase() === addDanhMucValue.trim().toLowerCase()) && (
+                {/* Error messages */}
+                {addDanhMucValue && addDanhMucValue.trim().length === 0 && (
+                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Vui lòng nhập tên danh mục!</div>
+                )}
+                {addDanhMucValue && danhMucList.some(dm => 
+                  dm.tenDanhMuc.trim().toLowerCase() === addDanhMucValue.trim().toLowerCase()
+                ) && (
                   <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Tên danh mục đã tồn tại!</div>
                 )}
-                {addDanhMucValue && addDanhMucValue.trim().length === 0 && (
-                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Không được để trống tên danh mục!</div>
+                {addDanhMucValue && !/^[a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]*$/.test(addDanhMucValue) && (
+                  <div style={{ color: 'red', marginTop: 6, fontSize: 14 }}>Không được chứa ký tự đặc biệt!</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
@@ -323,7 +345,8 @@ export default function DanhMucPage() {
                   disabled={
                     adding ||
                     !addDanhMucValue.trim() ||
-                    danhMucList.some(dm => dm.tenDanhMuc.trim().toLowerCase() === addDanhMucValue.trim().toLowerCase())
+                    danhMucList.some(dm => dm.tenDanhMuc.trim().toLowerCase() === addDanhMucValue.trim().toLowerCase()) ||
+                    !/^[a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]*$/.test(addDanhMucValue)
                   }
                   onClick={async () => {
                     if (!addDanhMucValue.trim() || danhMucList.some(dm => dm.tenDanhMuc.trim().toLowerCase() === addDanhMucValue.trim().toLowerCase())) return;

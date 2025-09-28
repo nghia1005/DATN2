@@ -14,6 +14,7 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import ProductImageCarousel from './ProductImageCarousel';
 
 interface ProductVariant {
+    trangThaiSale: string;
     idChiTietSanPham: number;
     idSanPham: number;
     maSanPham: string;
@@ -30,9 +31,7 @@ interface ProductVariant {
     gia: number;
     soLuong?: number;
     idDanhMuc?: number;
-    // Thêm field sale
-  
-  
+    phanTramGiamGia?: number;
 }
 
 interface Color { idMauSac: number; mauSac: string; }
@@ -54,21 +53,23 @@ interface ProductDetailModalProps {
     onBuyNow: () => void;
 }
 
-const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
-    open,
-    onClose,
-    product,
-    colors,
-    sizes,
-    modalColor,
-    setModalColor,
-    modalSize,
-    setModalSize,
-    modalQuantity,
-    setModalQuantity,
-    onAddToCart,
-    onBuyNow
-}) => {
+const ProductDetailModal:
+    React.FC<ProductDetailModalProps>
+    = ({
+           open,
+           onClose,
+           product,
+           colors,
+           sizes,
+           modalColor,
+           setModalColor,
+           modalSize,
+           setModalSize,
+           modalQuantity,
+           setModalQuantity,
+           onAddToCart,
+           onBuyNow
+    }) => {
     if (!product) return null;
 
     // Tính giá sau giảm nếu có sale
@@ -90,40 +91,47 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
-            <DialogContent sx={{ display: 'flex', gap: 4, pt: 2, pb: 3 }}>
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <DialogContent sx={{ display: 'flex', gap: 0, pt: 1, pb: 2, px: 0, '&.MuiDialogContent-root': { padding: '8px 0' } }}>
+                <Box sx={{ width: 300, height: 300, p: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <ProductImageCarousel
                         idChiTietSanPham={product.idChiTietSanPham}
                         defaultImage={product.duongDanHinhAnh}
                         alt={product.tenSanPham}
-                        style={{ maxWidth: 320, maxHeight: 240, objectFit: 'contain', border: '2px solid #ffe066', borderRadius: 12, background: '#fffbe6' }}
+                        style={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            objectFit: 'contain', 
+                            border: '2px solid #ffe066', 
+                            borderRadius: 8, 
+                            background: '#fffbe6' 
+                        }}
                     />
                 </Box>
-                <Box sx={{ flex: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ width: '60%', p: '8px 16px', display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {/* Hiển thị giá */}
                     <Box sx={{ mb: 2 }}>
                         {isOnSale ? (
                             <>
-                                <div style={{ 
-                                    color: "#999", 
-                                    fontWeight: 400, 
-                                    fontSize: 18, 
+                                <div style={{
+                                    color: "#999",
+                                    fontWeight: 400,
+                                    fontSize: 18,
                                     textDecoration: 'line-through',
                                     marginBottom: 4
                                 }}>
                                     {product.gia ? product.gia.toLocaleString("vi-VN") + "₫" : ""}
                                 </div>
-                                <div style={{ 
-                                    color: "#e53935", 
-                                    fontWeight: 700, 
+                                <div style={{
+                                    color: "#e53935",
+                                    fontWeight: 700,
                                     fontSize: 26,
                                     marginBottom: 4
                                 }}>
                                     {calculateSalePrice(product.gia, product.phanTramGiamGia || 0).toLocaleString("vi-VN") + "₫"}
                                 </div>
-                                <div style={{ 
-                                    color: "#2ecc40", 
-                                    fontWeight: 600, 
+                                <div style={{
+                                    color: "#2ecc40",
+                                    fontWeight: 600,
                                     fontSize: 14
                                 }}>
                                     Tiết kiệm: {(product.gia * (product.phanTramGiamGia || 0) / 100).toLocaleString("vi-VN") + "₫"}
@@ -225,4 +233,4 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     );
 };
 
-export default ProductDetailModal; 
+export default ProductDetailModal;

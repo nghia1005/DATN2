@@ -90,66 +90,205 @@ export default function Header({ userName, showWelcome, setShowWelcome, setShowC
         marginTop: 18,
         marginBottom: 24,
         maxWidth: 1400,
-        padding: '18px 40px',
+        padding: '12px 24px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        gap: '12px',
         position: 'relative',
-        zIndex: 20
+        zIndex: 20,
+        flexWrap: 'nowrap',
+        overflow: 'hidden'
       }}>
       {/* Logo và tên shop */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <img src="/logo-login.png" alt="SoleKing Store" style={{ width: 48, height: 48, borderRadius: 12, boxShadow: '0 2px 8px #b59d3a22' }} />
-        <span style={{ fontSize: '2rem', fontWeight: 800, color: '#b59d3a', letterSpacing: 1 }}>SoleKing Store</span>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 10, 
+        minWidth: '160px',
+        flexShrink: 0
+      }}>
+        <img 
+          src="/logo-login.png" 
+          alt="SoleKing Store" 
+          style={{ 
+            width: 40, 
+            height: 40, 
+            borderRadius: 10, 
+            boxShadow: '0 2px 8px #b59d3a22',
+            flexShrink: 0
+          }} 
+        />
+        <span style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: 800, 
+          color: '#b59d3a', 
+          letterSpacing: 1,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}>
+          SoleKing Store
+        </span>
       </div>
-      {/* Thanh tìm kiếm */}
-      <div style={{ flex: 1, margin: '0 32px', display: 'flex', alignItems: 'center', background: '#fffbe7', borderRadius: 24, border: '1.5px solid #e0c97a', padding: '0 18px', height: 44, boxShadow: '0 1px 4px rgba(181,157,58,0.04)' }}>
+          {/* Thanh tìm kiếm */}
+      <div style={{ 
+        flex: '1 1 auto', 
+        minWidth: '180px',
+        maxWidth: '350px',
+        margin: '0 8px',
+        display: 'flex', 
+        alignItems: 'center', 
+        background: '#fffbe7', 
+        borderRadius: 18, 
+        border: '1.5px solid #e0c97a', 
+        padding: '0 12px', 
+        height: 36, 
+        boxShadow: '0 1px 4px rgba(181,157,58,0.04)',
+        flexShrink: 1,
+        overflow: 'hidden'
+      }}>
         <input
           type="text"
           placeholder="Tìm kiếm..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ border: 'none', background: 'transparent', flex: 1, fontSize: '1.1rem', outline: 'none', color: '#8a7a2a' }}
-        />
-        <SearchIcon style={{ color: '#b59d3a', fontSize: '1.3rem', cursor: 'pointer' }} />
-      </div>
-      {/* Menu */}
-      <div style={{ display: 'flex', gap: 18 }}>
-        <button style={{ padding: '8px 28px', borderRadius: 22, border: '1.5px solid #b59d3a', background: homeActive ? '#b59d3a' : '#fff', color: homeActive ? '#fff' : '#b59d3a', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={() => { if (!isShopRoute) { router.push('/shop?tab=home'); } else { setShowThankYou(false); setShowCheckout(false); setShowCart(false); setShowWelcome(true); } }}>TRANG CHỦ</button>
-        <button style={{ padding: '8px 28px', borderRadius: 22, border: '1.5px solid #b59d3a', background: productsActive ? '#b59d3a' : '#fff', color: productsActive ? '#fff' : '#b59d3a', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={() => { if (!isShopRoute) { router.push('/shop?tab=products'); } else { setShowThankYou(false); setShowCheckout(false); setShowCart(false); setShowWelcome(false); } }}>SẢN PHẨM</button>
-
-        <button style={{ padding: '8px 24px', borderRadius: 22, border: '1.5px solid #b59d3a', background: lookupActive ? '#b59d3a' : '#fff', color: lookupActive ? '#fff' : '#b59d3a', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={() => router.push('/tra-cuu-don-hang')}>TRA CỨU</button>
-      </div>
-      {/* Tài khoản, giỏ hàng, đăng xuất */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 24 }}>
-        <button
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '8px 24px',
-            borderRadius: 22,
-            border: '1.5px solid #b59d3a',
-            background: cartActive ? '#b59d3a' : '#fff',
-            color: cartActive ? '#fff' : '#b59d3a',
-            fontWeight: 700,
-            fontSize: '1.05rem',
-            transition: 'background 0.2s, color 0.2s',
-            cursor: 'pointer'
+          style={{ 
+            border: 'none', 
+            background: 'transparent', 
+            width: '100%', 
+            fontSize: '0.95rem', 
+            outline: 'none', 
+            color: '#8a7a2a',
+            padding: 0,
+            margin: 0
           }}
-          onClick={() => { if (!isShopRoute) { router.push('/shop?tab=cart'); } else { setShowThankYou(false); setShowCheckout(false); setShowWelcome(false); setShowCart(true); } }}
-        >
-          <Badge badgeContent={displayCart.reduce((sum, item) => sum + item.quantity, 0)} color="error">
-            <ShoppingCartIcon style={{ fontSize: 22 }} />
-          </Badge>
-          GIỎ HÀNG
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#b59d3a', fontWeight: 600, fontSize: '1.05rem', cursor: 'pointer', transition: 'color 0.2s', marginLeft: 0 }} onClick={() => { if (!isLoggedIn) router.push('/login'); }}>
-          <AccountCircleIcon style={{ fontSize: 22 }} /> {isClient ? userName : 'TÀI KHOẢN'}
-        </div>
-        {isLoggedIn && (
-          <button style={{ marginLeft: 0, padding: '8px 24px', borderRadius: 10, border: '1.5px solid #e57373', background: '#fff0f0', color: '#e53935', fontWeight: 700, fontSize: '1.05rem', transition: 'background 0.2s, color 0.2s', cursor: 'pointer' }} onClick={handleLogout}>ĐĂNG XUẤT</button>
-        )}
+        />
+        <SearchIcon style={{ color: '#b59d3a', fontSize: '1.1rem', cursor: 'pointer', flexShrink: 0 }} />
+      </div>
+          {/* Menu */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px',
+            flexShrink: 1,
+            overflow: 'hidden'
+          }}>
+              <button style={{
+                padding: '6px 14px',
+                borderRadius: 18,
+                border: '1.5px solid #b59d3a',
+                background: homeActive ? '#b59d3a' : '#fff',
+                color: homeActive ? '#fff' : '#b59d3a',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                transition: 'all 0.2s',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
+              }}
+                onClick={() => { if (!isShopRoute) { router.push('/shop?tab=home'); } else { setShowThankYou(false); setShowCheckout(false); setShowCart(false); setShowWelcome(true); } }}
+              >
+                TRANG CHỦ
+              </button>
+              <button style={{
+                padding: '6px 14px',
+                borderRadius: 18,
+                border: '1.5px solid #b59d3a',
+                background: productsActive ? '#b59d3a' : '#fff',
+                color: productsActive ? '#fff' : '#b59d3a',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                transition: 'all 0.2s',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
+              }}
+                onClick={() => { if (!isShopRoute) { router.push('/shop?tab=products'); } else { setShowThankYou(false); setShowCheckout(false); setShowCart(false); setShowWelcome(false); } }}
+              >
+                SẢN PHẨM
+              </button>
+              <button style={{
+                padding: '6px 14px',
+                borderRadius: 18,
+                border: '1.5px solid #b59d3a',
+                background: lookupActive ? '#b59d3a' : '#fff',
+                color: lookupActive ? '#fff' : '#b59d3a',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                transition: 'all 0.2s',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
+              }}
+                onClick={() => router.push('/tra-cuu-don-hang')}
+              >
+                TRA CỨU
+              </button>
+          </div>
+          {/* Tài khoản, giỏ hàng, đăng xuất */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 24 }}>
+              <button
+                  style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      padding: '8px 16px',
+                      height: '36px',
+                      minWidth: '120px',
+                      borderRadius: 20,
+                      border: '1.5px solid #b59d3a',
+                      background: cartActive ? '#b59d3a' : '#fff',
+                      color: cartActive ? '#fff' : '#b59d3a',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      transition: 'all 0.2s',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                  }}
+                  onClick={() => { if (!isShopRoute) { router.push('/shop?tab=cart'); } else { setShowThankYou(false); setShowCheckout(false); setShowWelcome(false); setShowCart(true); } }}
+              >
+                  <Badge badgeContent={displayCart.reduce((sum, item) => sum + item.quantity, 0)} color="error">
+                      <ShoppingCartIcon style={{ fontSize: 20 }} />
+                  </Badge>
+                  GIỎ HÀNG
+              </button>
+              <div 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 6, 
+                  color: '#b59d3a', 
+                  fontWeight: 600, 
+                  fontSize: '0.95rem', 
+                  cursor: 'pointer', 
+                  transition: 'color 0.2s', 
+                  marginLeft: 0,
+                  whiteSpace: 'nowrap'
+                }} 
+                onClick={() => { if (!isLoggedIn) router.push('/login'); }}
+              >
+                <AccountCircleIcon style={{ fontSize: 20 }} />
+                {isClient ? userName : 'TÀI KHOẢN'}
+              </div>
+              {isLoggedIn && (
+                <button 
+                  style={{ 
+                    padding: '6px 16px', 
+                    borderRadius: 10, 
+                    border: '1.5px solid #e57373', 
+                    background: '#fff0f0', 
+                    color: '#e53935', 
+                    fontWeight: 700, 
+                    fontSize: '0.9rem', 
+                    transition: 'all 0.2s', 
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }} 
+                  onClick={handleLogout}
+                >
+                  ĐĂNG XUẤT
+                </button>
+              )}
       </div>
     </div>
     </>

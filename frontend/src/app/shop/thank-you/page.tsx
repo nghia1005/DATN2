@@ -193,23 +193,23 @@ export default function ThankYouPage() {
 
         {/* Action Buttons */}
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            startIcon={<SearchIcon />}
-            onClick={handleLookupOrder}
-            sx={{
-              bgcolor: '#ffc107',
-              color: '#000',
-              fontWeight: 700,
-              px: 3,
-              py: 1.5,
-              '&:hover': {
-                bgcolor: '#e0a800'
-              }
-            }}
-          >
-            TRA CỨU ĐƠN HÀNG
-          </Button>
+          {/*<Button*/}
+          {/*  variant="contained"*/}
+          {/*  startIcon={<SearchIcon />}*/}
+          {/*  onClick={handleLookupOrder}*/}
+          {/*  sx={{*/}
+          {/*    bgcolor: '#ffc107',*/}
+          {/*    color: '#000',*/}
+          {/*    fontWeight: 700,*/}
+          {/*    px: 3,*/}
+          {/*    py: 1.5,*/}
+          {/*    '&:hover': {*/}
+          {/*      bgcolor: '#e0a800'*/}
+          {/*    }*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  TRA CỨU ĐƠN HÀNG*/}
+          {/*</Button>*/}
           
           <Button
             variant="contained"

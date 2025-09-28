@@ -58,19 +58,47 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
     fetchImages();
   }, [idChiTietSanPham]);
 
-  // Auto-play khi hover
+  // Auto-slide effect with better cleanup
   useEffect(() => {
-    if (isHovering && images.length > 1) {
-      autoPlayRef.current = setInterval(() => {
-        setCurrentIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
-      }, 1500);
-    } else {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    }
-    return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    // Don't auto-slide if there's only one image or no images
+    if (images.length <= 1) return;
+
+    let intervalId: NodeJS.Timeout;
+    
+    const startAutoSlide = () => {
+      // Clear any existing interval first
+      if (intervalId) clearInterval(intervalId);
+      
+      intervalId = setInterval(() => {
+        setCurrentIndex(prev => (prev + 1) % images.length);
+      }, 3000);
+      
+      return intervalId;
     };
-  }, [isHovering, images.length]);
+    
+    // Start the auto-slide
+    intervalId = startAutoSlide();
+    
+    // Cleanup function
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [images.length]);
+  
+  // Handle mouse enter/leave for pausing auto-slide
+  const handleMouseEnter = () => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+    }
+  };
+  
+  const handleMouseLeave = () => {
+    if (images.length > 1) {
+      autoPlayRef.current = setInterval(() => {
+        setCurrentIndex(prev => (prev + 1) % images.length);
+      }, 5000);
+    }
+  };
 
   const nextImage = () => {
     setCurrentIndex((prevIndex) => 
@@ -100,7 +128,20 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
         background: '#f5f5f5',
         borderRadius: 8
       }}>
-        <Box sx={{ width: 20, height: 20, border: '2px solid #ddd', borderTop: '2px solid #b59d3a', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <Box 
+          sx={{ 
+            width: 20, 
+            height: 20, 
+            border: '2px solid #ddd', 
+            borderTop: '2px solid #b59d3a', 
+            borderRadius: '50%', 
+            animation: 'spin 1s linear infinite',
+            '@keyframes spin': {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' }
+            }
+          }} 
+        />
       </Box>
     );
   }
@@ -117,47 +158,73 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
 
   return (
     <Box 
-      sx={{ position: 'relative', display: 'inline-block' }}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      sx={{ 
+        position: 'relative', 
+        width: '100%', 
+        height: '100%',
+        '&:hover .carousel-arrow': {
+          opacity: 1,
+        }
+      }}
     >
-      {/* Hình ảnh chính */}
       <ProductImage
-        duongDanHinhAnh={images[currentIndex]?.urlHinhAnh}
-        alt={alt}
-        style={style}
+          duongDanHinhAnh={images[currentIndex]?.urlHinhAnh}
+          alt={alt}
+          style={style}
       />
-      
+
       {/* Nút điều hướng */}
       <IconButton
-        onClick={prevImage}
+        className="carousel-arrow"
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          prevImage();
+        }}
         sx={{
           position: 'absolute',
-          left: 4,
+          left: 8,
           top: '50%',
           transform: 'translateY(-50%)',
           bgcolor: 'rgba(255, 255, 255, 0.8)',
-          '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' },
-          width: 24,
-          height: 24,
-          zIndex: 2
+          '&:hover': {
+            bgcolor: 'rgba(255, 255, 255, 1)',
+          },
+          opacity: 0,
+          transition: 'opacity 0.3s',
+          zIndex: 2,
+          // '&:hover': {
+          //   opacity: 1,
+          // }
         }}
       >
         <ChevronLeftIcon sx={{ fontSize: 16 }} />
       </IconButton>
       
       <IconButton
-        onClick={nextImage}
+        className="carousel-arrow"
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          nextImage();
+        }}
         sx={{
           position: 'absolute',
-          right: 4,
+          right: 8,
           top: '50%',
           transform: 'translateY(-50%)',
           bgcolor: 'rgba(255, 255, 255, 0.8)',
-          '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' },
-          width: 24,
-          height: 24,
-          zIndex: 2
+          '&:hover': {
+            bgcolor: 'rgba(255, 255, 255, 1)',
+          },
+          opacity: 0,
+          transition: 'opacity 0.3s',
+          zIndex: 2,
+          // '&:hover': {
+          //   opacity: 1,
+          // }
         }}
       >
         <ChevronRightIcon sx={{ fontSize: 16 }} />
@@ -180,37 +247,54 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
         {currentIndex + 1}/{images.length}
       </Box>
 
-      {/* Dots indicator */}
-      <Box sx={{
-        position: 'absolute',
-        bottom: 4,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        display: 'flex',
-        gap: 0.5,
-        zIndex: 2
-      }}>
-        {images.map((_, index) => (
-          <IconButton
-            key={index}
-            onClick={() => goToImage(index)}
-            sx={{
-              p: 0,
-              width: 8,
-              height: 8,
-              minWidth: 'auto'
-            }}
-          >
-            <CircleIcon 
-              sx={{ 
-                fontSize: 8, 
-                color: index === currentIndex ? '#b59d3a' : 'rgba(255, 255, 255, 0.6)',
-                '&:hover': { color: '#b59d3a' }
-              }} 
-            />
-          </IconButton>
-        ))}
-      </Box>
+      {/* Navigation dots */}
+      {images.length > 1 && (
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 8,
+            left: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 1,
+            zIndex: 2,
+            opacity: isHovering ? 1 : 0.7,
+            transition: 'opacity 0.3s',
+            '&:hover': {
+              opacity: 1,
+            }
+          }}
+        >
+          {images.map((_, index) => (
+            <IconButton
+              key={index}
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                goToImage(index);
+              }}
+              sx={{
+                p: 0,
+                '&:hover': {
+                  bgcolor: 'transparent',
+                },
+              }}
+            >
+              <CircleIcon
+                sx={{
+                  fontSize: 8,
+                  color: currentIndex === index ? 'primary.main' : 'action.disabled',
+                  transition: 'color 0.3s',
+                  '&:hover': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+            </IconButton>
+          ))}
+        </Box>
+      )}
 
       {/* Hiệu ứng hover để hiển thị rõ hơn */}
       <Box sx={{

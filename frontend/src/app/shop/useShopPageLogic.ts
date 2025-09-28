@@ -191,7 +191,11 @@ export function useShopPageLogic() {
         setLoading(true);
         fetch("http://localhost:8080/chi-tiet-san-pham/hien-thi")
             .then((res) => res.json())
-            .then((data) => setProducts(data))
+            .then((data) => {
+                // Sort products by idChiTietSanPham in descending order to show newest first
+                const sortedProducts = [...data].sort((a, b) => b.idChiTietSanPham - a.idChiTietSanPham);
+                setProducts(sortedProducts);
+            })
             .finally(() => setLoading(false));
         fetch("http://localhost:8080/thuong-hieu/hien-thi").then(res=>res.json()).then(setBrands);
         fetch("http://localhost:8080/mau-sac/hien-thi").then(res=>res.json()).then(setColors);

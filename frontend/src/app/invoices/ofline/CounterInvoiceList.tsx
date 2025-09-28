@@ -1,50 +1,66 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import axios from "axios";
 import CartList from "../../pos/CartList";
 import ProductSelector from "../../pos/ProductSelector";
-import { ProductDetail } from '../../pos/types';
-import { v4 as uuidv4 } from "uuid";
+import {ProductDetail} from '../../pos/types';
+import {v4 as uuidv4} from "uuid";
 import MuiDateTimeInput from '../../../component/MuiDateTimeInput';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 import Select from 'react-select';
 
 // 1. Thêm trạng thái 'Chờ xác nhận' và 'Đã hủy' vào danh sách trạng thái
 const STATUS_OPTIONS = [
-    { label: "📄 Tất cả", value: "ALL", color: "#6b7280" },
-    { label: "⏰ Chờ xác nhận", value: "Chờ xác nhận", color: "#f59e0b" },
-    { label: "✓ Đã xác nhận", value: "Đã xác nhận", color: "#3b82f6" },
-    { label: "✅ Đã thanh toán", value: "Đã thanh toán", color: "#10b981" },
-    { label: "🚛 Đang vận chuyển", value: "Đang vận chuyển", color: "#f97316" },
-    { label: "✅ Giao hàng thành công", value: "Giao hàng thành công", color: "#10b981" },
-    { label: "❌ Giao hàng thất bại", value: "Giao hàng thất bại", color: "#ef4444" },
-    { label: "❌ Đã hủy", value: "Đã hủy", color: "#6b7280" },
+    {label: "📄 Tất cả", value: "ALL", color: "#6b7280"},
+    {label: "⏰ Chờ xác nhận", value: "Chờ xác nhận", color: "#f59e0b"},
+    {label: "✓ Đã xác nhận", value: "Đã xác nhận", color: "#3b82f6"},
+    {label: "✅ Đã thanh toán", value: "Đã thanh toán", color: "#10b981"},
+    {label: "🚛 Đang vận chuyển", value: "Đang vận chuyển", color: "#f97316"},
+    {label: "✅ Giao hàng thành công", value: "Giao hàng thành công", color: "#10b981"},
+    {label: "❌ Giao hàng thất bại", value: "Giao hàng thất bại", color: "#ef4444"},
+    {label: "❌ Đã hủy", value: "Đã hủy", color: "#6b7280"},
 ];
 
 // 2. Sửa màu trạng thái - mỗi trạng thái có màu riêng
 const getStatusColor = (status: string) => {
     switch (status) {
-        case "Chờ xác nhận": return "#f59e0b"; // Màu cam
-        case "Đã xác nhận": return "#3b82f6"; // Màu xanh dương
-        case "Đã thanh toán": return "#10b981"; // Màu xanh lá (thành công)
-        case "Đang vận chuyển": return "#f97316"; // Màu cam đậm
-        case "Giao hàng thành công": return "#10b981"; // Màu xanh lá
-        case "Giao hàng thất bại": return "#ef4444"; // Màu đỏ
-        case "Đã hủy": return "#6b7280"; // Màu xám
-        default: return "#6b7280"; // Màu xám mặc định
+        case "Chờ xác nhận":
+            return "#f59e0b"; // Màu cam
+        case "Đã xác nhận":
+            return "#3b82f6"; // Màu xanh dương
+        case "Đã thanh toán":
+            return "#10b981"; // Màu xanh lá (thành công)
+        case "Đang vận chuyển":
+            return "#f97316"; // Màu cam đậm
+        case "Giao hàng thành công":
+            return "#10b981"; // Màu xanh lá
+        case "Giao hàng thất bại":
+            return "#ef4444"; // Màu đỏ
+        case "Đã hủy":
+            return "#6b7280"; // Màu xám
+        default:
+            return "#6b7280"; // Màu xám mặc định
     }
 };
 
 // Hàm chuyển đổi trạng thái thành icon
 const getStatusIcon = (status: string) => {
     switch (status) {
-        case "Chờ xác nhận": return "⏰";
-        case "Đã xác nhận": return "✓";
-        case "Đã thanh toán": return "💳"; // Icon thẻ thanh toán cho MoMo
-        case "Đang vận chuyển": return "🚛";
-        case "Giao hàng thành công": return "🎉"; // Icon party cho thành công
-        case "Giao hàng thất bại": return "❌";
-        case "Đã hủy": return "❌";
-        default: return "❓";
+        case "Chờ xác nhận":
+            return "⏰";
+        case "Đã xác nhận":
+            return "✓";
+        case "Đã thanh toán":
+            return "💳"; // Icon thẻ thanh toán cho MoMo
+        case "Đang vận chuyển":
+            return "Đang vận chuyển";
+        case "Giao hàng thành công":
+            return "Thành công"; // Icon party cho thành công
+        case "Giao hàng thất bại":
+            return "Thất bại";
+        case "Đã hủy":
+            return "❌";
+        default:
+            return "❓";
     }
 };
 
@@ -54,9 +70,9 @@ const getFilterButtonColor = (status: string) => {
 
 // 3. Sửa logic chuyển trạng thái (thêm Chờ xác nhận)
 const statusTransitions: Record<string, { next: string, label: string, color: string }> = {
-    "Chờ xác nhận": { next: "Đã xác nhận", label: "✓", color: "#3b82f6" },
-    "Đã xác nhận": { next: "Đang vận chuyển", label: "🚛", color: "#3b82f6" },
-    "Đang vận chuyển": { next: "Giao hàng thành công", label: "✓", color: "#10b981" },
+    "Chờ xác nhận": {next: "Đã xác nhận", label: "✓", color: "#3b82f6"},
+    "Đã xác nhận": {next: "Đang vận chuyển", label: "🚛", color: "#3b82f6"},
+    "Đang vận chuyển": {next: "Giao hàng thành công", label: "✓", color: "#10b981"},
     // Nếu muốn cho phép chuyển sang thất bại hoặc hủy, có thể thêm nút riêng hoặc thêm dòng dưới:
     // "Đang vận chuyển": { next: "Giao hàng thất bại", label: "✗", color: "#ef4444" },
     // "Đang vận chuyển": { next: "Đã hủy", label: "✗", color: "#6b7280" },
@@ -123,7 +139,7 @@ const CounterInvoiceList = () => {
 
     // Helper function để hiển thị confirm modal
     const showConfirm = (title: string, message: string, onConfirm: () => void) => {
-        setConfirmData({ title, message, onConfirm });
+        setConfirmData({title, message, onConfirm});
         setConfirmNote('');
         setShowConfirmModal(true);
     };
@@ -296,30 +312,67 @@ const CounterInvoiceList = () => {
 
     // Khi chọn hóa đơn, lấy chi tiết
     const handleSelectOrder = async (code: string, orderFromList: any) => {
-        setSelectedOrderCode(code);
-        setLoadingDetail(true);
-        // Thêm log để debug
-        console.log('===> Object hóa đơn khi click:', orderFromList);
-        console.log('===> idHoaDon truyền vào fetch:', orderFromList.idHoaDon);
-        let id = orderFromList.idHoaDon;
-        if (!id || isNaN(Number(id))) {
-            toast.error('Không tìm thấy ID số của hóa đơn!');
+        console.log('=== Bắt đầu xử lý chọn hóa đơn ===');
+        console.log('Mã hóa đơn được chọn:', code);
+        console.log('Dữ liệu hóa đơn đầy đủ:', orderFromList);
+
+        // Thử lấy ID hóa đơn từ nhiều trường khác nhau
+        const id = orderFromList.idHoaDon || orderFromList.id;
+        console.log('ID hóa đơn được xác định:', id);
+
+        if (!id) {
+            console.error('Không tìm thấy ID hóa đơn trong dữ liệu');
+            toast.error('Không tìm thấy thông tin hóa đơn!');
             setSelectedOrder(null);
             setLoadingDetail(false);
             return;
         }
+
+        setSelectedOrderCode(code);
+        setLoadingDetail(true);
+
         try {
-            const resOrder = await fetch(`http://localhost:8080/api/hoadon/${id}`);
-            if (!resOrder.ok) throw new Error('Không tìm thấy hóa đơn!');
-            const orderData = await resOrder.json();
-            const resDetails = await fetch(`http://localhost:8080/api/hoadonchitiet?idHoaDon=${id}`);
-            const chiTietList = await resDetails.json();
-            setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+            // Luôn gọi API để lấy chi tiết hóa đơn mới nhất
+            console.log('Gọi API để lấy chi tiết hóa đơn mới nhất');
+
+            // Gọi song song cả 2 API
+            const [resOrder, resDetails] = await Promise.all([
+                fetch(`http://localhost:8080/api/hoadon/${id}`).then(res => res.json()),
+                fetch(`http://localhost:8080/api/hoadonchitiet?idHoaDon=${id}`).then(res => res.json())
+            ]);
+
+            console.log('Dữ liệu từ API hóa đơn:', resOrder);
+            console.log('Dữ liệu từ API chi tiết hóa đơn:', resDetails);
+
+            // Kết hợp dữ liệu từ orderFromList và dữ liệu mới từ API
+            const updatedOrder = {
+                ...orderFromList,
+                ...resOrder,
+                chiTiet: Array.isArray(resDetails) ? resDetails : []
+            };
+
+            console.log('Dữ liệu hóa đơn sau khi cập nhật:', updatedOrder);
+
+            // Lưu vào state
+            setSelectedOrder(updatedOrder);
+
         } catch (e) {
-            setSelectedOrder(null);
-            toast.error('Không tìm thấy hóa đơn!');
+            console.error('Lỗi khi lấy thông tin hóa đơn:', e);
+
+            // Nếu có lỗi, thử sử dụng dữ liệu có sẵn
+            if (orderFromList) {
+                console.log('Sử dụng dữ liệu hóa đơn có sẵn do lỗi API');
+                setSelectedOrder({
+                    ...orderFromList,
+                    chiTiet: orderFromList.chiTiet || []
+                });
+            } else {
+                setSelectedOrder(null);
+                toast.error('Không tìm thấy thông tin hóa đơn!');
+            }
+        } finally {
+            setLoadingDetail(false);
         }
-        setLoadingDetail(false);
     };
 
     // Hàm lấy hóa đơn chờ lên POS
@@ -350,7 +403,7 @@ const CounterInvoiceList = () => {
             try {
                 await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon || selectedOrder.id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         idHoaDon: selectedOrder.idHoaDon || selectedOrder.id,
                         trangThai: 'Chờ xác nhận'
@@ -364,7 +417,7 @@ const CounterInvoiceList = () => {
                 // Reload danh sách hóa đơn
                 axios.get('http://localhost:8080/api/hoadon')
                     .then(res => {
-                        const ordersWithId = res.data.map((order: any) => ({ ...order, id: order.idHoaDon }));
+                        const ordersWithId = res.data.map((order: any) => ({...order, id: order.idHoaDon}));
                         setOrders(sortOrdersByDate(ordersWithId));
                     })
                     .catch(() => setOrders([]));
@@ -411,10 +464,10 @@ const CounterInvoiceList = () => {
         showConfirm(confirmTitle, confirmMessage, async () => {
             try {
                 // Loại bỏ trường chiTiet nếu có
-                const { chiTiet, ...orderToSend } = selectedOrder;
+                const {chiTiet, ...orderToSend} = selectedOrder;
                 await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon || selectedOrder.id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         ...orderToSend,
                         trangThai: newStatus
@@ -435,7 +488,7 @@ const CounterInvoiceList = () => {
                 // Reload danh sách hóa đơn
                 axios.get('http://localhost:8080/api/hoadon')
                     .then(res => {
-                        const ordersWithId = res.data.map((order: any) => ({ ...order, id: order.idHoaDon }));
+                        const ordersWithId = res.data.map((order: any) => ({...order, id: order.idHoaDon}));
                         setOrders(sortOrdersByDate(ordersWithId));
                     })
                     .catch(() => setOrders([]));
@@ -476,8 +529,8 @@ const CounterInvoiceList = () => {
 
     // Mapping trạng thái hiện tại sang trạng thái tiếp theo và label nút
     const statusTransitions: Record<string, { next: string, label: string, color: string }> = {
-        "Đã xác nhận": { next: "Đang vận chuyển", label: "🚚", color: "#1976d2" },
-        "Đang vận chuyển": { next: "Giao hàng thành công", label: "✓", color: "#10b981" },
+        "Đã xác nhận": {next: "Đang vận chuyển", label: "🚚", color: "#1976d2"},
+        "Đang vận chuyển": {next: "Giao hàng thành công", label: "✓", color: "#10b981"},
         // Nếu muốn cho phép chuyển sang thất bại, có thể thêm nút riêng hoặc thêm dòng dưới:
         // "Đang vận chuyển": { next: "Giao hàng thất bại", label: "✗", color: "#ef4444" },
         // "Giao hàng thành công": { next: "", label: "", color: "#4caf50" },
@@ -527,24 +580,29 @@ const CounterInvoiceList = () => {
                         width: 24px !important;
                         display: block !important;
                     }
+
                     .left-column::-webkit-scrollbar-track {
                         background: #d0d0d0 !important;
                         border-radius: 12px !important;
                         margin: 8px 0 !important;
                         border: 1px solid #c0c0c0 !important;
                     }
+
                     .left-column::-webkit-scrollbar-thumb {
                         background: #888888 !important;
                         border-radius: 12px !important;
                         border: 2px solid #d0d0d0 !important;
                         min-height: 60px !important;
                     }
+
                     .left-column::-webkit-scrollbar-thumb:hover {
                         background: #666666 !important;
                     }
+
                     .left-column::-webkit-scrollbar-thumb:active {
                         background: #444444 !important;
                     }
+
                     .left-column::-webkit-scrollbar-corner {
                         background: #d0d0d0 !important;
                     }
@@ -553,20 +611,24 @@ const CounterInvoiceList = () => {
                     .right-column::-webkit-scrollbar {
                         width: 20px;
                     }
+
                     .right-column::-webkit-scrollbar-track {
                         background: #e8e8e8;
                         border-radius: 10px;
                         margin: 6px 0;
                     }
+
                     .right-column::-webkit-scrollbar-thumb {
                         background: #b8b8b8;
                         border-radius: 10px;
                         border: 3px solid #e8e8e8;
                         min-height: 50px;
                     }
+
                     .right-column::-webkit-scrollbar-thumb:hover {
                         background: #9a9a9a;
                     }
+
                     .right-column::-webkit-scrollbar-thumb:active {
                         background: #7a7a7a;
                     }
@@ -649,63 +711,102 @@ const CounterInvoiceList = () => {
                     </div>
                 )}
                 {showEditAddressModal && (
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.3)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ background: '#fff', borderRadius: 8, padding: 32, minWidth: 340, boxShadow: '0 4px 24px rgba(0,0,0,0.2)', position: 'relative' }}>
-                            <h3 style={{ margin: 0, marginBottom: 16 }}>Sửa địa chỉ giao hàng</h3>
-                            <div style={{ marginBottom: 12 }}>
-                                <div style={{ marginBottom: 8 }}>
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.3)',
+                        zIndex: 2000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <div style={{
+                            background: '#fff',
+                            borderRadius: 8,
+                            padding: 32,
+                            minWidth: 340,
+                            boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
+                            position: 'relative'
+                        }}>
+                            <h3 style={{margin: 0, marginBottom: 16}}>Sửa địa chỉ giao hàng</h3>
+                            <div style={{marginBottom: 12}}>
+                                <div style={{marginBottom: 8}}>
                                     <label>Người nhận:</label>
-                                    <input type="text" value={editAddress.tenNguoiNhan} onChange={e => setEditAddress(a => ({ ...a, tenNguoiNhan: e.target.value }))} style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }} />
+                                    <input type="text" value={editAddress.tenNguoiNhan}
+                                           onChange={e => setEditAddress(a => ({...a, tenNguoiNhan: e.target.value}))}
+                                           style={{
+                                               width: '100%',
+                                               padding: 8,
+                                               borderRadius: 4,
+                                               border: '1px solid #ccc'
+                                           }}/>
                                 </div>
-                                <div style={{ marginBottom: 8 }}>
+                                <div style={{marginBottom: 8}}>
                                     <label>Số điện thoại:</label>
-                                    <input type="text" value={editAddress.soDienThoai} onChange={e => setEditAddress(a => ({ ...a, soDienThoai: e.target.value }))} style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }} />
+                                    <input type="text" value={editAddress.soDienThoai}
+                                           onChange={e => setEditAddress(a => ({...a, soDienThoai: e.target.value}))}
+                                           style={{
+                                               width: '100%',
+                                               padding: 8,
+                                               borderRadius: 4,
+                                               border: '1px solid #ccc'
+                                           }}/>
                                 </div>
-                                <div style={{ marginBottom: 8 }}>
+                                <div style={{marginBottom: 8}}>
                                     <label>Tỉnh/Thành phố:</label>
                                     <select
                                         value={editAddress.tinhThanh || ''}
                                         onChange={e => {
                                             const value = e.target.value;
-                                            setEditAddress(a => ({ ...a, tinhThanh: value, quanHuyen: '', phuongXa: '' }));
+                                            setEditAddress(a => ({
+                                                ...a,
+                                                tinhThanh: value,
+                                                quanHuyen: '',
+                                                phuongXa: ''
+                                            }));
                                             const found = addressData.find((d: any) => d.province_name === value);
                                             setFilteredDistricts(found ? found.districts : []);
                                             setFilteredWards([]);
                                         }}
-                                        style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                                        style={{width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc'}}
                                     >
                                         <option value="">Chọn Tỉnh/Thành phố</option>
                                         {addressData.map((t: any) => (
-                                            <option key={t.province_id} value={t.province_name}>{t.province_name}</option>
+                                            <option key={t.province_id}
+                                                    value={t.province_name}>{t.province_name}</option>
                                         ))}
                                     </select>
                                 </div>
-                                <div style={{ marginBottom: 8 }}>
+                                <div style={{marginBottom: 8}}>
                                     <label>Quận/Huyện:</label>
                                     <select
                                         value={editAddress.quanHuyen || ''}
                                         onChange={e => {
                                             const value = e.target.value;
-                                            setEditAddress(a => ({ ...a, quanHuyen: value, phuongXa: '' }));
+                                            setEditAddress(a => ({...a, quanHuyen: value, phuongXa: ''}));
                                             const foundProvince = addressData.find((d: any) => d.province_name === (editAddress.tinhThanh || ''));
                                             const foundDistrict = foundProvince?.districts.find((d: any) => d.district_name === value);
                                             setFilteredWards(foundDistrict ? foundDistrict.wards : []);
                                         }}
-                                        style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                                        style={{width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc'}}
                                         disabled={!editAddress.tinhThanh}
                                     >
                                         <option value="">Chọn Quận/Huyện</option>
                                         {filteredDistricts.map((q: any) => (
-                                            <option key={q.district_id} value={q.district_name}>{q.district_name}</option>
+                                            <option key={q.district_id}
+                                                    value={q.district_name}>{q.district_name}</option>
                                         ))}
                                     </select>
                                 </div>
-                                <div style={{ marginBottom: 8 }}>
+                                <div style={{marginBottom: 8}}>
                                     <label>Phường/Xã:</label>
                                     <select
                                         value={editAddress.phuongXa || ''}
-                                        onChange={e => setEditAddress(a => ({ ...a, phuongXa: e.target.value }))}
-                                        style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                                        onChange={e => setEditAddress(a => ({...a, phuongXa: e.target.value}))}
+                                        style={{width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc'}}
                                         disabled={!editAddress.quanHuyen}
                                     >
                                         <option value="">Chọn Phường/Xã</option>
@@ -714,13 +815,30 @@ const CounterInvoiceList = () => {
                                         ))}
                                     </select>
                                 </div>
-                                <div style={{ marginBottom: 8 }}>
+                                <div style={{marginBottom: 8}}>
                                     <label>Ngõ ngách:</label>
-                                    <input type="text" value={editAddress.ngoNgach || ''} onChange={e => setEditAddress(a => ({ ...a, ngoNgach: e.target.value }))} style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }} />
+                                    <input type="text" value={editAddress.ngoNgach || ''}
+                                           onChange={e => setEditAddress(a => ({...a, ngoNgach: e.target.value}))}
+                                           style={{
+                                               width: '100%',
+                                               padding: 8,
+                                               borderRadius: 4,
+                                               border: '1px solid #ccc'
+                                           }}/>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
-                                <button onClick={() => setShowEditAddressModal(false)} style={{ background: '#bbb', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Hủy</button>
+                            <div style={{display: 'flex', gap: 16, justifyContent: 'flex-end'}}>
+                                <button onClick={() => setShowEditAddressModal(false)} style={{
+                                    background: '#bbb',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: 6,
+                                    padding: '8px 20px',
+                                    fontWeight: 600,
+                                    fontSize: 15,
+                                    cursor: 'pointer'
+                                }}>Hủy
+                                </button>
                                 <button
                                     onClick={async () => {
                                         // Validate
@@ -755,7 +873,7 @@ const CounterInvoiceList = () => {
                                             };
                                             await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon}`, {
                                                 method: 'PUT',
-                                                headers: { 'Content-Type': 'application/json' },
+                                                headers: {'Content-Type': 'application/json'},
                                                 body: JSON.stringify(dataToSend)
                                             });
                                             // Reload lại chi tiết hóa đơn
@@ -763,14 +881,17 @@ const CounterInvoiceList = () => {
                                             const orderData = await resOrder.json();
                                             const resDetails = await fetch(`http://localhost:8080/api/hoadonchitiet?idHoaDon=${selectedOrder.idHoaDon}`);
                                             const chiTietList = await resDetails.json();
-                                            setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+                                            setSelectedOrder({...orderData, chiTiet: chiTietList});
                                             toast.success('Đã cập nhật địa chỉ giao hàng!');
                                             setShowEditAddressSuccess(true);
                                             setTimeout(() => setShowEditAddressSuccess(false), 2000);
                                             // Fetch lại danh sách hóa đơn để đồng bộ ngoài bảng
                                             axios.get('http://localhost:8080/api/hoadon')
                                                 .then(res => {
-                                                    const ordersWithId = res.data.map((order: any) => ({ ...order, id: order.idHoaDon }));
+                                                    const ordersWithId = res.data.map((order: any) => ({
+                                                        ...order,
+                                                        id: order.idHoaDon
+                                                    }));
                                                     setOrders(sortOrdersByDate(ordersWithId));
                                                 })
                                                 .catch(() => setOrders([]));
@@ -779,8 +900,18 @@ const CounterInvoiceList = () => {
                                         }
                                         setShowEditAddressModal(false);
                                     }}
-                                    style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
-                                >Lưu</button>
+                                    style={{
+                                        background: '#1976d2',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: 6,
+                                        padding: '8px 20px',
+                                        fontWeight: 700,
+                                        fontSize: 15,
+                                        cursor: 'pointer'
+                                    }}
+                                >Lưu
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -803,7 +934,7 @@ const CounterInvoiceList = () => {
                         flexWrap: 'wrap'
                     }}>
                         {/* Tìm kiếm */}
-                        <div style={{ flex: '1', minWidth: '250px' }}>
+                        <div style={{flex: '1', minWidth: '250px'}}>
                             <label style={{
                                 display: 'block',
                                 fontWeight: 600,
@@ -840,7 +971,7 @@ const CounterInvoiceList = () => {
                         </div>
 
                         {/* Lọc trạng thái */}
-                        <div style={{ minWidth: '200px', position: 'relative', zIndex: 1000 }}>
+                        <div style={{minWidth: '200px', position: 'relative', zIndex: 1000}}>
                             <label style={{
                                 display: 'block',
                                 fontWeight: 600,
@@ -878,7 +1009,7 @@ const CounterInvoiceList = () => {
                                 }}
                             >
                                 {STATUS_OPTIONS.map((option) => (
-                                    <option key={option.value} value={option.value} style={{ color: option.color }}>
+                                    <option key={option.value} value={option.value} style={{color: option.color}}>
                                         {option.label}
                                     </option>
                                 ))}
@@ -886,7 +1017,7 @@ const CounterInvoiceList = () => {
                         </div>
 
                         {/* Nút xóa lọc */}
-                        <div style={{ alignSelf: 'flex-end' }}>
+                        <div style={{alignSelf: 'flex-end'}}>
                             <button
                                 onClick={() => {
                                     setSearchText("");
@@ -935,7 +1066,7 @@ const CounterInvoiceList = () => {
                         flexWrap: 'wrap'
                     }}>
                         {/* Lọc theo ngày từ */}
-                        <div style={{ flex: '1', minWidth: '200px' }}>
+                        <div style={{flex: '1', minWidth: '200px'}}>
                             <label style={{
                                 display: 'block',
                                 fontWeight: 600,
@@ -955,7 +1086,7 @@ const CounterInvoiceList = () => {
                         </div>
 
                         {/* Lọc theo ngày đến */}
-                        <div style={{ flex: '1', minWidth: '200px' }}>
+                        <div style={{flex: '1', minWidth: '200px'}}>
                             <label style={{
                                 display: 'block',
                                 fontWeight: 600,
@@ -1062,7 +1193,7 @@ const CounterInvoiceList = () => {
                                     }
                                 }}
                             >
-                                <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 8 }}>
+                                <div style={{display: "flex", alignItems: "flex-start", marginBottom: 8}}>
                                     <span style={{
                                         border: "none",
                                         borderRadius: 12,
@@ -1079,15 +1210,46 @@ const CounterInvoiceList = () => {
                                     }}>
                   {getStatusIcon(order.trangThai)}
                 </span>
-                                    <span style={{ marginLeft: "auto", fontWeight: 600, fontSize: 15, lineHeight: 1.2, color: '#b59d3a' }}>Mã hóa đơn: <b style={{fontSize: 18, color: '#333'}}>{order.code || order.maHoaDon || order.id}</b></span>
+                                    <span style={{
+                                        marginLeft: "auto",
+                                        fontWeight: 600,
+                                        fontSize: 15,
+                                        lineHeight: 1.2,
+                                        color: '#b59d3a'
+                                    }}>Mã hóa đơn: <b style={{
+                                        fontSize: 18,
+                                        color: '#333'
+                                    }}>{order.code || order.maHoaDon || order.id}</b></span>
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 2 }}>
-                                    <span style={{ color: "#b59d3a" }}>{order.ngayTao ? new Date(order.ngayTao).toLocaleString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false}) : ""}</span>
-                                    <span style={{ color: "#222", fontWeight: 500 }}>{order.tenNhanVien || ""}</span>
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    fontSize: 13,
+                                    marginBottom: 2
+                                }}>
+                                    <span
+                                        style={{color: "#b59d3a"}}>{order.ngayTao ? new Date(order.ngayTao).toLocaleString('vi-VN', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false
+                                    }) : ""}</span>
+                                    <span style={{color: "#222", fontWeight: 500}}>{order.tenNhanVien || ""}</span>
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, alignItems: "center" }}>
-                                    <span style={{ color: "#b59d3a", fontWeight: 500 }}>{order.tenKhachHang || ""}</span>
-                                    <span style={{ fontWeight: 700, color: "#b59d3a", fontSize: 16 }}>{Number(order.thanhTien || order.tongTien || 0).toLocaleString()} đ</span>
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    fontSize: 13,
+                                    alignItems: "center"
+                                }}>
+                                    <span style={{color: "#b59d3a", fontWeight: 500}}>{order.tenKhachHang || ""}</span>
+                                    <span style={{
+                                        fontWeight: 700,
+                                        color: "#b59d3a",
+                                        fontSize: 16
+                                    }}>{Number(order.thanhTien || order.tongTien || 0).toLocaleString()} đ</span>
                                 </div>
                             </div>
                         ))}
@@ -1211,7 +1373,7 @@ const CounterInvoiceList = () => {
                                 maxWidth: 600,
                                 border: '1px solid #e8e0c0'
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+                                <div style={{display: 'flex', alignItems: 'center', marginBottom: 12}}>
                                     {/* Trạng thái badge */}
                                     <span style={{
                                         borderRadius: 12,
@@ -1226,28 +1388,64 @@ const CounterInvoiceList = () => {
                                         boxShadow: `0 4px 12px ${getStatusColor(selectedOrder.trangThai)}40`
                                     }}>
                   {getStatusIcon(selectedOrder.trangThai)}
+                {/*</span>*/}
+                {/*                    /!* Lịch sử (placeholder) *!/*/}
+                {/*                    <span*/}
+                {/*                        style={{*/}
+                {/*                            color: '#b59d3a',*/}
+                {/*                            fontSize: 15,*/}
+                {/*                            marginRight: 12,*/}
+                {/*                            cursor: 'not-allowed',*/}
+                {/*                            opacity: 0.7*/}
+                {/*                        }}*/}
+                {/*                        title='Chức năng đang phát triển'*/}
+                {/*                    >*/}
+                {/*  Lịch sử <span style={{fontSize: 18}}>⟳</span>*/}
                 </span>
-                                    {/* Lịch sử (placeholder) */}
-                                    <span
-                                        style={{ color: '#b59d3a', fontSize: 15, marginRight: 12, cursor: 'not-allowed', opacity: 0.7 }}
-                                        title='Chức năng đang phát triển'
-                                    >
-                  Lịch sử <span style={{fontSize:18}}>⟳</span>
-                </span>
-                                    <span style={{ marginLeft: 'auto', fontWeight: 600, fontSize: 18, color: '#b59d3a' }}>
+                                    <span style={{marginLeft: 'auto', fontWeight: 600, fontSize: 18, color: '#b59d3a'}}>
                   Hóa đơn <b style={{color: '#333'}}>#{selectedOrder.maHoaDon}</b>
                 </span>
                                 </div>
-                                <div style={{ color: '#b59d3a', fontSize: 15, marginBottom: 8 }}>Thời gian: <b style={{color: '#333'}}>{selectedOrder.ngayTao ? new Date(selectedOrder.ngayTao).toLocaleString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false}) : ''}</b></div>
-                                <div style={{ marginBottom: 8 }}>
-                                    <b style={{color: '#b59d3a'}}>Khách hàng:</b> <span style={{color: '#333'}}>{selectedOrder?.tenKhachHang || 'Khách lẻ'}</span>
+                                <div style={{color: '#b59d3a', fontSize: 15, marginBottom: 8}}>Thời gian: <b
+                                    style={{color: '#333'}}>{selectedOrder.ngayTao ? new Date(selectedOrder.ngayTao).toLocaleString('vi-VN', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: false
+                                }) : ''}</b></div>
+                                <div style={{marginBottom: 8}}>
+                                    <b style={{color: '#b59d3a'}}>Khách hàng:</b> <span
+                                    style={{color: '#333'}}>{selectedOrder?.tenKhachHang || 'Khách lẻ'}</span>
                                 </div>
                                 {/* Tiêu đề và nút mua thêm */}
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                                    <h4 style={{ margin: 0, color: '#b59d3a' }}>Chi tiết sản phẩm</h4>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 8
+                                }}>
+                                    <h4 style={{margin: 0, color: '#b59d3a'}}>Chi tiết sản phẩm</h4>
                                     {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận') && (
                                         <button
-                                            style={{ background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, fontSize: 18, cursor: 'pointer', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(181, 157, 58, 0.3)' }}
+                                            style={{
+                                                background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: 8,
+                                                padding: '10px',
+                                                fontWeight: 700,
+                                                fontSize: 18,
+                                                cursor: 'pointer',
+                                                width: '40px',
+                                                height: '40px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                boxShadow: '0 2px 8px rgba(181, 157, 58, 0.3)'
+                                            }}
                                             onClick={() => setShowAddProductModal(true)}
                                             title="Mua thêm sản phẩm"
                                         >
@@ -1256,38 +1454,109 @@ const CounterInvoiceList = () => {
                                     )}
                                 </div>
                                 {/* Bảng sản phẩm */}
-                                <div style={{ marginBottom: 18 }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <div style={{marginBottom: 18}}>
+                                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
                                         <thead>
                                         <tr>
-                                            <th style={{ padding: '8px 12px', borderBottom: '1px solid #e8e0c0', background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)', color: 'white', fontWeight: 'bold' }}>STT</th>
-                                            <th style={{ padding: '8px 12px', borderBottom: '1px solid #e8e0c0', background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)', color: 'white', fontWeight: 'bold' }}>TÊN HÀNG</th>
-                                            <th style={{ padding: '8px 12px', borderBottom: '1px solid #e8e0c0', background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)', color: 'white', fontWeight: 'bold' }}>Số lượng</th>
-                                            <th style={{ padding: '8px 12px', borderBottom: '1px solid #e8e0c0', background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)', color: 'white', fontWeight: 'bold' }}>Đơn giá</th>
-                                            <th style={{ padding: '8px 12px', borderBottom: '1px solid #e8e0c0', background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)', color: 'white', fontWeight: 'bold' }}>Thành tiền</th>
+                                            <th style={{
+                                                padding: '8px 12px',
+                                                borderBottom: '1px solid #e8e0c0',
+                                                background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}>STT
+                                            </th>
+                                            <th style={{
+                                                padding: '8px 12px',
+                                                borderBottom: '1px solid #e8e0c0',
+                                                background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}>TÊN HÀNG
+                                            </th>
+                                            <th style={{
+                                                padding: '8px 12px',
+                                                borderBottom: '1px solid #e8e0c0',
+                                                background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}>Số lượng
+                                            </th>
+                                            <th style={{
+                                                padding: '8px 12px',
+                                                borderBottom: '1px solid #e8e0c0',
+                                                background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}>Đơn giá
+                                            </th>
+                                            <th style={{
+                                                padding: '8px 12px',
+                                                borderBottom: '1px solid #e8e0c0',
+                                                background: 'linear-gradient(135deg, #b59d3a 0%, #a0852e 100%)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}>Thành tiền
+                                            </th>
                                             {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận') && (
-                                                <th style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0', background: '#f5f5f5', textAlign: 'center' }}>Thao tác</th>
+                                                <th style={{
+                                                    padding: '8px 12px',
+                                                    borderBottom: '1px solid #e0e0e0',
+                                                    background: '#f5f5f5',
+                                                    textAlign: 'center'
+                                                }}>Thao tác</th>
                                             )}
                                         </tr>
                                         </thead>
                                         <tbody>
                                         {(selectedOrder.chiTiet || []).map((sp: any, idx: number) => (
                                             <tr key={idx}>
-                                                <td style={{ textAlign: 'center', fontWeight: 500, padding: '8px 12px', borderBottom: '1px solid #e0e0e0' }}>{idx + 1}</td>
-                                                <td style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0' }}>
+                                                <td style={{
+                                                    textAlign: 'center',
+                                                    fontWeight: 500,
+                                                    padding: '8px 12px',
+                                                    borderBottom: '1px solid #e0e0e0'
+                                                }}>{idx + 1}</td>
+                                                <td style={{padding: '8px 12px', borderBottom: '1px solid #e0e0e0'}}>
                                                     <b>{sp.tenSanPham}</b>
-                                                    <div style={{ color: '#555', fontSize: 14 }}>
-                                                        {sp.danhMuc}, {sp.thuongHieu}, Màu {sp.mauSac}, Kích cỡ {sp.kichCo}
+                                                    <div style={{color: '#555', fontSize: 14}}>
+                                                        {sp.danhMuc}, {sp.thuongHieu}, Màu {sp.mauSac}, Kích
+                                                        cỡ {sp.kichCo}
                                                     </div>
                                                 </td>
-                                                <td style={{ textAlign: 'center', padding: '8px 12px', borderBottom: '1px solid #e0e0e0' }}>{sp.soLuong}</td>
-                                                <td style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0' }}>{Number(sp.donGia || 0).toLocaleString()} đ</td>
-                                                <td style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0' }}>{Number(sp.thanhTien || 0).toLocaleString()} đ</td>
+                                                <td style={{
+                                                    textAlign: 'center',
+                                                    padding: '8px 12px',
+                                                    borderBottom: '1px solid #e0e0e0'
+                                                }}>{sp.soLuong}</td>
+                                                <td style={{
+                                                    padding: '8px 12px',
+                                                    borderBottom: '1px solid #e0e0e0'
+                                                }}>{Number(sp.donGia || 0).toLocaleString()} đ
+                                                </td>
+                                                <td style={{
+                                                    padding: '8px 12px',
+                                                    borderBottom: '1px solid #e0e0e0'
+                                                }}>{Number(sp.thanhTien || 0).toLocaleString()} đ
+                                                </td>
                                                 {/* Nút Xóa */}
                                                 {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận') && (
-                                                    <td style={{ padding: '8px 12px', borderBottom: '1px solid #e0e0e0', textAlign: 'center' }}>
+                                                    <td style={{
+                                                        padding: '8px 12px',
+                                                        borderBottom: '1px solid #e0e0e0',
+                                                        textAlign: 'center'
+                                                    }}>
                                                         <button
-                                                            style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
+                                                            style={{
+                                                                background: '#e74c3c',
+                                                                color: '#fff',
+                                                                border: 'none',
+                                                                borderRadius: 6,
+                                                                padding: '6px 12px',
+                                                                fontWeight: 700,
+                                                                fontSize: 15,
+                                                                cursor: 'pointer'
+                                                            }}
                                                             title="Xóa sản phẩm khỏi hóa đơn"
                                                             onClick={() => {
                                                                 console.log('Click xóa:', sp.idHoaDonChiTiet);
@@ -1295,7 +1564,8 @@ const CounterInvoiceList = () => {
                                                                 setDeletingProduct(sp);
                                                                 setDeleteQuantity('');
                                                             }}
-                                                        >🗑️</button>
+                                                        >🗑️
+                                                        </button>
                                                     </td>
                                                 )}
                                             </tr>
@@ -1304,13 +1574,34 @@ const CounterInvoiceList = () => {
                                     </table>
                                 </div>
                                 {/* Thông tin giao hàng & tổng tiền */}
-                                <div style={{ display: 'flex', gap: 32, marginBottom: 8 }}>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ color: '#888', fontWeight: 500, marginBottom: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{display: 'flex', gap: 32, marginBottom: 8}}>
+                                    <div style={{flex: 1}}>
+                                        <div style={{
+                                            color: '#888',
+                                            fontWeight: 500,
+                                            marginBottom: 4,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between'
+                                        }}>
                                             Thông tin giao hàng:
                                             {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận') && (
                                                 <button
-                                                    style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, padding: '6px', fontWeight: 600, fontSize: 16, cursor: 'pointer', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                    style={{
+                                                        background: '#1976d2',
+                                                        color: '#fff',
+                                                        border: 'none',
+                                                        borderRadius: 6,
+                                                        padding: '6px',
+                                                        fontWeight: 600,
+                                                        fontSize: 16,
+                                                        cursor: 'pointer',
+                                                        width: '32px',
+                                                        height: '32px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
                                                     onClick={() => {
                                                         console.log('Selected order address data:', {
                                                             tinhThanh: selectedOrder.tinhThanh,
@@ -1390,30 +1681,51 @@ const CounterInvoiceList = () => {
                                                 >✏️</button>
                                             )}
                                         </div>
-                                        <div style={{ fontSize: 15 }}>Người nhận: <b>{selectedOrder.tenNguoiNhan || ''}</b></div>
-                                        <div style={{ fontSize: 15 }}>Số điện thoại: <b>{selectedOrder.soDienThoai || ''}</b></div>
-                                        <div style={{ fontSize: 15 }}>Địa chỉ giao hàng: <b>
+                                        <div style={{fontSize: 15}}>Người
+                                            nhận: <b>{selectedOrder.tenNguoiNhan || ''}</b></div>
+                                        <div style={{fontSize: 15}}>Số điện
+                                            thoại: <b>{selectedOrder.soDienThoai || ''}</b></div>
+                                        <div style={{fontSize: 15}}>Địa chỉ giao hàng: <b>
                                             {selectedOrder.diaChiNhanHang || ''}
                                         </b></div>
-                                        {selectedOrder.ghiChu && <div style={{ fontSize: 15 }}>Ghi chú: <b>{selectedOrder.ghiChu}</b></div>}
+                                        {selectedOrder.ghiChu &&
+                                            <div style={{fontSize: 15}}>Ghi chú: <b>{selectedOrder.ghiChu}</b></div>}
                                     </div>
-                                    <div style={{ minWidth: 160 }}>
-                                        <div style={{ color: '#888', fontWeight: 500, marginBottom: 4 }}>Tổng kết:</div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15 }}>
+                                    <div style={{minWidth: 160}}>
+                                        <div style={{color: '#888', fontWeight: 500, marginBottom: 4}}>Tổng kết:</div>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 15}}>
                                             <span><b>Tổng tiền:</b></span>
-                                            <span style={{ color: '#e67e22', fontWeight: 700 }}><b>{Number(selectedOrder.tongTien || 0).toLocaleString()} đ</b></span>
+                                            <span style={{
+                                                color: '#e67e22',
+                                                fontWeight: 700
+                                            }}><b>{Number(selectedOrder.tongTien || 0).toLocaleString()} đ</b></span>
                                         </div>
                                         {Number(selectedOrder.giamGia || 0) > 0 && (
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15 }}>
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                fontSize: 15
+                                            }}>
                                                 <span><b>Giảm giá:</b></span>
-                                                <span style={{ color: '#e74c3c', fontWeight: 700 }}><b>- {Number(selectedOrder.giamGia || 0).toLocaleString()} đ</b></span>
+                                                <span style={{
+                                                    color: '#e74c3c',
+                                                    fontWeight: 700
+                                                }}><b>- {Number(selectedOrder.giamGia || 0).toLocaleString()} đ</b></span>
                                             </div>
                                         )}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15 }}>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 15}}>
                                             <span><b>Phí vận chuyển:</b></span>
-                                            <span style={{ color: '#2980b9', fontWeight: 700 }}><b>{Number(selectedOrder.phiShip || 0).toLocaleString()} đ</b></span>
+                                            <span style={{
+                                                color: '#2980b9',
+                                                fontWeight: 700
+                                            }}><b>{Number(selectedOrder.phiShip || 0).toLocaleString()} đ</b></span>
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15, marginTop: 4 }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            fontSize: 15,
+                                            marginTop: 4
+                                        }}>
                                             <span><b>Thanh toán:</b></span>
                                             <span style={{
                                                 color: selectedOrder.phuongThucThanhToan === 'MOMO' ? '#d82d8b' :
@@ -1429,31 +1741,55 @@ const CounterInvoiceList = () => {
                                               </b>
                                             </span>
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 17, marginTop: 6, fontWeight: 700 }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            fontSize: 17,
+                                            marginTop: 6,
+                                            fontWeight: 700
+                                        }}>
                                             <span><b>Tổng cộng:</b></span>
-                                            <span style={{ color: '#e67e22' }}><b>{Number(selectedOrder.thanhTien || selectedOrder.tongTien || 0).toLocaleString()} đ</b></span>
+                                            <span
+                                                style={{color: '#e67e22'}}><b>{Number(selectedOrder.thanhTien || selectedOrder.tongTien || 0).toLocaleString()} đ</b></span>
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ color: '#222', fontSize: 16, marginTop: 10, fontWeight: 700 }}>
-                                    Thanh toán: {Number(selectedOrder.thanhTien || selectedOrder.tongTien || 0).toLocaleString()} đ
+                                <div style={{color: '#222', fontSize: 16, marginTop: 10, fontWeight: 700}}>
+                                    Thanh
+                                    toán: {Number(selectedOrder.thanhTien || selectedOrder.tongTien || 0).toLocaleString()} đ
                                 </div>
                                 {/* Nút chuyển trạng thái duy nhất */}
-                                <div style={{ marginTop: 18, display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                                <div style={{marginTop: 18, display: 'flex', justifyContent: 'flex-end', gap: 12}}>
                                     {selectedOrder?.trangThai === 'Đang vận chuyển' ? (
                                         <React.Fragment>
                                             <button
                                                 style={{
-                                                    background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer'
+                                                    background: '#10b981',
+                                                    color: '#fff',
+                                                    border: 'none',
+                                                    borderRadius: 8,
+                                                    padding: '10px 28px',
+                                                    fontWeight: 700,
+                                                    fontSize: 16,
+                                                    cursor: 'pointer'
                                                 }}
                                                 onClick={() => handleChangeStatus('Giao hàng thành công')}
-                                            >✓</button>
+                                            >✓
+                                            </button>
                                             <button
                                                 style={{
-                                                    background: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer'
+                                                    background: '#ef4444',
+                                                    color: '#fff',
+                                                    border: 'none',
+                                                    borderRadius: 8,
+                                                    padding: '10px 28px',
+                                                    fontWeight: 700,
+                                                    fontSize: 16,
+                                                    cursor: 'pointer'
                                                 }}
                                                 onClick={() => handleChangeStatus('Giao hàng thất bại')}
-                                            >✗</button>
+                                            >✗
+                                            </button>
                                         </React.Fragment>
                                     ) : (
                                         selectedOrder?.trangThai !== "Giao hàng thành công" && statusTransitions[selectedOrder?.trangThai] && (
@@ -1477,7 +1813,17 @@ const CounterInvoiceList = () => {
                                     {/* Nút xác nhận đơn hàng khi trạng thái là Chờ xác nhận */}
                                     {selectedOrder?.trangThai === 'Chờ xác nhận' && (
                                         <button
-                                            style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer', marginRight: '10px' }}
+                                            style={{
+                                                background: '#3b82f6',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: 8,
+                                                padding: '10px 28px',
+                                                fontWeight: 700,
+                                                fontSize: 16,
+                                                cursor: 'pointer',
+                                                marginRight: '10px'
+                                            }}
                                             onClick={() => handleChangeStatus('Đã xác nhận')}
                                         >
                                             ✓
@@ -1486,7 +1832,17 @@ const CounterInvoiceList = () => {
                                     {/* Nút xuất PDF cho hóa đơn Chờ xác nhận và Đã xác nhận */}
                                     {(selectedOrder?.trangThai === 'Chờ xác nhận' || selectedOrder?.trangThai === 'Đã xác nhận') && (
                                         <button
-                                            style={{ background: '#6c757d', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer', marginRight: '10px' }}
+                                            style={{
+                                                background: '#6c757d',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: 8,
+                                                padding: '10px 28px',
+                                                fontWeight: 700,
+                                                fontSize: 16,
+                                                cursor: 'pointer',
+                                                marginRight: '10px'
+                                            }}
                                             onClick={() => handleExportPDF()}
                                         >
                                             📄
@@ -1496,7 +1852,16 @@ const CounterInvoiceList = () => {
                                     {/* Nút chuyển sang Đã hủy chỉ khi trạng thái là Đã xác nhận, Chờ xác nhận hoặc Đang vận chuyển */}
                                     {(selectedOrder?.trangThai === 'Đã xác nhận' || selectedOrder?.trangThai === 'Chờ xác nhận' || selectedOrder?.trangThai === 'Đang vận chuyển') && (
                                         <button
-                                            style={{ background: '#6b7280', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }}
+                                            style={{
+                                                background: '#6b7280',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: 8,
+                                                padding: '10px 28px',
+                                                fontWeight: 700,
+                                                fontSize: 16,
+                                                cursor: 'pointer'
+                                            }}
                                             onClick={() => handleChangeStatus('Đã hủy')}
                                         >
                                             ✗
@@ -1580,7 +1945,13 @@ const CounterInvoiceList = () => {
                                 background: 'linear-gradient(135deg, #b59d3a 0%, #8b7a2e 100%)',
                                 borderRadius: '16px 16px 0 0'
                             }}>
-                                <h2 style={{ margin: 0, color: '#fff', fontSize: 26, fontWeight: 700, textShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>Chọn sản phẩm</h2>
+                                <h2 style={{
+                                    margin: 0,
+                                    color: '#fff',
+                                    fontSize: 26,
+                                    fontWeight: 700,
+                                    textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                                }}>Chọn sản phẩm</h2>
                                 <button
                                     onClick={() => setShowAddProductModal(false)}
                                     style={{
@@ -1745,19 +2116,99 @@ const CounterInvoiceList = () => {
                                 overflow: 'auto',
                                 padding: '0 24px'
                             }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <table style={{width: '100%', borderCollapse: 'collapse'}}>
                                     <thead>
-                                    <tr style={{ background: 'linear-gradient(135deg, #b59d3a 0%, #8b7a2e 100%)' }}>
-                                        <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>STT</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Mã</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Tên sản phẩm</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Danh mục</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Thương hiệu</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Màu sắc</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Kích thước</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Giá</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'center', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Số Lượng</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'center', borderBottom: '2px solid #8b7a2e', fontWeight: 700, color: '#fff', fontSize: '14px' }}>Thao tác</th>
+                                    <tr style={{background: 'linear-gradient(135deg, #b59d3a 0%, #8b7a2e 100%)'}}>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>STT
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Mã
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Tên sản phẩm
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Danh mục
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Thương hiệu
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Màu sắc
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Kích thước
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'right',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Giá
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'center',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Số Lượng
+                                        </th>
+                                        <th style={{
+                                            padding: '12px 8px',
+                                            textAlign: 'center',
+                                            borderBottom: '2px solid #8b7a2e',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            fontSize: '14px'
+                                        }}>Thao tác
+                                        </th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -1772,21 +2223,52 @@ const CounterInvoiceList = () => {
                                                 onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
                                                 onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
                                             >
-                                                <td style={{ padding: '12px 8px', fontWeight: 500 }}>{index + 1}</td>
-                                                <td style={{ padding: '12px 8px', fontWeight: 'bold', color: '#b59d3a' }}>{product.maSanPham}</td>
-                                                <td style={{ padding: '12px 8px', fontWeight: 600, color: '#2c3e50' }}>{product.tenSanPham}</td>
-                                                <td style={{ padding: '12px 8px', color: '#666' }}>{product.tenDanhMuc}</td>
-                                                <td style={{ padding: '12px 8px', color: '#666' }}>{product.tenThuongHieu}</td>
-                                                <td style={{ padding: '12px 8px', color: '#666' }}>{product.tenMauSac}</td>
-                                                <td style={{ padding: '12px 8px', color: '#666' }}>{product.tenKichCo}</td>
-                                                <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold', color: '#e67e22', fontSize: '15px' }}>
+                                                <td style={{padding: '12px 8px', fontWeight: 500}}>{index + 1}</td>
+                                                <td style={{
+                                                    padding: '12px 8px',
+                                                    fontWeight: 'bold',
+                                                    color: '#b59d3a'
+                                                }}>{product.maSanPham}</td>
+                                                <td style={{
+                                                    padding: '12px 8px',
+                                                    fontWeight: 600,
+                                                    color: '#2c3e50'
+                                                }}>{product.tenSanPham}</td>
+                                                <td style={{
+                                                    padding: '12px 8px',
+                                                    color: '#666'
+                                                }}>{product.tenDanhMuc}</td>
+                                                <td style={{
+                                                    padding: '12px 8px',
+                                                    color: '#666'
+                                                }}>{product.tenThuongHieu}</td>
+                                                <td style={{
+                                                    padding: '12px 8px',
+                                                    color: '#666'
+                                                }}>{product.tenMauSac}</td>
+                                                <td style={{
+                                                    padding: '12px 8px',
+                                                    color: '#666'
+                                                }}>{product.tenKichCo}</td>
+                                                <td style={{
+                                                    padding: '12px 8px',
+                                                    textAlign: 'right',
+                                                    fontWeight: 'bold',
+                                                    color: '#e67e22',
+                                                    fontSize: '15px'
+                                                }}>
                                                     {product.gia?.toLocaleString()} ₫
                                                 </td>
-                                                <td style={{ padding: '12px 8px', textAlign: 'center', fontWeight: 500 }}>
+                                                <td style={{padding: '12px 8px', textAlign: 'center', fontWeight: 500}}>
                                                     {product.soLuong}
                                                 </td>
-                                                <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                                                <td style={{padding: '12px 8px', textAlign: 'center'}}>
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        justifyContent: 'center'
+                                                    }}>
                                                         <input
                                                             type="number"
                                                             min="1"
@@ -1822,7 +2304,7 @@ const CounterInvoiceList = () => {
                                                                 try {
                                                                     const res = await fetch('http://localhost:8080/api/hoadonchitiet', {
                                                                         method: 'POST',
-                                                                        headers: { 'Content-Type': 'application/json' },
+                                                                        headers: {'Content-Type': 'application/json'},
                                                                         body: JSON.stringify({
                                                                             idHoaDon: selectedOrder.idHoaDon,
                                                                             idChiTietSanPham: product.idChiTietSanPham,
@@ -1838,7 +2320,10 @@ const CounterInvoiceList = () => {
                                                                     const orderData = await resOrder.json();
                                                                     const resDetails = await fetch(`http://localhost:8080/api/hoadonchitiet?idHoaDon=${selectedOrder.idHoaDon}`);
                                                                     const chiTietList = await resDetails.json();
-                                                                    setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+                                                                    setSelectedOrder({
+                                                                        ...orderData,
+                                                                        chiTiet: chiTietList
+                                                                    });
                                                                     toast.success(`Đã thêm ${quantity} sản phẩm vào hóa đơn!`);
                                                                     setShowAddProductModal(false);
                                                                 } catch (e) {
@@ -1910,17 +2395,35 @@ const CounterInvoiceList = () => {
                     </div>
                 )}
                 {deletingProductId !== null && deletingProduct && (
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.3)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ background: '#fff', borderRadius: 8, padding: 32, minWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.2)', position: 'relative' }}>
-                            <h3 style={{ margin: 0, marginBottom: 16 }}>Xóa sản phẩm khỏi hóa đơn</h3>
-                            <div style={{ marginBottom: 16 }}>
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.3)',
+                        zIndex: 2000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <div style={{
+                            background: '#fff',
+                            borderRadius: 8,
+                            padding: 32,
+                            minWidth: 400,
+                            boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
+                            position: 'relative'
+                        }}>
+                            <h3 style={{margin: 0, marginBottom: 16}}>Xóa sản phẩm khỏi hóa đơn</h3>
+                            <div style={{marginBottom: 16}}>
                                 <strong>Sản phẩm:</strong> {deletingProduct.tenSanPham}
                             </div>
-                            <div style={{ marginBottom: 16 }}>
+                            <div style={{marginBottom: 16}}>
                                 <strong>Số lượng hiện tại:</strong> {deletingProduct.soLuong}
                             </div>
-                            <div style={{ marginBottom: 24 }}>
-                                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                            <div style={{marginBottom: 24}}>
+                                <label style={{display: 'block', marginBottom: 8, fontWeight: 600}}>
                                     Số lượng muốn xóa:
                                 </label>
                                 <input
@@ -1938,14 +2441,23 @@ const CounterInvoiceList = () => {
                                     }}
                                 />
                             </div>
-                            <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
+                            <div style={{display: 'flex', gap: 16, justifyContent: 'flex-end'}}>
                                 <button
                                     onClick={() => {
                                         setDeletingProductId(null);
                                         setDeletingProduct(null);
                                         setDeleteQuantity('');
                                     }}
-                                    style={{ background: '#bbb', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}
+                                    style={{
+                                        background: '#bbb',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: 6,
+                                        padding: '8px 20px',
+                                        fontWeight: 600,
+                                        fontSize: 15,
+                                        cursor: 'pointer'
+                                    }}
                                 >
                                     Hủy
                                 </button>
@@ -1960,13 +2472,13 @@ const CounterInvoiceList = () => {
                                         try {
                                             if (quantity === deletingProduct.soLuong) {
                                                 // Xóa toàn bộ sản phẩm
-                                                await fetch(`http://localhost:8080/api/hoadonchitiet/${deletingProductId}`, { method: 'DELETE' });
+                                                await fetch(`http://localhost:8080/api/hoadonchitiet/${deletingProductId}`, {method: 'DELETE'});
 
                                                 // Trả lại toàn bộ số lượng vào kho
                                                 try {
                                                     await fetch(`http://localhost:8080/chi-tiet-san-pham/cap-nhat/${deletingProduct.idChiTietSanPham}`, {
                                                         method: 'PUT',
-                                                        headers: { 'Content-Type': 'application/json' },
+                                                        headers: {'Content-Type': 'application/json'},
                                                         body: JSON.stringify({
                                                             ...deletingProduct,
                                                             soLuong: deletingProduct.soLuong + quantity
@@ -1980,13 +2492,13 @@ const CounterInvoiceList = () => {
                                                 const remainingQuantity = deletingProduct.soLuong - quantity;
 
                                                 // Xóa chi tiết cũ
-                                                await fetch(`http://localhost:8080/api/hoadonchitiet/${deletingProductId}`, { method: 'DELETE' });
+                                                await fetch(`http://localhost:8080/api/hoadonchitiet/${deletingProductId}`, {method: 'DELETE'});
 
                                                 // Tạo chi tiết mới với số lượng còn lại
                                                 if (remainingQuantity > 0) {
                                                     await fetch('http://localhost:8080/api/hoadonchitiet', {
                                                         method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
+                                                        headers: {'Content-Type': 'application/json'},
                                                         body: JSON.stringify({
                                                             idHoaDon: selectedOrder.idHoaDon,
                                                             idChiTietSanPham: deletingProduct.idChiTietSanPham,
@@ -1999,7 +2511,7 @@ const CounterInvoiceList = () => {
                                                 try {
                                                     await fetch(`http://localhost:8080/chi-tiet-san-pham/cap-nhat/${deletingProduct.idChiTietSanPham}`, {
                                                         method: 'PUT',
-                                                        headers: { 'Content-Type': 'application/json' },
+                                                        headers: {'Content-Type': 'application/json'},
                                                         body: JSON.stringify({
                                                             ...deletingProduct,
                                                             soLuong: deletingProduct.soLuong + quantity
@@ -2022,7 +2534,7 @@ const CounterInvoiceList = () => {
                                                     try {
                                                         await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon}`, {
                                                             method: 'PUT',
-                                                            headers: { 'Content-Type': 'application/json' },
+                                                            headers: {'Content-Type': 'application/json'},
                                                             body: JSON.stringify({
                                                                 ...orderData,
                                                                 trangThai: 'Đã hủy'
@@ -2032,7 +2544,7 @@ const CounterInvoiceList = () => {
                                                         // Cập nhật lại thông tin hóa đơn với trạng thái mới
                                                         const updatedResOrder = await fetch(`http://localhost:8080/api/hoadon/${selectedOrder.idHoaDon}`);
                                                         const updatedOrderData = await updatedResOrder.json();
-                                                        setSelectedOrder({ ...updatedOrderData, chiTiet: chiTietList });
+                                                        setSelectedOrder({...updatedOrderData, chiTiet: chiTietList});
 
                                                         // Cập nhật danh sách hóa đơn
                                                         const resAllOrders = await fetch("http://localhost:8080/api/hoadon");
@@ -2046,11 +2558,11 @@ const CounterInvoiceList = () => {
                                                         toast.success('Đã xóa sản phẩm và tự động hủy hóa đơn!');
                                                     } catch (statusError) {
                                                         console.error('Lỗi khi cập nhật trạng thái:', statusError);
-                                                        setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+                                                        setSelectedOrder({...orderData, chiTiet: chiTietList});
                                                         toast.success('Đã xóa sản phẩm khỏi hóa đơn!');
                                                     }
                                                 } else {
-                                                    setSelectedOrder({ ...orderData, chiTiet: chiTietList });
+                                                    setSelectedOrder({...orderData, chiTiet: chiTietList});
                                                     toast.success(`Đã xóa ${quantity} sản phẩm khỏi hóa đơn!`);
                                                 }
                                             }
@@ -2061,7 +2573,16 @@ const CounterInvoiceList = () => {
                                         setDeletingProduct(null);
                                         setDeleteQuantity('');
                                     }}
-                                    style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
+                                    style={{
+                                        background: '#e74c3c',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: 6,
+                                        padding: '8px 20px',
+                                        fontWeight: 700,
+                                        fontSize: 15,
+                                        cursor: 'pointer'
+                                    }}
                                 >
                                     Xóa
                                 </button>

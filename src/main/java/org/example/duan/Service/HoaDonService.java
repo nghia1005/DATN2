@@ -37,6 +37,12 @@ public class HoaDonService {
     
     @Transactional
     public HoaDonDTO createHoaDon(HoaDonRequest req) {
+        // Debug log the incoming request
+        logger.info("=== CREATE HOA DON REQUEST ===");
+        logger.info("Phuong thuc thanh toan: {}", req.getPhuongThucThanhToan());
+        logger.info("Trang thai: {}", req.getTrangThai());
+        logger.info("Loai don: {}", req.getLoaiDon());
+        
         HoaDon hd = new HoaDon();
         hd.setMaHoaDon("HD" + System.currentTimeMillis());
         hd.setIdKhachHang(req.getIdKhachHang());
@@ -62,7 +68,9 @@ public class HoaDonService {
         */
         hd.setNgayTao(new Date());
         hd.setIdPhieuGiamGia(req.getIdPhieuGiamGia());
-        hd.setLoaiDon(req.getLoaiDon());
+        // Set default loaiDon to "Tại quầy" if not provided
+        String loaiDon = req.getLoaiDon() != null && !req.getLoaiDon().isEmpty() ? req.getLoaiDon() : "Tại quầy";
+        hd.setLoaiDon(loaiDon);
         hd.setPhuongThucThanhToan(req.getPhuongThucThanhToan()); // Thêm field mới
         // Bổ sung map các trường giao hàng
         hd.setTenNguoiNhan(req.getTenNguoiNhan());
@@ -96,6 +104,44 @@ public class HoaDonService {
         
         // Gộp chi tiết trùng (merge) và lưu một lần
         Map<Long, HoaDonChiTietDTO> mergedItems = new HashMap<>();
+        
+        // Xử lý trừ tồn kho nếu là thanh toán tiền mặt và trạng thái là Đã thanh toán hoặc Giao hàng thành công (cho bán tại quầy)
+        String phuongThucThanhToan = req.getPhuongThucThanhToan() != null ? req.getPhuongThucThanhToan() : "";
+        boolean isTienMat = "Tiền mặt".equalsIgnoreCase(phuongThucThanhToan) || 
+                          "TIEN_MAT".equalsIgnoreCase(phuongThucThanhToan) ||
+                          "Tiền Mặt".equals(phuongThucThanhToan);
+        
+        logger.info("=== INVENTORY DEDUCTION CHECK ===");
+        logger.info("Payment Method: {}", phuongThucThanhToan);
+        logger.info("Status: {}", trangThai);
+        logger.info("Is Cash Payment: {}", isTienMat);
+        
+        if (("Đã thanh toán".equals(trangThai) || "Giao hàng thành công".equals(trangThai)) 
+                && isTienMat) {
+            logger.info("=== DEDUCTING INVENTORY ===");
+            for (HoaDonChiTietDTO ct : req.getChiTiet()) {
+                ChiTietSanPham chiTiet = chiTietSanPhamRepository.findById(ct.getIdChiTietSanPham().intValue())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chi tiết sản phẩm: " + ct.getIdChiTietSanPham()));
+                
+                int soLuongHienTai = chiTiet.getSoLuong() != null ? chiTiet.getSoLuong() : 0;
+                int soLuongDat = ct.getSoLuong() != null ? ct.getSoLuong() : 0;
+                
+                if (soLuongDat > soLuongHienTai) {
+                    throw new RuntimeException("Số lượng tồn kho không đủ cho sản phẩm: " + ct.getIdChiTietSanPham());
+                }
+                
+                // Trừ số lượng tồn kho
+                int soLuongConLai = soLuongHienTai - soLuongDat;
+                chiTiet.setSoLuong(soLuongConLai);
+                if (soLuongConLai == 0) {
+                    chiTiet.setTrangThai("Ngừng bán");
+                }
+                chiTietSanPhamRepository.save(chiTiet);
+                
+                logger.info("Đã trừ {} sản phẩm (ID: {}) khỏi kho khi tạo hóa đơn thanh toán tiền mặt {}", 
+                    soLuongDat, ct.getIdChiTietSanPham(), savedHoaDon.getMaHoaDon());
+            }
+        }
         if (req.getChiTiet() != null && !req.getChiTiet().isEmpty()) {
             for (HoaDonChiTietDTO ctDto : req.getChiTiet()) {
                 Long productId = ctDto.getIdChiTietSanPham();
@@ -424,7 +470,8 @@ public class HoaDonService {
         if (dto.getTrangThai() != null && !dto.getTrangThai().equals(trangThaiCu)) {
             List<HoaDonChiTiet> chiTietList = chiTietRepo.findByHoaDon_IdHoaDon(id);
             
-            if ("Đã xác nhận".equals(dto.getTrangThai()) && "Chờ xác nhận".equals(trangThaiCu)) {
+            if (("Đã xác nhận".equals(dto.getTrangThai()) && "Chờ xác nhận".equals(trangThaiCu)) ||
+                ("Đã thanh toán".equals(dto.getTrangThai()) && ("Chờ thanh toán".equals(trangThaiCu) || "Chờ xác nhận".equals(trangThaiCu)))) {
                 // Trừ số lượng khi xác nhận đơn hàng COD
                 for (HoaDonChiTiet ct : chiTietList) {
                     ChiTietSanPham chiTietSanPham = chiTietSanPhamRepository.findById(ct.getIdChiTietSanPham().intValue()).orElse(null);
@@ -443,8 +490,10 @@ public class HoaDonService {
                         }
                         chiTietSanPhamRepository.save(chiTietSanPham);
                         
-                        logger.info("Đã trừ {} sản phẩm (ID: {}) khỏi kho khi xác nhận hóa đơn {}", 
-                            soLuongTru, ct.getIdChiTietSanPham(), hd.getMaHoaDon());
+                        logger.info("Đã trừ {} sản phẩm (ID: {}) khỏi kho khi {} hóa đơn {}", 
+                            soLuongTru, ct.getIdChiTietSanPham(), 
+                            "Đã thanh toán".equals(dto.getTrangThai()) ? "thanh toán" : "xác nhận", 
+                            hd.getMaHoaDon());
                     }
                 }
             } else if ("Đã hủy".equals(dto.getTrangThai()) || "Giao hàng thất bại".equals(dto.getTrangThai())) {

@@ -148,19 +148,59 @@ const CounterInvoiceList = () => {
         setIsClient(true);
     }, []);
 
+    // Add error interceptor for debugging
+    useEffect(() => {
+        const interceptor = axios.interceptors.response.use(
+            response => response,
+            error => {
+                console.error('API Error:', error);
+                return Promise.reject(error);
+            }
+        );
+        
+        return () => {
+            // Cleanup interceptor on unmount
+            axios.interceptors.response.eject(interceptor);
+        };
+    }, []);
+
     useEffect(() => {
         console.log('Fetching orders from API...');
         axios.get("http://localhost:8080/api/hoadon")
             .then(res => {
-                console.log('✅ API success - Total orders:', res.data.length);
+                console.log('✅ API success - Raw data:', res.data);
+                
+                // Kiểm tra dữ liệu trả về
+                if (!Array.isArray(res.data)) {
+                    console.error('Dữ liệu trả về không phải là mảng:', res.data);
+                    return;
+                }
+                
+                // Log tất cả các giá trị loaiDon có trong dữ liệu
+                const allLoaiDon = [...new Set(res.data.map((order: any) => order.loaiDon))];
+                console.log('Tất cả các giá trị loaiDon trong dữ liệu:', allLoaiDon);
+                
                 const ordersWithId = res.data.map((order: any) => ({
                     ...order,
-                    id: order.idHoaDon
+                    id: order.idHoaDon || order.id,
+                    // Đảm bảo loaiDon luôn có giá trị
+                    loaiDon: order.loaiDon || "Tại quầy"
                 }));
+                
+                console.log('✅ Processed orders:', ordersWithId);
+                
+                // Lọc và log các đơn hàng có loaiDon chứa "tại quầy" (không phân biệt hoa thường)
+                const counterOrders = ordersWithId.filter((order: any) => {
+                    const loaiDon = String(order.loaiDon || '').toLowerCase();
+                    return loaiDon.includes('tại quầy');
+                });
+                console.log('Các đơn hàng tại quầy:', counterOrders);
+                
                 setOrders(sortOrdersByDate(ordersWithId));
             })
             .catch(err => {
-                console.log('❌ API failed, using sample data:', err.message);
+                console.error('❌ API failed:', err);
+                console.log('Using sample data instead...');
                 // Thêm dữ liệu mẫu để test scrollbar - chỉ hóa đơn tại cửa hàng
                 const sampleOrders = [
                     {
@@ -258,18 +298,83 @@ const CounterInvoiceList = () => {
             });
     }, []);
 
-    // Lọc hóa đơn tại cửa hàng - chỉ hiển thị hóa đơn có loaiDon = "Tại quầy"
-    const storeOrders = orders.filter(order => order.loaiDon === "Tại quầy");
+    // Lấy tất cả đơn hàng
+    const allOrders = [...orders];
+    console.log('Tất cả đơn hàng từ API:', allOrders);
+    
+    // Lọc đơn hàng tại quầy
+    const storeOrders = allOrders.filter(order => {
+        const loaiDon = String(order.loaiDon || '').trim().toLowerCase();
+        const trangThai = String(order.trangThai || '').trim().toLowerCase();
+        const maHoaDon = String(order.maHoaDon || '').toLowerCase();
+        
+        // Điều kiện lọc đơn hàng tại quầy
+        const isCounterSale = 
+            // Kiểm tra loại đơn
+            loaiDon.includes('tại quầy') || 
+            loaiDon.includes('tai quay') ||
+            loaiDon === '' ||
+            order.loaiDon === null ||
+            // Kiểm tra trạng thái
+            trangThai.includes('thành công') ||
+            trangThai.includes('thanh cong') ||
+            // Kiểm tra mã hóa đơn
+            maHoaDon.includes('hd') ||
+            // Kiểm tra thông tin giao hàng
+            !order.diaChiNhanHang ||
+            order.diaChiNhanHang === '';
+        
+        // Log thông tin đơn hàng để debug
+        console.log('Kiểm tra đơn hàng:', {
+            id: order.idHoaDon || order.id,
+            maHoaDon: order.maHoaDon,
+            loaiDon: order.loaiDon,
+            trangThai: order.trangThai,
+            diaChiNhanHang: order.diaChiNhanHang,
+            isCounterSale: isCounterSale
+        });
+        
+        return isCounterSale;
+    });
+    
+    // Cập nhật trạng thái hiển thị cho đơn hàng tại quầy
+    const processedOrders = storeOrders.map(order => {
+        // Xác định trạng thái hiển thị
+        let trangThaiHienThi = order.trangThai;
+        
+        // Nếu là đơn tại quầy và có trạng thái "Giao hàng thành công" thì hiển thị là "Đã thanh toán"
+        if (order.trangThai === 'Giao hàng thành công') {
+            trangThaiHienThi = 'Đã thanh toán';
+        }
+        
+        return {
+            ...order,
+            trangThaiHienThi: trangThaiHienThi
+        };
+    });
+    
+    console.log('Số lượng đơn hàng tại quầy:', processedOrders.length);
+    
     // Lọc theo trạng thái
     let filteredOrders = activeStatus === "ALL"
-        ? storeOrders
-        : storeOrders.filter(order => order.trangThai === activeStatus);
+        ? processedOrders
+        : processedOrders.filter(order => {
+            // Nếu đang lọc "Đã thanh toán" thì kiểm tra cả trạng thái gốc và trạng thái hiển thị
+            if (activeStatus === 'Đã thanh toán') {
+                return order.trangThaiHienThi === 'Đã thanh toán' || 
+                       order.trangThai === 'Giao hàng thành công';
+            }
+            return order.trangThai === activeStatus;
+        });
+    
+    console.log('Số lượng đơn hàng sau khi lọc trạng thái:', filteredOrders.length);
 
     // Debug: Log filtering info
     console.log('Active status:', activeStatus);
     console.log('Store orders count:', storeOrders.length);
     console.log('Filtered orders count:', filteredOrders.length);
     console.log('Available statuses:', [...new Set(storeOrders.map(order => order.trangThai))]);
+    console.log('Filtered orders:', filteredOrders);
 
     // Lọc theo tìm kiếm
     if (searchText.trim()) {
@@ -1105,16 +1210,6 @@ const CounterInvoiceList = () => {
                             )}
                         </div>
 
-                        {/* Thông tin debug */}
-                        <div style={{
-                            fontSize: '11px',
-                            color: '#b59d3a',
-                            marginTop: '8px',
-                            fontStyle: 'italic',
-                            fontWeight: '500'
-                        }}>
-                            Tổng: {STATUS_OPTIONS.length} trạng thái | Đang chọn: {activeStatus}
-                        </div>
                     </div>
                 </div>
 
@@ -1388,19 +1483,19 @@ const CounterInvoiceList = () => {
                                         boxShadow: `0 4px 12px ${getStatusColor(selectedOrder.trangThai)}40`
                                     }}>
                   {getStatusIcon(selectedOrder.trangThai)}
-                {/*</span>*/}
-                {/*                    /!* Lịch sử (placeholder) *!/*/}
-                {/*                    <span*/}
-                {/*                        style={{*/}
-                {/*                            color: '#b59d3a',*/}
-                {/*                            fontSize: 15,*/}
-                {/*                            marginRight: 12,*/}
-                {/*                            cursor: 'not-allowed',*/}
-                {/*                            opacity: 0.7*/}
-                {/*                        }}*/}
-                {/*                        title='Chức năng đang phát triển'*/}
-                {/*                    >*/}
-                {/*  Lịch sử <span style={{fontSize: 18}}>⟳</span>*/}
+                                        {/*</span>*/}
+                                        {/*                    /!* Lịch sử (placeholder) *!/*/}
+                                        {/*                    <span*/}
+                                        {/*                        style={{*/}
+                                        {/*                            color: '#b59d3a',*/}
+                                        {/*                            fontSize: 15,*/}
+                                        {/*                            marginRight: 12,*/}
+                                        {/*                            cursor: 'not-allowed',*/}
+                                        {/*                            opacity: 0.7*/}
+                                        {/*                        }}*/}
+                                        {/*                        title='Chức năng đang phát triển'*/}
+                                        {/*                    >*/}
+                                        {/*  Lịch sử <span style={{fontSize: 18}}>⟳</span>*/}
                 </span>
                                     <span style={{marginLeft: 'auto', fontWeight: 600, fontSize: 18, color: '#b59d3a'}}>
                   Hóa đơn <b style={{color: '#333'}}>#{selectedOrder.maHoaDon}</b>

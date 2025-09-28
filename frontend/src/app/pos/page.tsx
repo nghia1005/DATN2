@@ -1088,14 +1088,14 @@ function POSPageInner() {
         trangThai: (() => {
           // Logic xác định trạng thái hóa đơn
           if (activeOrder.isShipping) {
-            // TH1: Có giao hàng + Tiền mặt = Chờ xác nhận
+            // TH1: Có giao hàng + Tiền mặt = Đã xác nhận (để trừ tồn kho)
             if (activeOrder.paymentMethod === 'TIEN_MAT') {
-              return 'Chờ xác nhận';
+              return 'Đã xác nhận';
             }
             // Mặc định cho các phương thức khác
             return 'Chờ xác nhận';
           } else {
-            // Không giao hàng = Giao hàng thành công
+            // Không giao hàng = Giao hàng thành công (để trừ tồn kho)
             return 'Giao hàng thành công';
           }
         })(),
@@ -1126,15 +1126,15 @@ function POSPageInner() {
           trangThai: (() => {
             // Logic xác định trạng thái thanh toán
             if (activeOrder.isShipping) {
-              // TH1: Có giao hàng + Tiền mặt = Chờ xác nhận
+              // TH1: Có giao hàng + Tiền mặt = Đã xác nhận (để trừ tồn kho)
               if (activeOrder.paymentMethod === 'TIEN_MAT') {
-                return 'Chờ xác nhận';
+                return 'Đã xác nhận';
               }
               // Mặc định cho các phương thức khác
               return 'Chờ xác nhận';
             } else {
-              // Không giao hàng = Giao hàng thành công
-              return 'Giao hàng thành công';
+              // Không giao hàng = Đã thanh toán (để trừ tồn kho)
+              return 'Đã thanh toán';
             }
           })()
         }
@@ -1178,7 +1178,7 @@ function POSPageInner() {
       } else if (trangThai === 'Giao hàng thành công') {
         toast.success(`Hóa đơn ${maHoaDon} đã được tạo với trạng thái "Giao hàng thành công"!`);
       } else {
-        toast.success(`Hóa đơn ${maHoaDon} đã được tạo với trạng thái "Đã xác nhận"!`);
+        toast.success(`Hóa đơn ${maHoaDon} đã được tạo với trạng thái "${trangThai}"!`);
       }
 
       // Lưu thông tin để in
